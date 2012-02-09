@@ -10,6 +10,96 @@
     <artifactId>ui</artifactId>
     <modelVersion>4.0.0</modelVersion>
     <name>eu.alertproject.iccs.recommender.ui</name>
+    <packaging>war</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+
+        <!-- Freemarker -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.18</version>
+        </dependency>
+
+
+        <!-- JSON Web Services -->
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+        </dependency>
+
+        <!-- Local -->
+        <dependency>
+            <version>${project.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>domain</artifactId>
+        </dependency>
+        <dependency>
+            <version>${project.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>connector</artifactId>
+        </dependency>
+        <dependency>
+            <version>${project.version}</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>datastore</artifactId>
+        </dependency>
+
+    </dependencies>
 
 
 </project>
