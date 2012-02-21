@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>calculator</artifactId>
+    <artifactId>eu.alertproject.iccs.recommender.calculator</artifactId>
 
 
 </project>
