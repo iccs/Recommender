@@ -10,5 +10,8 @@ package eu.alertproject.iccs.recommender.calculator.internal.text;
  */
 public interface Similarity {
     
+  
+    public void calculateSimilarity() throws Exception;
+    public Double getSimilarity() throws Exception;
     
 }
