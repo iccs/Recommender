@@ -1,0 +1,23 @@
+{
+    "issueId": "1010",
+    "annotations":[
+        {
+            "subject" : "owl#3",
+            "count": 1
+        },
+        {
+            "subject" : "owl#4",
+            "count": 2
+        },
+        {
+            "subject" : "owl#5",
+            "count": 3
+        },
+        {
+            "subject" : "owl#6",
+            "count": 4
+        }
+    ]
+
+
+}

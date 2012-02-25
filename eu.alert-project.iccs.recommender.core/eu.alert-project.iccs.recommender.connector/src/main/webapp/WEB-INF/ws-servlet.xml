@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:util="http://www.springframework.org/schema/util"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+	    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+        default-autowire="byName"
+        >
+
+    <context:annotation-config />
+    <tx:annotation-driven/>
+
+
+    <!-- Since we are spliting our jars then we need to define each
+        separately -->
+    <context:component-scan base-package="eu.alertproject.iccs.socrates" />
+
+
+    <!-- JSR303 -->
+    <mvc:annotation-driven />
+
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order" value="1"/>
+        <property name="favorPathExtension" value="true"/>
+        <property name="mediaTypes">
+            <map>
+                <entry key="json" value="application/json" />
+            </map>
+        </property>
+        <property name="defaultViews">
+            <list>
+              <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" >
+                <property name="prefixJson" value="false" />
+              </bean>
+            </list>
+          </property>
+    </bean>
+    <!-- Keeping this here for reference -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter">
+            <bean
+                class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="showSql" value="false" />
+                <property name="generateDdl" value="false" />
+                <property name="databasePlatform"
+                          value="org.hibernate.dialect.MySQLDialect" />
+            </bean>
+        </property>
+    </bean>
+
+
+    <!--  Properties -->
+    <bean id="alertPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
+            <property name="location" value="classpath:system.properties"/>
+    </bean>
+
+    <bean id="systemProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean" >
+            <property name="location" value="classpath:system.properties"/>
+    </bean>
+
+
+    <!--  The documentation specified that this will inject the the persistence unit into the class -->
+    <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!-- Active MQ -->
+    <!-- ActiveMQ -->
+    <bean   id="jmsConnectionFactory"
+            class="org.apache.activemq.ActiveMQConnectionFactory" >
+        <property name="brokerURL" value="${activemq.brokerURL}" />
+        <property name="userName" value="${activemq.userName}" />
+        <property name="password" value="${activemq.password}" />
+    </bean>
+
+    <bean id="pooledJmsConnectionFactory"
+          class="org.apache.activemq.pool.PooledConnectionFactory"
+          destroy-method="stop">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+        <property name="maxConnections" value="1" />
+        <property name="maximumActive" value="1" />
+    </bean>
+
+    <bean id="jmsConfig"
+          class="org.apache.camel.component.jms.JmsConfiguration">
+        <property name="connectionFactory" ref="pooledJmsConnectionFactory"/>
+        <property name="transacted" value="true"/>
+        <property name="concurrentConsumers" value="10"/>
+    </bean>
+
+    <bean id="activemq"
+          class="org.apache.activemq.camel.component.ActiveMQComponent">
+        <property name="configuration" ref="jmsConfig"/>
+    </bean>
+
+    <bean id="marshaller" class="org.springframework.oxm.xstream.XStreamMarshaller" />
+
+
+    <bean id="identityUpdatedListener" class="eu.alertproject.iccs.socrates.connector.internal.IdentityUpdatedListener" />
+    <bean id="iccsIdentityUpdatedListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+        <property name="destination">
+            <bean
+                class="org.apache.activemq.command.ActiveMQTopic">
+                <constructor-arg>
+                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_STARDOM_Identity_Updated"/>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="messageListener"  ref="identityUpdatedListener"/>
+        <property name="recoveryInterval" value="60000"/>
+        <property name="cacheLevel" value="3" />
+    </bean>
+
+
+    <bean id="itsNewIssueListener" class="eu.alertproject.iccs.socrates.connector.internal.IssueUpdatedListener" />
+    <bean id="iccsItsNewIssueListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+        <property name="destination">
+            <bean
+                class="org.apache.activemq.command.ActiveMQTopic">
+                <constructor-arg>
+                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_STARDOM_Issue_Updated"/>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="messageListener" ref="itsNewIssueListener"/>
+        <property name="recoveryInterval" value="60000"/>
+        <property name="cacheLevel" value="3" />
+    </bean>
+
+        <!-- Spring JMS Template -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="pooledJmsConnectionFactory" />
+    </bean>
+</beans>

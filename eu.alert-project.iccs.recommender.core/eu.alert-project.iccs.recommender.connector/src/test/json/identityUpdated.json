@@ -1,0 +1,23 @@
+{
+    "uuid": "asdfasdfasdfasdfasdf",
+    "annotations":[
+        {
+            "uri" : "owl#1",
+            "count": 1
+        },
+        {
+            "uri" : "owl#1",
+            "count": 1
+        },
+        {
+            "uri" : "owl#1",
+            "count": 1
+        },
+        {
+            "uri" : "owl#1",
+            "count": 1
+        }
+    ]
+
+
+}

@@ -13,6 +13,7 @@
         <module>eu.alert-project.iccs.recommender.datastore</module>
         <module>eu.alert-project.iccs.recommender.domain</module>
         <module>eu.alert-project.iccs.recommender.calculator</module>
+        <module>eu.alert-project.iccs.recommender.simulator</module>
     </modules>
     <name>eu.alertproject.iccs.recommender.core</name>
     <packaging>pom</packaging>
@@ -325,7 +326,11 @@
                 <artifactId>dbunit</artifactId>
                 <version>${org.dbunit.dbunit.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>jms</artifactId>
+                <version>1.1</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
