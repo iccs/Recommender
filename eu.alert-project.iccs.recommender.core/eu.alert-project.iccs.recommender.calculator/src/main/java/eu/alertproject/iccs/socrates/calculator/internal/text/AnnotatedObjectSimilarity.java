@@ -40,7 +40,7 @@ public class AnnotatedObjectSimilarity implements Similarity {
     private AnnotatedObject item2;
 
     @Override
-    public void calculateSimilarity() throws Exception{
+    public Double calculateSimilarity() throws Exception{
         if ((item1==null)||(item2==null)){
             throw new Exception("Items have not been initialized. Initialize the items and try again");
         }
@@ -61,7 +61,7 @@ public class AnnotatedObjectSimilarity implements Similarity {
             norm2 += item2.getAnnotations().get(k) * item2.getAnnotations().get(k);
         }
         similarity = numerator / Math.sqrt(norm1 * norm2);
-
+        return similarity;
 
     }
 

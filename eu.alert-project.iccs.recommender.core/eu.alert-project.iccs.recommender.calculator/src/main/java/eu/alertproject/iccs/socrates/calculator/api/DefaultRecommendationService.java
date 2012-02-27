@@ -1,7 +1,11 @@
 package eu.alertproject.iccs.socrates.calculator.api;
 
+import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
+import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
+import eu.alertproject.iccs.socrates.calculator.internal.text.AnnotatedObjectSimilarity;
 import eu.alertproject.iccs.socrates.datastore.api.*;
 import eu.alertproject.iccs.socrates.domain.*;
+import java.util.logging.Level;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +18,7 @@ import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -111,9 +116,45 @@ public class DefaultRecommendationService implements RecommendationService{
 
             List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
             List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
-            //TODO Kostas do work here
-            // return a List<UuidIssue>
             List<Integer> allIssues = issueSubjectDao.findAllIssues();
+            
+            
+            //TODO Kostas do work here
+            
+            //create annotated object 1: the identity
+            
+            HashMap<String,Double> identityAnnotations = new HashMap<String,Double>();
+            for (UuidSubject us : newUuidSubjects) {
+                identityAnnotations.put(us.getSubject(), us.getWeight());
+            }
+            AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(identityUpdated.getId(), identityAnnotations);
+
+
+            //initialize issue annotations
+            HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
+            try {
+                //iterate through all possible issues
+                for (Integer i : allIssues) {
+                    issueAnnotations.clear();
+                    List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueId(i);
+                    for (IssueSubject is : thisIssueSubjects) {
+                        issueAnnotations.put(is.getSubject(), is.getWeight());
+                    }
+                    AnnotatedIssue annotatedIssue = new AnnotatedIssue(i.toString(), issueAnnotations);
+
+                    Double currentSimilarity = new AnnotatedObjectSimilarity(annotatedIdentity, annotatedIssue).calculateSimilarity();
+                    UuidIssue currentUuidIssue=new UuidIssue();
+                    currentUuidIssue.setUuidAndIssue(annotatedIdentity.getIdentityId(), i);
+                    currentUuidIssue.setSimilarity(currentSimilarity);
+                    newSimilarities.add(currentUuidIssue);
+                }
+
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(DefaultRecommendationService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            // return a List<UuidIssue>
+            
 
 
             uuidIssueDao.removeByUuid(identityUpdated.getId());
@@ -178,8 +219,45 @@ public class DefaultRecommendationService implements RecommendationService{
             List<IssueSubject> newIssueSubjects = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
             List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
             List<String>  uuids = uuidSubjectDao.findAllUuid();
-
+    
             //TODO Kostas do work here
+            //create annotated object 1: the issue
+            HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
+
+            for (IssueSubject is : newIssueSubjects) {
+                issueAnnotations.put(is.getSubject(), is.getWeight());
+            }
+            AnnotatedIssue annotatedIssue = new AnnotatedIssue(artefactUpdated.getId(), issueAnnotations);
+
+
+
+            //initialize identity annotations\
+            HashMap<String, Double> identityAnnotations = new HashMap<String, Double>();
+
+            try {
+                //iterate through all possible identities
+
+                for (String u : uuids) {
+                    identityAnnotations.clear();
+                    List<UuidSubject> thisIdentitySubjects = uuidSubjectDao.findByUuid(u);
+
+                    for (UuidSubject us : thisIdentitySubjects) {
+                        identityAnnotations.put(us.getSubject(), us.getWeight());
+                    }
+                    AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(u, identityAnnotations);
+
+                    Double currentSimilarity = new AnnotatedObjectSimilarity(annotatedIdentity, annotatedIssue).calculateSimilarity();
+                    UuidIssue currentUuidIssue=new UuidIssue();
+                    currentUuidIssue.setUuidAndIssue(u, Integer.valueOf(artefactUpdated.getId()));
+                    currentUuidIssue.setSimilarity(currentSimilarity);
+                    newSimilarities.add(currentUuidIssue);
+                }
+
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(DefaultRecommendationService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
             // return a List<UuidIssue>
 
 

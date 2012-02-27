@@ -11,7 +11,7 @@ package eu.alertproject.iccs.socrates.calculator.internal.text;
 public interface Similarity {
     
   
-    public void calculateSimilarity() throws Exception;
+    public Double calculateSimilarity() throws Exception;
     public Double getSimilarity() throws Exception;
     
 }
