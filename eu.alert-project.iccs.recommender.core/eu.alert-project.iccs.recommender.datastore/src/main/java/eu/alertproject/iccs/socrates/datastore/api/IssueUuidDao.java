@@ -4,10 +4,14 @@ import com.existanze.libraries.orm.dao.CommonDao;
 import eu.alertproject.iccs.socrates.domain.IssueSubject;
 import eu.alertproject.iccs.socrates.domain.IssueUuid;
 
+import java.util.List;
+
 /**
  * User: fotis
  * Date: 27/02/12
  * Time: 13:04
  */
 public interface IssueUuidDao extends CommonDao<IssueUuid> {
+    void removeById(Integer integer);
+
 }

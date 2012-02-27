@@ -47,7 +47,7 @@
             </activation>
             <properties>
                 <db.migration.host>localhost</db.migration.host>
-                <db.migration.db><socrates></socrates>_test</db.migration.db>
+                <db.migration.db>socrates_test</db.migration.db>
                 <db.migration.username>alert</db.migration.username>
                 <db.migration.password>1234</db.migration.password>
             </properties>
@@ -224,8 +224,8 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>domain</artifactId>
             <version>${project.version}</version>
+            <artifactId>domain</artifactId>
         </dependency>
     </dependencies>
 </project>

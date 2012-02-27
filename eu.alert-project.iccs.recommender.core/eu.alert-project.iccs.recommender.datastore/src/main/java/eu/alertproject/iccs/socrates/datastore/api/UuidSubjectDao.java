@@ -4,10 +4,14 @@ import com.existanze.libraries.orm.dao.CommonDao;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import eu.alertproject.iccs.socrates.domain.UuidSubject;
 
+import java.util.List;
+
 /**
  * User: fotis
  * Date: 27/02/12
  * Time: 13:28
  */
 public interface UuidSubjectDao extends CommonDao<UuidSubject>{
+    List<UuidSubject> findByUuid(String id);
+
 }

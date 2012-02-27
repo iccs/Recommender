@@ -3,6 +3,7 @@ package eu.alertproject.iccs.socrates.domain;
 import com.existanze.libraries.orm.domain.SimpleBean;
 import org.apache.commons.lang.NotImplementedException;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -16,27 +17,27 @@ import javax.persistence.UniqueConstraint;
 @Table(name="uuid_subject",
         uniqueConstraints={@UniqueConstraint(columnNames={"uuid","subject"})})
 public class UuidSubject implements SimpleBean{
-    
-    private String uuid;
-    private String subject;
+
+    @EmbeddedId
+    private UuidSubjectPk uuidSubjectPk;
+
     private Double weight;
 
     public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+        return uuidSubjectPk.getUuid();
     }
 
     public String getSubject() {
-        return subject;
+        return uuidSubjectPk.getSubject();
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
 
+    public void setUuidAndSubject(String uuid, String subject){
+        uuidSubjectPk = new UuidSubjectPk();
+        uuidSubjectPk.setUuid(uuid);
+        uuidSubjectPk.setSubject(subject);
+    }
+    
     public Double getWeight() {
         return weight;
     }
@@ -62,19 +63,16 @@ public class UuidSubject implements SimpleBean{
 
         UuidSubject that = (UuidSubject) o;
 
-        if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
-        if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) return false;
+        if (uuidSubjectPk != null ? !uuidSubjectPk.equals(that.uuidSubjectPk) : that.uuidSubjectPk != null)
+            return false;
         if (weight != null ? !weight.equals(that.weight) : that.weight != null) return false;
 
         return true;
     }
 
-
-
     @Override
     public int hashCode() {
-        int result = uuid != null ? uuid.hashCode() : 0;
-        result = 31 * result + (subject != null ? subject.hashCode() : 0);
+        int result = uuidSubjectPk != null ? uuidSubjectPk.hashCode() : 0;
         result = 31 * result + (weight != null ? weight.hashCode() : 0);
         return result;
     }
@@ -82,8 +80,7 @@ public class UuidSubject implements SimpleBean{
     @Override
     public String toString() {
         return "UuidSubject{" +
-                "uuid='" + uuid + '\'' +
-                ", subject='" + subject + '\'' +
+                "uuidSubjectPk=" + uuidSubjectPk +
                 ", weight=" + weight +
                 '}';
     }

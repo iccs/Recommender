@@ -3,10 +3,7 @@ package eu.alertproject.iccs.socrates.domain;
 import com.existanze.libraries.orm.domain.SimpleBean;
 import org.apache.commons.lang.NotImplementedException;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 /**
  * User: fotis
@@ -14,33 +11,36 @@ import javax.persistence.UniqueConstraint;
  * Time: 13:05
  */
 @Entity
-@Table(name="issue_subject",
-        uniqueConstraints={@UniqueConstraint(columnNames={"issue_id","subject"})})
+@Table(name="issue_subject")
 public class IssueSubject implements SimpleBean{
-    
-    @Column(name="issue_id")
-    private Integer issueId;
-    
-    @Column
-    private String subject;
-    
+
+    @EmbeddedId
+    private IssueSubjectPk issueSubjectPk;
+
     @Column
     private Double weight;
 
     public Integer getIssueId() {
-        return issueId;
+        return issueSubjectPk.getIssueId();
     }
-
-    public void setIssueId(Integer issueId) {
-        this.issueId = issueId;
-    }
-
+    
     public String getSubject() {
-        return subject;
+        return issueSubjectPk.getSubject();
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setIssueAndSubject(Integer issueId, String subject) {
+
+        issueSubjectPk = new IssueSubjectPk();
+        issueSubjectPk.setIssueId(issueId);
+        issueSubjectPk.setSubject(subject);
+    }
+
+    public IssueSubjectPk getIssueSubjectPk() {
+        return issueSubjectPk;
+    }
+
+    public void setIssueSubjectPk(IssueSubjectPk issueSubjectPk) {
+        this.issueSubjectPk = issueSubjectPk;
     }
 
     public Double getWeight() {
@@ -63,14 +63,13 @@ public class IssueSubject implements SimpleBean{
 
     @Override
     public boolean equals(Object o) {
-
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         IssueSubject that = (IssueSubject) o;
 
-        if (issueId != null ? !issueId.equals(that.issueId) : that.issueId != null) return false;
-        if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+        if (issueSubjectPk != null ? !issueSubjectPk.equals(that.issueSubjectPk) : that.issueSubjectPk != null)
+            return false;
         if (weight != null ? !weight.equals(that.weight) : that.weight != null) return false;
 
         return true;
@@ -78,8 +77,7 @@ public class IssueSubject implements SimpleBean{
 
     @Override
     public int hashCode() {
-        int result = issueId != null ? issueId.hashCode() : 0;
-        result = 31 * result + (subject != null ? subject.hashCode() : 0);
+        int result = issueSubjectPk != null ? issueSubjectPk.hashCode() : 0;
         result = 31 * result + (weight != null ? weight.hashCode() : 0);
         return result;
     }
@@ -87,8 +85,7 @@ public class IssueSubject implements SimpleBean{
     @Override
     public String toString() {
         return "IssueSubject{" +
-                "issueId=" + issueId +
-                ", subject='" + subject + '\'' +
+                "issueSubjectPk=" + issueSubjectPk +
                 ", weight=" + weight +
                 '}';
     }

@@ -3,9 +3,9 @@ package eu.alertproject.iccs.socrates.domain;
 import com.existanze.libraries.orm.domain.SimpleBean;
 import org.apache.commons.lang.NotImplementedException;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * User: fotis
@@ -13,29 +13,34 @@ import javax.persistence.UniqueConstraint;
  * Time: 13:12
  */
 @Entity
-@Table(name="issue_uuid",
-        uniqueConstraints={@UniqueConstraint(columnNames={"uuid","issue_id"})})
+@Table(name="issue_uuid")
 public class IssueUuid implements SimpleBean{
     
-    private String uuid;
-    private Integer issue_id;
+    @EmbeddedId
+    private IssueUuidPk issueUuidPk;
+
     private Double similarity;
 
+    public Integer getIssueId() {
+        return issueUuidPk.getIssueId();
+    }
 
     public String getUuid() {
-        return uuid;
+        return issueUuidPk.getUuid();
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setIssueAndUuid(Integer issueId, String uuid) {
+        issueUuidPk = new IssueUuidPk();
+        issueUuidPk.setIssueId(issueId);
+        issueUuidPk.setUuid(uuid);
     }
 
-    public Integer getIssue_id() {
-        return issue_id;
+    public IssueUuidPk getIssueUuidPk() {
+        return issueUuidPk;
     }
 
-    public void setIssue_id(Integer issue_id) {
-        this.issue_id = issue_id;
+    public void setIssueUuidPk(IssueUuidPk issueUuidPk) {
+        this.issueUuidPk = issueUuidPk;
     }
 
     public Double getSimilarity() {
@@ -61,28 +66,26 @@ public class IssueUuid implements SimpleBean{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        IssueUuid uuidIssue = (IssueUuid) o;
+        IssueUuid issueUuid = (IssueUuid) o;
 
-        if (issue_id != null ? !issue_id.equals(uuidIssue.issue_id) : uuidIssue.issue_id != null) return false;
-        if (similarity != null ? !similarity.equals(uuidIssue.similarity) : uuidIssue.similarity != null) return false;
-        if (uuid != null ? !uuid.equals(uuidIssue.uuid) : uuidIssue.uuid != null) return false;
+        if (issueUuidPk != null ? !issueUuidPk.equals(issueUuid.issueUuidPk) : issueUuid.issueUuidPk != null)
+            return false;
+        if (similarity != null ? !similarity.equals(issueUuid.similarity) : issueUuid.similarity != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = uuid != null ? uuid.hashCode() : 0;
-        result = 31 * result + (issue_id != null ? issue_id.hashCode() : 0);
+        int result = issueUuidPk != null ? issueUuidPk.hashCode() : 0;
         result = 31 * result + (similarity != null ? similarity.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "UuidIssue{" +
-                "uuid='" + uuid + '\'' +
-                ", issue_id=" + issue_id +
+        return "IssueUuid{" +
+                "issueUuidPk=" + issueUuidPk +
                 ", similarity=" + similarity +
                 '}';
     }

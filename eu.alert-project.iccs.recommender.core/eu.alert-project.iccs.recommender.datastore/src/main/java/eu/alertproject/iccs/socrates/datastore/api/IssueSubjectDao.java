@@ -4,6 +4,7 @@ import com.existanze.libraries.orm.dao.CommonDao;
 import eu.alertproject.iccs.socrates.domain.IssueSubject;
 
 import javax.persistence.Entity;
+import java.util.List;
 
 /**
  * User: fotis
@@ -11,4 +12,7 @@ import javax.persistence.Entity;
  * Time: 13:04
  */
 public interface IssueSubjectDao extends CommonDao<IssueSubject> {
+
+    List findByIssueId(Integer integer);
+
 }

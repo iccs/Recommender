@@ -22,7 +22,6 @@
         separately -->
     <context:component-scan base-package="eu.alertproject.iccs.socrates" />
 
-
     <!-- JSR303 -->
     <mvc:annotation-driven />
 

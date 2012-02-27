@@ -21,19 +21,15 @@ public abstract class SocratesActiveMQListener<T extends ArtefactUpdated> extend
     private Logger logger = LoggerFactory.getLogger(SocratesActiveMQListener.class);
 
     @Override
-    public void process(Message message) throws IOException, JMSException {
+    public final void process(Message message) throws IOException, JMSException {
 
         ObjectMapper mapper = new ObjectMapper();
         String text = ((TextMessage) message).getText();
-
-        logger.trace("void onMessage() Text to parse {} ", text);
-        T artefactUpdated = (T) mapper.readValue(text, ArtefactUpdated.class);
-        logger.trace("void process() {} ",artefactUpdated);
-
-        updateSimilarities(artefactUpdated);
+        updateSimilarities(processText(mapper,text));
 
     }
 
     abstract void updateSimilarities(T artefactUpdated);
+    public abstract T processText(ObjectMapper mapper, String text) throws IOException;
 
 }

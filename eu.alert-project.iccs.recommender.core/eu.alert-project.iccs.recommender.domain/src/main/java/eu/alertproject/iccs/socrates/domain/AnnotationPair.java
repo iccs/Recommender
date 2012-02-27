@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class AnnotationPair implements Serializable {
     
     private String subject;
-    private Integer count;
+    private Double count;
 
     public String getSubject() {
         return subject;
@@ -20,11 +20,11 @@ public class AnnotationPair implements Serializable {
         this.subject = subject;
     }
 
-    public Integer getCount() {
+    public Double getCount() {
         return count;
     }
 
-    public void setCount(Integer count) {
+    public void setCount(Double count) {
         this.count = count;
     }
 }

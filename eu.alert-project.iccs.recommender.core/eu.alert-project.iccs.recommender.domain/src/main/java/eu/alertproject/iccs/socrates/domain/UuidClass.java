@@ -3,10 +3,7 @@ package eu.alertproject.iccs.socrates.domain;
 import com.existanze.libraries.orm.domain.SimpleBean;
 import org.apache.commons.lang.NotImplementedException;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 /**
  * User: fotis
@@ -14,31 +11,35 @@ import javax.persistence.UniqueConstraint;
  * Time: 13:18
  */
 @Entity
-@Table(name="uuid_class",
-        uniqueConstraints={@UniqueConstraint(columnNames={"uuid","class"})})
+@Table(name="uuid_class")
 public class UuidClass implements SimpleBean{
     
-    private String uuid;
 
-    @Column(name = "class")
-    private String clazz;
+    @EmbeddedId
+    private UuidClassPk uuidClassPk;
 
     private Double weight;
 
     public String getUuid() {
-        return uuid;
+        return uuidClassPk.getUuid();
     }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
     public String getClazz() {
-        return clazz;
+        return uuidClassPk.getClazz();
     }
 
-    public void setClazz(String clazz) {
-        this.clazz = clazz;
+    public void setUuidAndClass(String uuid, String clazz) {
+        uuidClassPk = new UuidClassPk();
+        uuidClassPk.setClazz(clazz);
+        uuidClassPk.setUuid(uuid);
+    }
+
+
+    public UuidClassPk getUuidClassPk() {
+        return uuidClassPk;
+    }
+
+    public void setUuidClassPk(UuidClassPk uuidClassPk) {
+        this.uuidClassPk = uuidClassPk;
     }
 
     public Double getWeight() {
@@ -61,14 +62,13 @@ public class UuidClass implements SimpleBean{
 
     @Override
     public boolean equals(Object o) {
-
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         UuidClass uuidClass = (UuidClass) o;
 
-        if (clazz != null ? !clazz.equals(uuidClass.clazz) : uuidClass.clazz != null) return false;
-        if (uuid != null ? !uuid.equals(uuidClass.uuid) : uuidClass.uuid != null) return false;
+        if (uuidClassPk != null ? !uuidClassPk.equals(uuidClass.uuidClassPk) : uuidClass.uuidClassPk != null)
+            return false;
         if (weight != null ? !weight.equals(uuidClass.weight) : uuidClass.weight != null) return false;
 
         return true;
@@ -76,8 +76,7 @@ public class UuidClass implements SimpleBean{
 
     @Override
     public int hashCode() {
-        int result = uuid != null ? uuid.hashCode() : 0;
-        result = 31 * result + (clazz != null ? clazz.hashCode() : 0);
+        int result = uuidClassPk != null ? uuidClassPk.hashCode() : 0;
         result = 31 * result + (weight != null ? weight.hashCode() : 0);
         return result;
     }
@@ -85,8 +84,7 @@ public class UuidClass implements SimpleBean{
     @Override
     public String toString() {
         return "UuidClass{" +
-                "uuid='" + uuid + '\'' +
-                ", clazz='" + clazz + '\'' +
+                "uuidClassPk=" + uuidClassPk +
                 ", weight=" + weight +
                 '}';
     }

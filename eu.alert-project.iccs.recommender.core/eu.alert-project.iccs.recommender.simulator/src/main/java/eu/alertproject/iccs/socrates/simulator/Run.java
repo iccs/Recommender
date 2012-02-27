@@ -145,13 +145,22 @@ public class Run {
             
             List<AnnotationPair> pairs = new ArrayList<AnnotationPair> ();
 
-            for( int j =0  ; i < RandomUtils.nextInt(topics.size()); j++){
+            List<String> addedTopics = new ArrayList<String>();
+            
+            while(pairs.size() < 100){
+                String topic = topics.get(RandomUtils.nextInt(topics.size()));
+                
+                if(addedTopics.contains(topic)){
+                    logger.trace("List<ArtefactUpdated> prepareIssueMap() Already added {} ",topic);
+                    continue;
+                }
 
                 AnnotationPair annotationPair = new AnnotationPair();
-                annotationPair.setSubject(topics.get(RandomUtils.nextInt(topics.size())));
-                annotationPair.setCount(RandomUtils.nextInt(200));
-
+                annotationPair.setSubject(topic);
+                annotationPair.setCount(RandomUtils.nextDouble());
                 pairs.add(annotationPair);
+                addedTopics.add(topic);
+
             }
 
             ArtefactUpdated artefactUpdated = new ArtefactUpdated();
@@ -177,13 +186,24 @@ public class Run {
 
             List<AnnotationPair> pairs = new ArrayList<AnnotationPair> ();
 
-            for( int j =0  ; i < RandomUtils.nextInt(topics.size()); j++){
+            List<String> addedTopics = new ArrayList<String>();
+
+            while(pairs.size() < 100){
+
+                String topic = topics.get(RandomUtils.nextInt(topics.size()));
+
+                if(addedTopics.contains(topic)){
+                    logger.trace("List<ArtefactUpdated> prepareIssueMap() Already added {} ",topic);
+
+                    continue;
+                }
 
                 AnnotationPair annotationPair = new AnnotationPair();
-                annotationPair.setSubject(topics.get(RandomUtils.nextInt(topics.size())));
-                annotationPair.setCount(RandomUtils.nextInt(200));
-
+                annotationPair.setSubject(topic);
+                annotationPair.setCount(RandomUtils.nextDouble());
                 pairs.add(annotationPair);
+                addedTopics.add(topic);
+
             }
 
             
