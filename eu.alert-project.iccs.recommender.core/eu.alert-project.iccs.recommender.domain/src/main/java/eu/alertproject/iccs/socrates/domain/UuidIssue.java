@@ -6,7 +6,6 @@ import org.apache.commons.lang.NotImplementedException;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  * User: fotis
@@ -18,7 +17,7 @@ import javax.persistence.UniqueConstraint;
 public class UuidIssue implements SimpleBean{
 
     @EmbeddedId
-    private IssueUuidPk uuidIssuePk;
+    private UuidIssuePk uuidIssuePk;
 
     private Double similarity;
 
@@ -34,16 +33,16 @@ public class UuidIssue implements SimpleBean{
     
     
     public void setUuidAndIssue(String uuid, Integer issueId) {
-        uuidIssuePk = new IssueUuidPk();
+        uuidIssuePk = new UuidIssuePk();
         uuidIssuePk.setUuid(uuid);
         uuidIssuePk.setIssueId(issueId);
     }
 
-    public IssueUuidPk getUuidIssuePk() {
+    public UuidIssuePk getUuidIssuePk() {
         return uuidIssuePk;
     }
 
-    public void setUuidIssuePk(IssueUuidPk uuidIssuePk) {
+    public void setUuidIssuePk(UuidIssuePk uuidIssuePk) {
         this.uuidIssuePk = uuidIssuePk;
     }
 

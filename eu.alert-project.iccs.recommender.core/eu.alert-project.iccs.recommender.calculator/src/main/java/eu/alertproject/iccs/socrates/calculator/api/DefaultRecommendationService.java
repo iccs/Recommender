@@ -34,9 +34,6 @@ public class DefaultRecommendationService implements RecommendationService{
     UuidIssueDao uuidIssueDao;
 
     @Autowired
-    IssueUuidDao issueUuidDao;
-
-    @Autowired
     UuidSubjectDao uuidSubjectDao;
 
     @Autowired
@@ -78,7 +75,6 @@ public class DefaultRecommendationService implements RecommendationService{
             List<AnnotationPair> annotations = identityUpdated.getAnnotations();
 
 
-            List<UuidSubject> newUuidSubject = new ArrayList<UuidSubject>();
             List<UuidSubject> uuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
             for(AnnotationPair ap: annotations){
 
@@ -109,17 +105,17 @@ public class DefaultRecommendationService implements RecommendationService{
                     us = uuidSubjectDao.insert(us);
                 }
 
-                newUuidSubject.add(us);
-
             }
 
 
-            
-            uuidIssueDao.removeByUuid(identityUpdated.getId());
+
             List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
+            List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
             //TODO Kostas do work here
             // return a List<UuidIssue>
 
+
+            uuidIssueDao.removeByUuid(identityUpdated.getId());
             for(UuidIssue u: newSimilarities){
                 uuidIssueDao.insert(u);
             }
@@ -144,7 +140,6 @@ public class DefaultRecommendationService implements RecommendationService{
 
             List<AnnotationPair> annotations = artefactUpdated.getAnnotations();
 
-            List<IssueSubject> newIssueSubject = new ArrayList<IssueSubject>();
             List<IssueSubject> issueSubjects  = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
             
             for(AnnotationPair ap: annotations){
@@ -173,26 +168,22 @@ public class DefaultRecommendationService implements RecommendationService{
                     us.setIssueAndSubject(Integer.valueOf(artefactUpdated.getId()), ap.getSubject());
 
                     logger.trace("void updateSimilaritiesForIssue() Inserting {} ",us);
-                    us = issueSubjectDao.insert(us);
+                    issueSubjectDao.insert(us);
                 }
 
-                newIssueSubject.add(us);
             }
 
 
-
-            issueUuidDao.removeById(Integer.valueOf(artefactUpdated.getId()));
-
-
-            List<IssueUuid> newSimilarities = new ArrayList<IssueUuid>();
+            List<IssueSubject> newIssueSubjects = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
+            List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
 
             //TODO Kostas do work here
             // return a List<UuidIssue>
 
 
-
-            for(IssueUuid u: newSimilarities){
-                issueUuidDao.insert(u);
+            uuidIssueDao.removeByIssueId(Integer.valueOf(artefactUpdated.getId()));
+            for(UuidIssue u: newSimilarities){
+                uuidIssueDao.insert(u);
             }
 
 

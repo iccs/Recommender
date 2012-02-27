@@ -34,6 +34,26 @@ public class IssueSubjectPk implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IssueSubjectPk that = (IssueSubjectPk) o;
+
+        if (issueId != null ? !issueId.equals(that.issueId) : that.issueId != null) return false;
+        if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = issueId != null ? issueId.hashCode() : 0;
+        result = 31 * result + (subject != null ? subject.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "IssueSubjectPk{" +
                 "issue_id=" + issueId +

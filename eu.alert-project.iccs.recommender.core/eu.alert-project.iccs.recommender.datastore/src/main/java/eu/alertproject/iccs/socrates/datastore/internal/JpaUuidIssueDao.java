@@ -20,6 +20,7 @@ public class JpaUuidIssueDao extends JpaCommonDao<UuidIssue> implements UuidIssu
         super(UuidIssue.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<UuidIssue> findByUuid(String uuid) {
 
@@ -29,11 +30,29 @@ public class JpaUuidIssueDao extends JpaCommonDao<UuidIssue> implements UuidIssu
        return query.getResultList();
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<UuidIssue> findByIssueId(Integer id) {
+
+        Query query = getEntityManager().createQuery("SELECT u FROM UuidIssue u WHERE u.uuidIssuePk.issueId =:id");
+        query.setParameter("id",id);
+
+       return query.getResultList();
+    }
+
     @Override
     public void removeByUuid(String uuid) {
 
         Query query = getEntityManager().createQuery("DELETE FROM UuidIssue u WHERE u.uuidIssuePk.uuid=:uuid");
         query.setParameter("uuid",uuid);
+        query.executeUpdate();
+    }
+
+    @Override
+    public void removeByIssueId(Integer id) {
+
+        Query query = getEntityManager().createQuery("DELETE FROM UuidIssue u WHERE u.uuidIssuePk.issueId=:issueId");
+        query.setParameter("issueId",id);
         query.executeUpdate();
     }
 

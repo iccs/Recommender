@@ -13,6 +13,6 @@ import java.util.List;
  */
 public interface IssueSubjectDao extends CommonDao<IssueSubject> {
 
-    List findByIssueId(Integer integer);
+    List<IssueSubject> findByIssueId(Integer integer);
 
 }

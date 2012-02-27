@@ -10,7 +10,7 @@ import java.io.Serializable;
  * Time: 16:43
  */
 @Embeddable
-public class IssueUuidPk implements Serializable {
+public class UuidIssuePk implements Serializable {
 
     @Column(name="issue_id")
     private Integer issueId;
@@ -40,7 +40,7 @@ public class IssueUuidPk implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        IssueUuidPk that = (IssueUuidPk) o;
+        UuidIssuePk that = (UuidIssuePk) o;
 
         if (issueId != null ? !issueId.equals(that.issueId) : that.issueId != null) return false;
         if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) return false;

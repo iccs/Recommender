@@ -14,12 +14,6 @@ create table issue_subject(
   weight double
 ) engine= innodb;
 
-create table issue_uuid(
-  uuid varchar (256) not null,
-  issue_id int not null,
-  similarity double
-) engine=innodb;
-
 create table uuid_class(
   uuid varchar (256) not null,
   class text not null,
