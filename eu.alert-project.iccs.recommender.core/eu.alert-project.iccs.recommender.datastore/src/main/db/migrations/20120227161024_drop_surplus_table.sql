@@ -1,1 +1,0 @@
-drop table issue_uuid;
