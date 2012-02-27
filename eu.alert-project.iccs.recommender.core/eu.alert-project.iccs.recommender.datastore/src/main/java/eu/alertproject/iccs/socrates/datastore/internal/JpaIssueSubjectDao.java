@@ -30,4 +30,15 @@ public class JpaIssueSubjectDao extends JpaCommonDao<IssueSubject> implements Is
         return query.getResultList();
 
     }
+
+    @Override
+    public List<Integer> findAllIssues() {
+
+        Query query = getEntityManager().createNativeQuery("SELECT * FROM all_issues");
+
+        List resultList = query.getResultList();
+
+        return resultList;
+
+    }
 }

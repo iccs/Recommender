@@ -14,5 +14,7 @@ import java.util.List;
 public interface IssueSubjectDao extends CommonDao<IssueSubject> {
 
     List<IssueSubject> findByIssueId(Integer integer);
+    List<Integer> findAllIssues();
+
 
 }

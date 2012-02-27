@@ -6,7 +6,7 @@
 
     <groupId>eu.alert-project.iccs.recommender</groupId>
     <artifactId>core</artifactId>
-    <version>0.0.1-SNAPSTHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>eu.alert-project.iccs.recommender.ui</module>
         <module>eu.alert-project.iccs.recommender.connector</module>

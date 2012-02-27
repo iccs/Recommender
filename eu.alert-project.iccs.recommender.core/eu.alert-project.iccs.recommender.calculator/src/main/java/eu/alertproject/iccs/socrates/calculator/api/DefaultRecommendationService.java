@@ -113,6 +113,7 @@ public class DefaultRecommendationService implements RecommendationService{
             List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
             //TODO Kostas do work here
             // return a List<UuidIssue>
+            List<Integer> allIssues = issueSubjectDao.findAllIssues();
 
 
             uuidIssueDao.removeByUuid(identityUpdated.getId());
@@ -176,6 +177,7 @@ public class DefaultRecommendationService implements RecommendationService{
 
             List<IssueSubject> newIssueSubjects = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
             List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
+            List<String>  uuids = uuidSubjectDao.findAllUuid();
 
             //TODO Kostas do work here
             // return a List<UuidIssue>

@@ -14,4 +14,5 @@ import java.util.List;
 public interface UuidSubjectDao extends CommonDao<UuidSubject>{
     List<UuidSubject> findByUuid(String id);
 
+    List<String> findAllUuid();
 }

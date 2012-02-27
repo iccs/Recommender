@@ -217,7 +217,7 @@ public class Run {
             for(int j =0 ; j < RandomUtils.nextInt(classes.size()); j++){
 
                 IdentityUpdated.CI ci = new IdentityUpdated.CI();
-                ci.setClazz(classes.get(RandomUtils.nextInt(classes.size())));
+                ci.setClazz(classes.get(RandomUtils.nextInt(classes.size()-1)+1));
                 ci.setWeight(RandomUtils.nextDouble());
                 cis.add(ci);
 

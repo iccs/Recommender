@@ -29,4 +29,14 @@ public class JpaUuidSubjectDao extends JpaCommonDao<UuidSubject> implements Uuid
        return query.getResultList();
 
     }
+
+    @Override
+    public List<String> findAllUuid() {
+
+        Query query = getEntityManager().createNativeQuery("SELECT * FROM all_uuid");
+
+        List resultList = query.getResultList();
+        return resultList;
+
+    }
 }
