@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * Date: 05/11/11
  * Time: 19:11
  */
-public class IssueUpdatedListener extends SocratesActiveMQListener{
+public class IssueUpdatedListener extends SocratesActiveMQListener<ArtefactUpdated>{
 
     private Logger logger = LoggerFactory.getLogger(IssueUpdatedListener.class);
 

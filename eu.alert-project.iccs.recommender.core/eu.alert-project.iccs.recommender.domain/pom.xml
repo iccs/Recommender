@@ -11,5 +11,18 @@
     <artifactId>domain</artifactId>
     <name>eu.alertproject.iccs.recommender.domain</name>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>org.hibernate.java-persistence</groupId>
+            <artifactId>jpa-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.existanze.libraries</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>
