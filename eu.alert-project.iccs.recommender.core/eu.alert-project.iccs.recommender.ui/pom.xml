@@ -5,7 +5,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>eu.alert-project.iccs.recommender</groupId>
-        <version>0.0.1-SNAPSTHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>ui</artifactId>
     <modelVersion>4.0.0</modelVersion>
@@ -65,6 +65,12 @@
 
 
         <!-- Freemarker -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.18</version>
+        </dependency>
+
         <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>eu.alert-project.iccs.recommender</groupId>
-        <version>0.0.1-SNAPSTHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>connector</artifactId>

@@ -1,6 +1,6 @@
 <div id="classes-container">
 
-<h1>Classes</h1>
+<h1>Classifications</h1>
 <ul class="classes-list">
 <#list classess as clazz>
     <li>

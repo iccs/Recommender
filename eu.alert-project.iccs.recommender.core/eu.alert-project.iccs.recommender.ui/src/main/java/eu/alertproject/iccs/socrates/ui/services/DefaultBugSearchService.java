@@ -38,13 +38,6 @@ public class DefaultBugSearchService implements BugSearchService {
 
 
         data = new HashMap<Integer, Bug>();
-        if (issueSubjectDao == null) {
-            logger.error("null autowired object found a");
-        }
-        
-        if (uuidIssueDao == null) {
-            logger.error("null autowired object found");
-        }
 
         //Read all issues
 //        List<Integer> allIssues = issueSubjectDao.findAllIssues();
@@ -73,6 +66,24 @@ public class DefaultBugSearchService implements BugSearchService {
 
         data.put(1010, new Bug(1010, "I am a super bug", "This is my long description"));
         data.put(2050, new Bug(2050, "There is a problem with ACPI", "When I close the lid on my laptop it continues running"));
+
+    }
+
+
+    @PostConstruct
+    public void init(){
+
+        logger.trace("void init()");
+
+        if (issueSubjectDao == null) {
+            logger.error("null autowired object found a");
+        }else{
+            logger.trace("void init() {} ",issueSubjectDao);
+        }
+
+        if (uuidIssueDao == null) {
+            logger.error("null autowired object found {} ",issueSubjectDao);
+        }
 
     }
 
