@@ -13,12 +13,12 @@ import java.util.*;
  * Time: 11:56 PM
  * To change this template use File | Settings | File Templates.
  */
-
-public class StaticIdentitySearchService implements IdentitySearchService{
+@Service("identitySearchService")
+public class DefaultIdentitySearchService implements IdentitySearchService{
 
     final Map<String,List<IdentityBean>> map;
 
-    public StaticIdentitySearchService() {
+    public DefaultIdentitySearchService() {
 
 
         map = new HashMap<String,List<IdentityBean>>();

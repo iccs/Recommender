@@ -9,7 +9,8 @@
     </parent>
     <artifactId>ui</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <name>eu.alertproject.iccs.recommender.ui</name>
+    <name>${project.groupId}.${project.artifactId}</name>
+    
     <packaging>war</packaging>
 
     <dependencies>
@@ -65,10 +66,19 @@
 
         <!-- Freemarker -->
         <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>2.3.18</version>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
         </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+            </dependency>
 
 
         <!-- JSON Web Services -->
@@ -82,16 +92,92 @@
             <artifactId>jackson-mapper-asl</artifactId>
         </dependency>
 
+            <!-- Xml Web Services -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-oxm</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+            </dependency>
+
+
+
+            <!--  JSR 303 with Hibernate Validator -->
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.existanze.libraries</groupId>
+                <artifactId>jsr303</artifactId>
+            </dependency>
+
+            <!-- Jpa -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-entitymanager</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate.java-persistence</groupId>
+                <artifactId>jpa-api</artifactId>
+            </dependency>
+
+             <!-- View -->
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-core</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-pool</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-camel</artifactId>
+            </dependency>
+
         <!-- Local -->
-        <dependency>
-            <version>${project.version}</version>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>domain</artifactId>
+         <dependency>
+        <version>${project.version}</version>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>domain</artifactId>
         </dependency>
+
         <dependency>
-            <version>${project.version}</version>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>datastore</artifactId>
+        <version>${project.version}</version>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>datastore</artifactId>
         </dependency>
 
     </dependencies>

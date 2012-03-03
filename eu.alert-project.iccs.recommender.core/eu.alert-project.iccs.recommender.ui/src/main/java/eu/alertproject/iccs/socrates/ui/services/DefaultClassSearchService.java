@@ -17,13 +17,13 @@ import java.util.Map;
  * Date: 08/02/12
  * Time: 6:58 PM
  */
+@Service("classSearchService")
+public class DefaultClassSearchService implements ClassSearchService{
 
-public class StaticClassSearchService implements ClassSearchService{
-
-    private Logger logger = LoggerFactory.getLogger(StaticClassSearchService.class);
+    private Logger logger = LoggerFactory.getLogger(DefaultClassSearchService.class);
     private Map<Integer,List<String>> data;
 
-    public StaticClassSearchService() throws IOException {
+    public DefaultClassSearchService() throws IOException {
 
         data = new HashMap<Integer, List<String>>();
         

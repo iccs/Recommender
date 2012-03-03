@@ -119,7 +119,7 @@ public class DefaultRecommendationService implements RecommendationService{
             List<Integer> allIssues = issueSubjectDao.findAllIssues();
             
             
-            //TODO Kostas do work here
+            
             
             //create annotated object 1: the identity
             

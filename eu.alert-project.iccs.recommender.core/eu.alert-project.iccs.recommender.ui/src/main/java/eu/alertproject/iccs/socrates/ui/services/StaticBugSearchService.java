@@ -16,7 +16,7 @@ import java.util.Map;
  * Date: 08/02/12
  * Time: 6:58 PM
  */
-@Service("bugSearchService")
+
 public class StaticBugSearchService implements BugSearchService{
 
     private Logger logger = LoggerFactory.getLogger(StaticBugSearchService.class);
