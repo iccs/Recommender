@@ -22,8 +22,10 @@ public class IdentityUpdatedListener extends SocratesActiveMQListener<IdentityUp
     @Autowired
     RecommendationService recommendationService;
 
+
     @Override
     void updateSimilarities(IdentityUpdated identityUpdated) {
+
         logger.trace("void updateSimilarities() {} ",identityUpdated);
         recommendationService.updateSimilaritiesForIdentity(identityUpdated);
     }

@@ -70,9 +70,6 @@
         <property name="contentType" value="text/html;charset=UTF-8"/>
     </bean>
 
-
-
-
     <!-- Keeping this here for reference -->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="${jdbc.driverClassName}"/>
