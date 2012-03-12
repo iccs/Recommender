@@ -8,7 +8,7 @@ recommend sticking to 'spring' -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <title>Developer Recommendation for a given Bug</title>
+    <title>Bug Recommendation for a given Developer</title>
     <link rel="stylesheet/less" type="text/css" href="<@spring.url "/static/css/main.less"/>">
     <script src="<@spring.url "/static/js/less-1.1.3.min.js" />" type="text/javascript"></script>
     <script src="<@spring.url "/static/js/stardom.js" />" type="text/javascript"></script>
@@ -21,10 +21,10 @@ recommend sticking to 'spring' -->
     $(document).ready(function(){
         $('#search-text').keyup('keypress', function(e) {
             if(e.keyCode==13){
-                searchBug();
+                searchDev();
             }else if(e.keyCode==27){
                 $(this).val("");
-                $("#search-results").html("<h3>Type a bug id and press ENTER</h3>");
+                $("#search-results").html("<h3>Type a Developer Uuid and press ENTER</h3>");
             }
         });
 
@@ -34,17 +34,17 @@ recommend sticking to 'spring' -->
 
     function searchBug(){
 
-        var link = $("#search-bug-button");
+        var link = $("#search-dev-button");
 
         if(ICCS.isLocked(link)){
             return;
         }
 
-        $("#bugview").fadeOut(function(){
-            $("#bugview").html("");
+        $("#devview").fadeOut(function(){
+            $("#devview").html("");
         });
 
-        $("#developers").html("");
+        $("#bugs").html("");
 
         lockLinks();
 
@@ -57,8 +57,8 @@ recommend sticking to 'spring' -->
                     return;
                 }
 
-               $("#bugview").html(data);
-               $("#bugview").fadeIn();
+               $("#devview").html(data);
+               $("#devview").fadeIn();
 
                getUserClasses();
 
@@ -96,7 +96,7 @@ recommend sticking to 'spring' -->
     function lockLinks(){
 
         $("#search-loader").fadeIn();
-        ICCS.lockLink("#search-bug-button","");
+        ICCS.lockLink("#search-dev-button","");
 
     }
 
@@ -105,7 +105,7 @@ recommend sticking to 'spring' -->
         console.log("unlockLinks");
 
         $("#search-loader").fadeOut(function(){
-            ICCS.unlockLink("#search-bug-button","Search Bug");
+            ICCS.unlockLink("#search-dev-button","Search Bug");
 
         });
 
@@ -113,10 +113,10 @@ recommend sticking to 'spring' -->
 
     function toggleSelected(id){
 
-        console.log($("#developers").has("#identities-"+id).size());
+        console.log($("#bugs").has("#identities-"+id).size());
 
 
-        if($("#developers").has("#identities-"+id).size()> 0){
+        if($("#bugs").has("#identities-"+id).size()> 0){
 
             console.log("Has identity id");
             $("#identities-"+id).fadeOut(function(){
@@ -125,12 +125,12 @@ recommend sticking to 'spring' -->
 
         }else{
 
-            console.log("Need to fetch the developers");
+            console.log("Need to fetch the bugs");
             $.get(
                 "<@spring.url "/search/identities"/>/"+id +"/"+getSearchString(),
                 function(data){
 
-                    $("#developers").append('<div id="identities-'+id+'" style="display:none"></div>');
+                    $("#bugs").append('<div id="identities-'+id+'" style="display:none"></div>');
 
                     $("#identities-"+id).html(data);
 
@@ -146,16 +146,16 @@ recommend sticking to 'spring' -->
         <h1> Start by looking for a bug</h1>
         <div id="search-control">
             <input type="text" id="search-text">
-            <a id="search-bug-button" class="search-button" href="#" onclick="searchBug();return false;">Search Bug</a>
+            <a id="search-dev-button" class="search-button" href="#" onclick="searchBug();return false;">Search Bug</a>
             <@iccs.loader id="search"/>
         </div>
         <div style="clear:both;"></div>
         <div id="results-container">
 
-            <div id="bugview" style="display: none"></div>
+            <div id="devview" style="display: none"></div>
             <div id="widgets">
                 <div id="classes"></div>
-                <div id="developers"></div>
+                <div id="bugs"></div>
             </div>
         </div>
     </div>

@@ -12,5 +12,5 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public interface IdentitySearchService {
-    List<IdentityBean> findByForClass(String classification);
+    List<IdentityBean> findByForClass(String classification,Integer issueId);
 }

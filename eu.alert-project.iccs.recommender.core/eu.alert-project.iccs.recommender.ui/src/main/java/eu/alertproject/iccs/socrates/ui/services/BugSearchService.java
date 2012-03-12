@@ -10,5 +10,8 @@ import eu.alertproject.iccs.socrates.ui.bean.Bug;
  * To change this template use File | Settings | File Templates.
  */
 public interface BugSearchService {
+
     Bug retrieveBugById(Integer id);
+
+    Bug retrieveForDevId(String uuid);
 }

@@ -67,14 +67,14 @@ public class SearchController {
 
     }
     
-    @RequestMapping(value = "/identities/{query}", method = RequestMethod.GET)
-    public ModelAndView searchIdentities(@PathVariable("query") String query){
+    @RequestMapping(value = "/identities/{query}/{issueId}", method = RequestMethod.GET)
+    public ModelAndView searchIdentities(@PathVariable("query") String query, @PathVariable("issueId") Integer issueId){
 
         logger.trace("ModelAndView searchClass() {} ",query);
 
         ModelAndView mv = new ModelAndView();
         mv.setViewName("/partials/identities");
-        mv.addObject("identities", identitySearchService.findByForClass(query));
+        mv.addObject("identities", identitySearchService.findByForClass(query, issueId));
         return mv;
 
     }

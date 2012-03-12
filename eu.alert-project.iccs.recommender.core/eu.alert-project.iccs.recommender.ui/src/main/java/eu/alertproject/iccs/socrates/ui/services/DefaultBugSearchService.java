@@ -38,34 +38,7 @@ public class DefaultBugSearchService implements BugSearchService {
 
 
         data = new HashMap<Integer, Bug>();
-
-        //Read all issues
-//        List<Integer> allIssues = issueSubjectDao.findAllIssues();
-//
-//        String bugTitle, bugDescription;
-//        Bug currentBug;
-//        //for each issue
-//        for (Integer i : allIssues) {
-//            // make its title "Bug" + bug id
-//            bugTitle = "Bug #" + i;
-//            bugDescription = "";
-//            List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueId(i);
-//
-//            //get its annotations into a string
-//            for (IssueSubject is : thisIssueSubjects) {
-//                bugDescription = bugDescription + "'" + is.getSubject() + "' ";
-//
-//            }
-//            logger.debug(bugDescription);
-//            // create a Bug & add it to data            
-//            data.put(i, new Bug(i, bugTitle, bugDescription));
-//        }
-
-
-
-
-        data.put(1010, new Bug(1010, "I am a super bug", "This is my long description"));
-        data.put(2050, new Bug(2050, "There is a problem with ACPI", "When I close the lid on my laptop it continues running"));
+ 
 
     }
 
@@ -92,9 +65,36 @@ public class DefaultBugSearchService implements BugSearchService {
 
         logger.trace("Bug retrieveBugById()");
         //return the same bug
-        if (!data.containsKey(id)) {
-            return null;
+        data = new HashMap<Integer, Bug>();
+        String bugTitle, bugDescription;
+//        Bug currentBug;
+        List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueId(id);
+        bugTitle = "Bug #" + id;
+        bugDescription = "";
+        for (IssueSubject is : thisIssueSubjects) {
+            bugDescription = bugDescription + "'" + is.getSubject() + "' ";
         }
-        return data.get(id);
+//            logger.debug(bugDescription);
+//            // create a Bug & add it to data            
+
+
+        data.put(id, new Bug(id, bugTitle, bugDescription));
+//            // make its title "Bug" + bug id
+
+    
+
+    if (!data.containsKey (id) 
+        ) {
+            return null;
+    }
+
+    return data.get (id);
+}
+    
+    @Override
+    public Bug retrieveForDevId(String uuid) {
+
+
+        return null;
     }
 }

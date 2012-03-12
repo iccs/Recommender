@@ -220,7 +220,7 @@ public class DefaultRecommendationService implements RecommendationService{
             List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
             List<String>  uuids = uuidSubjectDao.findAllUuid();
     
-            //TODO Kostas do work here
+
             //create annotated object 1: the issue
             HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
 

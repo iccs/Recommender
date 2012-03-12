@@ -1,7 +1,7 @@
 <div id="classes-container">
 
 <h1>Classifications</h1>
-<ul class="classes-list">
+<ul class="classess-list">
 <#list classess as clazz>
     <li>
         <label for="check-${clazz}">${clazz}</label>
