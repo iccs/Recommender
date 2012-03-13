@@ -25,9 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * User: fotis
- * Date: 25/02/12
- * Time: 15:23
+ * User: fotis Date: 25/02/12 Time: 15:23
  */
 public class Run {
 
@@ -45,9 +43,10 @@ public class Run {
         final List<String> list = IOUtils.readLines(Run.class.getResourceAsStream("/5desk.txt"));
 
         final CountDownLatch cdl = new CountDownLatch(2);
+        final int IDENTITIES_COUNT = 300;
 
+        Thread issues = new Thread() {
 
-        Thread  issues = new Thread(){
             @Override
             public void run() {
 
@@ -55,7 +54,7 @@ public class Run {
 
                 ObjectMapper mapper = new ObjectMapper();
 
-                for(ArtefactUpdated artefactUpdated : artefactUpdateds){
+                for (ArtefactUpdated artefactUpdated : artefactUpdateds) {
 
                     String s = null;
                     try {
@@ -63,13 +62,13 @@ public class Run {
                         jmsTemplate.send(Topics.ALERT_STARDOM_Issue_Updated, new TextMessageCreator(s));
                     } catch (IOException e) {
                         logger.warn("void run(args) ", e);
-                    }finally {
+                    } finally {
 
-                        try {
-                            Thread.sleep(RandomUtils.nextInt(10)*1000);
-                        } catch (InterruptedException e) {
-                            logger.warn("void run(args) ", e);
-                        }
+//                        try {
+//                            Thread.sleep(RandomUtils.nextInt(10) * 1000);
+//                        } catch (InterruptedException e) {
+//                            logger.warn("void run(args) ", e);
+//                        }
 
                     }
                 }
@@ -78,30 +77,31 @@ public class Run {
             }
         };
 
-        
-        
 
-        Thread  identities = new Thread(){
+
+
+        Thread identities = new Thread() {
+
             @Override
             public void run() {
-                
-                List<String> uuids=  new ArrayList<String>();
-                for(int i = 0 ; i < 100 ; i++){
+
+                List<String> uuids = new ArrayList<String>();
+                for (int i = 226; i < IDENTITIES_COUNT; i++) {
                     uuids.add(UUID.randomUUID().toString());
                 }
 
 
-                
+
 
                 List<IdentityUpdated> artefactUpdateds = run.prepareUuidMap(
-                                                                uuids,
-                                                                Arrays.asList("Core","Testers"),
-                                                                list);
+                        uuids,
+                        Arrays.asList("Core", "Testers"),
+                        list);
 
 
                 ObjectMapper mapper = new ObjectMapper();
 
-                for(ArtefactUpdated au : artefactUpdateds){
+                for (ArtefactUpdated au : artefactUpdateds) {
 
                     String s = null;
                     try {
@@ -109,13 +109,13 @@ public class Run {
                         jmsTemplate.send(Topics.ALERT_STARDOM_Identity_Updated, new TextMessageCreator(s));
                     } catch (IOException e) {
                         logger.warn("void run(args) ", e);
-                    }finally {
+                    } finally {
 
-                        try {
-                            Thread.sleep(RandomUtils.nextInt(5)*1000);
-                        } catch (InterruptedException e) {
-                            logger.warn("void run(args) ", e);
-                        }
+//                        try {
+//                            Thread.sleep(RandomUtils.nextInt(5) * 1000);
+//                        } catch (InterruptedException e) {
+//                            logger.warn("void run(args) ", e);
+//                        }
 
                     }
                 }
@@ -125,7 +125,7 @@ public class Run {
         };
 
 
-        identities.start();
+//        identities.start();
         issues.start();
 
 
@@ -134,24 +134,24 @@ public class Run {
         logger.trace("void main(args) Done");
 
     }
-    
-    public List<ArtefactUpdated> prepareIssueMap(List<String> topics){
+
+    public List<ArtefactUpdated> prepareIssueMap(List<String> topics) {
 
 
         List<ArtefactUpdated> data = new ArrayList<ArtefactUpdated>();
+        final int ISSUE_COUNT = 2000;
 
+        for (int i = 273; i < ISSUE_COUNT; i++) {
 
-        for( int i = 0 ; i < 2000; i++){
-            
-            List<AnnotationPair> pairs = new ArrayList<AnnotationPair> ();
+            List<AnnotationPair> pairs = new ArrayList<AnnotationPair>();
 
             List<String> addedTopics = new ArrayList<String>();
-            
-            while(pairs.size() < 100){
+
+            while (pairs.size() < 100) {
                 String topic = topics.get(RandomUtils.nextInt(topics.size()));
-                
-                if(addedTopics.contains(topic)){
-                    logger.trace("List<ArtefactUpdated> prepareIssueMap() Already added {} ",topic);
+
+                if (addedTopics.contains(topic)) {
+                    logger.trace("List<ArtefactUpdated> prepareIssueMap() Already added {} ", topic);
                     continue;
                 }
 
@@ -174,26 +174,25 @@ public class Run {
         return data;
 
     }
-    
 
-    public List<IdentityUpdated> prepareUuidMap(List<String> uuids, List<String> classes, List<String> topics){
+    public List<IdentityUpdated> prepareUuidMap(List<String> uuids, List<String> classes, List<String> topics) {
 
 
-        
+
         List<IdentityUpdated> data = new ArrayList<IdentityUpdated>();
 
-        for( int i = 0 ; i < 3000; i++){
+        for (int i = 0; i < 3000; i++) {
 
-            List<AnnotationPair> pairs = new ArrayList<AnnotationPair> ();
+            List<AnnotationPair> pairs = new ArrayList<AnnotationPair>();
 
             List<String> addedTopics = new ArrayList<String>();
 
-            while(pairs.size() < 100){
+            while (pairs.size() < 100) {
 
                 String topic = topics.get(RandomUtils.nextInt(topics.size()));
 
-                if(addedTopics.contains(topic)){
-                    logger.trace("List<ArtefactUpdated> prepareIssueMap() Already added {} ",topic);
+                if (addedTopics.contains(topic)) {
+                    logger.trace("List<ArtefactUpdated> prepareIssueMap() Already added {} ", topic);
 
                     continue;
                 }
@@ -206,18 +205,18 @@ public class Run {
 
             }
 
-            
+
 
             IdentityUpdated identityUpdated = new IdentityUpdated();
             identityUpdated.setId(uuids.get(RandomUtils.nextInt(uuids.size())));
             identityUpdated.setAnnotations(pairs);
 
-            List<IdentityUpdated.CI> cis =  new ArrayList<IdentityUpdated.CI>();
+            List<IdentityUpdated.CI> cis = new ArrayList<IdentityUpdated.CI>();
 
-            for(int j =0 ; j < RandomUtils.nextInt(classes.size()); j++){
+            for (int j = 0; j < RandomUtils.nextInt(classes.size()); j++) {
 
                 IdentityUpdated.CI ci = new IdentityUpdated.CI();
-                ci.setClazz(classes.get(RandomUtils.nextInt(classes.size()-1)+1));
+                ci.setClazz(classes.get(RandomUtils.nextInt(classes.size() - 1) + 1));
                 ci.setWeight(RandomUtils.nextDouble());
                 cis.add(ci);
 
@@ -231,7 +230,7 @@ public class Run {
         return data;
 
     }
-    
+
     static class TextMessageCreator implements MessageCreator {
 
         private String text;
@@ -245,11 +244,8 @@ public class Run {
             TextMessage textMessage = session.createTextMessage();
             textMessage.setText(text);
 
-            logger.trace("Message createMessage() {} ",text);
-            return  textMessage;
+            logger.trace("Message createMessage() {} ", text);
+            return textMessage;
         }
-
     }
-
-
 }

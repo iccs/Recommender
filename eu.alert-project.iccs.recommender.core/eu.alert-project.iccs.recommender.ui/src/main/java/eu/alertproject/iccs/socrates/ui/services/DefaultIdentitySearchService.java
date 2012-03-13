@@ -1,7 +1,10 @@
 package eu.alertproject.iccs.socrates.ui.services;
 
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
+import eu.alertproject.iccs.socrates.datastore.api.UuidSubjectDao;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
+import eu.alertproject.iccs.socrates.domain.UuidSubject;
+import eu.alertproject.iccs.socrates.ui.bean.Bug;
 import eu.alertproject.iccs.socrates.ui.bean.IdentityBean;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
@@ -21,29 +24,59 @@ public class DefaultIdentitySearchService implements IdentitySearchService {
 
     @Autowired
     UuidIssueDao uuidIssueDao;
-    
+    @Autowired
+    UuidSubjectDao uuidSubjectDao;
     private Logger logger = LoggerFactory.getLogger(DefaultIdentitySearchService.class);
+    private NavigableSet<Double> descRecsKeySet;
+    private final Integer MAX_RECS_NO = 10;
 
     public DefaultIdentitySearchService() {
     }
 
     @Override
-    public List<IdentityBean> findByForClass(String classification,Integer issueId) {
+    public List<IdentityBean> findByForClass(String classification, Integer issueId) {
 
-        
+
         //TODO: @Fotis We need to sort by similarity! ? 
         List<UuidIssue> uuidIssues = uuidIssueDao.findByIssueId(issueId);
         List<IdentityBean> recs = new ArrayList<IdentityBean>();
+        TreeMap<Double, IdentityBean> recsFull = new TreeMap<Double, IdentityBean>();
         for (UuidIssue ui : uuidIssues) {
             //TODO: We need to retrieve the name and surname of the developer from STARDOM
-            recs.add(new IdentityBean(ui.getUuid(), "name", "surname"));
+            recsFull.put(ui.getSimilarity(), new IdentityBean(ui.getUuid(), "name", "surname"));
         }
-
-
+        Set<Double> descRecsKeySet = recsFull.descendingKeySet();
+        Iterator keySetIterator = descRecsKeySet.iterator();
+        Integer counter = 0;
+        while (keySetIterator.hasNext()) {
+            recs.add(recsFull.get(keySetIterator.next()));
+            counter++;
+            if (counter > MAX_RECS_NO) {
+                break;
+            }
+        }
         if (recs == null) {
             logger.debug("recs are null");
         }
         return recs;
 
+    }
+
+    @Override
+    public IdentityBean findByUuid(String uuid) {
+        logger.trace("Identity Retrieve by Id()");
+        //return the same bug
+
+
+        List<UuidSubject> thisUuidSubjects = uuidSubjectDao.findByUuid(uuid);
+
+        String identityDescription = "";
+        for (UuidSubject us : thisUuidSubjects) {
+            identityDescription = identityDescription + "'" + us.getSubject() + "' ";
+        }
+        logger.debug(identityDescription);
+//            // create a Bug & add it to data            
+        IdentityBean identityBean = new IdentityBean(uuid, "name", identityDescription);
+        return identityBean;
     }
 }

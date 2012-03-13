@@ -1,6 +1,7 @@
 package eu.alertproject.iccs.socrates.ui.services;
 
 import eu.alertproject.iccs.socrates.ui.bean.Bug;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,5 +14,5 @@ public interface BugSearchService {
 
     Bug retrieveBugById(Integer id);
 
-    Bug retrieveForDevId(String uuid);
+    List<Bug> retrieveForDevId(String uuid);
 }

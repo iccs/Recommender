@@ -15,7 +15,7 @@ recommend sticking to 'spring' -->
     <script src="<@spring.url "/static/js/jquery-1.6.1-min.js"/>" type="text/javascript"></script>
     <script src="<@spring.url "/static/js/jquery.timers-1.2.js"/>" type="text/javascript"></script>
 </head>
-<body class="search">
+<body class="developer">
 <script type="text/javascript">
 
     $(document).ready(function(){
@@ -32,8 +32,8 @@ recommend sticking to 'spring' -->
     });
 
 
-    function searchBug(){
-
+    function searchDev(){
+      
         var link = $("#search-dev-button");
 
         if(ICCS.isLocked(link)){
@@ -44,12 +44,10 @@ recommend sticking to 'spring' -->
             $("#devview").html("");
         });
 
-        $("#bugs").html("");
-
         lockLinks();
-
+  $("#devview").html("trying to find it");
         $.get(
-            "<@spring.url "/search/bug"/>/"+getSearchString(),
+            "<@spring.url "/developer/search"/>/"+getSearchString(),
             function(data){
 
                 if(data == undefined){
@@ -60,32 +58,13 @@ recommend sticking to 'spring' -->
                $("#devview").html(data);
                $("#devview").fadeIn();
 
-               getUserClasses();
+               
 
             }
         );
 
     }
 
-    function getUserClasses(){
-
-        $.get(
-                "<@spring.url "/search/class"/>/"+getSearchString(),
-                function(data){
-
-                    if(data == undefined){
-                        unlockLinks();
-                        return;
-                    }
-
-                    $("#classes").html(data);
-
-                    unlockLinks();
-
-                }
-        );
-
-    }
 
 
 
@@ -100,53 +79,15 @@ recommend sticking to 'spring' -->
 
     }
 
-    function unlockLinks(){
 
-        console.log("unlockLinks");
-
-        $("#search-loader").fadeOut(function(){
-            ICCS.unlockLink("#search-dev-button","Search Bug");
-
-        });
-
-    }
-
-    function toggleSelected(id){
-
-        console.log($("#bugs").has("#identities-"+id).size());
-
-
-        if($("#bugs").has("#identities-"+id).size()> 0){
-
-            console.log("Has identity id");
-            $("#identities-"+id).fadeOut(function(){
-                $("#identities-"+id).remove();
-            });
-
-        }else{
-
-            console.log("Need to fetch the bugs");
-            $.get(
-                "<@spring.url "/search/identities"/>/"+id +"/"+getSearchString(),
-                function(data){
-
-                    $("#bugs").append('<div id="identities-'+id+'" style="display:none"></div>');
-
-                    $("#identities-"+id).html(data);
-
-                    $("#identities-"+id).fadeIn();
-                }
-            )
-        }
-
-    }
+    
 
 </script>
     <div class="container">
-        <h1> Start by looking for a bug</h1>
+        <h1> Start by looking for a developer</h1>
         <div id="search-control">
             <input type="text" id="search-text">
-            <a id="search-dev-button" class="search-button" href="#" onclick="searchBug();return false;">Search Bug</a>
+            <a id="search-dev-button" class="search-button" href="#" onclick="searchDev();return false;">Search Developer</a>
             <@iccs.loader id="search"/>
         </div>
         <div style="clear:both;"></div>

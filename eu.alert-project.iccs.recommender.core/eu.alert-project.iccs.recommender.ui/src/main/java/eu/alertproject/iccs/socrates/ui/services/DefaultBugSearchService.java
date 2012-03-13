@@ -5,11 +5,11 @@ import eu.alertproject.iccs.socrates.datastore.api.UuidClassDao;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
 import eu.alertproject.iccs.socrates.datastore.api.UuidSubjectDao;
 import eu.alertproject.iccs.socrates.domain.IssueSubject;
+import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import eu.alertproject.iccs.socrates.ui.bean.Bug;
+import eu.alertproject.iccs.socrates.ui.bean.IdentityBean;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -26,36 +26,33 @@ public class DefaultBugSearchService implements BugSearchService {
 
     private Logger logger = LoggerFactory.getLogger(DefaultBugSearchService.class);
     private Map<Integer, Bug> data;
-
-    
+    private final Integer MAX_RECS_NO = 10;
     @Autowired
     IssueSubjectDao issueSubjectDao;
     @Autowired
     UuidIssueDao uuidIssueDao;
- 
 
     public DefaultBugSearchService() throws IOException {
 
 
         data = new HashMap<Integer, Bug>();
- 
+
 
     }
 
-
     @PostConstruct
-    public void init(){
+    public void init() {
 
         logger.trace("void init()");
 
         if (issueSubjectDao == null) {
             logger.error("null autowired object found a");
-        }else{
-            logger.trace("void init() {} ",issueSubjectDao);
+        } else {
+            logger.trace("void init() {} ", issueSubjectDao);
         }
 
         if (uuidIssueDao == null) {
-            logger.error("null autowired object found {} ",issueSubjectDao);
+            logger.error("null autowired object found {} ", issueSubjectDao);
         }
 
     }
@@ -81,20 +78,49 @@ public class DefaultBugSearchService implements BugSearchService {
         data.put(id, new Bug(id, bugTitle, bugDescription));
 //            // make its title "Bug" + bug id
 
-    
 
-    if (!data.containsKey (id) 
-        ) {
+
+        if (!data.containsKey(id)) {
             return null;
+        }
+
+        return data.get(id);
     }
 
-    return data.get (id);
-}
-    
     @Override
-    public Bug retrieveForDevId(String uuid) {
+    public List<Bug> retrieveForDevId(String uuid) {
 
 
-        return null;
+
+        //TODO: @Fotis We need to sort by similarity! ? 
+        List<UuidIssue> uuidIssues = uuidIssueDao.findByUuid(uuid);
+        List<Bug> recs = new ArrayList<Bug>();
+
+        TreeMap<Double, Bug> recsFull = new TreeMap<Double, Bug>();
+        for (UuidIssue ui : uuidIssues) {
+            //TODO: We need to retrieve the name and surname of the developer from STARDOM
+            recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug", "bug desc"));
+        }
+        Set<Double> descRecsKeySet = recsFull.descendingKeySet();
+        Iterator keySetIterator = descRecsKeySet.iterator();
+        Integer counter = 0;
+        while (keySetIterator.hasNext()) {
+            recs.add(recsFull.get(keySetIterator.next()));
+            counter++;
+            if (counter > MAX_RECS_NO) {
+                break;
+            }
+        }
+        if (recs == null) {
+            logger.debug("recs are null");
+        }
+        return recs;
+
+
+
+
+       
+
+
     }
 }

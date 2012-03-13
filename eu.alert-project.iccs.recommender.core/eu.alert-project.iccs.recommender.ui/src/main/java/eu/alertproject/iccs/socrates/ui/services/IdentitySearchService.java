@@ -13,4 +13,6 @@ import java.util.List;
  */
 public interface IdentitySearchService {
     List<IdentityBean> findByForClass(String classification,Integer issueId);
+    IdentityBean findByUuid(String uuid);
+
 }
