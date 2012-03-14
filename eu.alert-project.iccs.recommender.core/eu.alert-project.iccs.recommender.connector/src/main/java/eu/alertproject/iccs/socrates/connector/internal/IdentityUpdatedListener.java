@@ -15,7 +15,7 @@ import java.io.IOException;
  * Date: 25/02/12
  * Time: 12:41
  */
-public class IdentityUpdatedListener extends SocratesActiveMQListener<IdentityUpdated> {
+public class IdentityUpdatedListener extends AbstractArtefactUpdateListener<IdentityUpdated> {
 
     private Logger logger = LoggerFactory.getLogger(IdentityUpdatedListener.class);
 

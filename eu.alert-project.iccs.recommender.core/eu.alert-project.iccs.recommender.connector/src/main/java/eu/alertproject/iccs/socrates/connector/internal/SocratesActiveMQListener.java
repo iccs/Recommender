@@ -16,20 +16,7 @@ import java.io.IOException;
  * Date: 25/02/12
  * Time: 14:48
  */
-public abstract class SocratesActiveMQListener<T extends ArtefactUpdated> extends AbstractActiveMQListener{
+public abstract class SocratesActiveMQListener extends AbstractActiveMQListener{
 
-    private Logger logger = LoggerFactory.getLogger(SocratesActiveMQListener.class);
-
-    @Override
-    public final void process(Message message) throws IOException, JMSException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        String text = ((TextMessage) message).getText();
-        updateSimilarities(processText(mapper,text));
-
-    }
-
-    abstract void updateSimilarities(T artefactUpdated);
-    public abstract T processText(ObjectMapper mapper, String text) throws IOException;
 
 }

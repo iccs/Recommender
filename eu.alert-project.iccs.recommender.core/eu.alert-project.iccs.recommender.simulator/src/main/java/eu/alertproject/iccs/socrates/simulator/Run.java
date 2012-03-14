@@ -64,11 +64,11 @@ public class Run {
                         logger.warn("void run(args) ", e);
                     } finally {
 
-//                        try {
-//                            Thread.sleep(RandomUtils.nextInt(10) * 1000);
-//                        } catch (InterruptedException e) {
-//                            logger.warn("void run(args) ", e);
-//                        }
+                        try {
+                            Thread.sleep(RandomUtils.nextInt(10) * 1000);
+                        } catch (InterruptedException e) {
+                            logger.warn("void run(args) ", e);
+                        }
 
                     }
                 }
@@ -111,11 +111,11 @@ public class Run {
                         logger.warn("void run(args) ", e);
                     } finally {
 
-//                        try {
-//                            Thread.sleep(RandomUtils.nextInt(5) * 1000);
-//                        } catch (InterruptedException e) {
-//                            logger.warn("void run(args) ", e);
-//                        }
+                        try {
+                            Thread.sleep(RandomUtils.nextInt(5) * 1000);
+                        } catch (InterruptedException e) {
+                            logger.warn("void run(args) ", e);
+                        }
 
                     }
                 }
@@ -125,7 +125,7 @@ public class Run {
         };
 
 
-//        identities.start();
+        identities.start();
         issues.start();
 
 
