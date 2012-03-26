@@ -4,9 +4,7 @@ import com.thoughtworks.xstream.XStream;
 import eu.alertproject.iccs.events.activemq.TextMessageCreator;
 import eu.alertproject.iccs.events.api.EventFactory;
 import eu.alertproject.iccs.events.api.Topics;
-import eu.alertproject.iccs.events.socrates.RecommendIdentityEnvelope;
-import eu.alertproject.iccs.events.socrates.RecommendIdentityPayload;
-import eu.alertproject.iccs.events.socrates.RecommendIssuesPayload;
+import eu.alertproject.iccs.events.socrates.*;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import org.slf4j.Logger;
@@ -51,7 +49,7 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
         xStream.processAnnotations(RecommendIdentityEnvelope.class);
         RecommendIdentityEnvelope rie = (RecommendIdentityEnvelope) xStream.fromXML(text);
 
-        List<RecommendIdentityPayload.EventData.Issue> issues = rie.getBody()
+        List<Issue> issues = rie.getBody()
                 .getNotify()
                 .getNotificationMessage()
                 .getMessage()
@@ -71,17 +69,17 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
                 .getEventId();
 
 
-        List<RecommendIssuesPayload.EventData.Identity> identities = new ArrayList<RecommendIssuesPayload.EventData.Identity>();
+        List<Identity> identities = new ArrayList<Identity>();
 
 
-        for(RecommendIdentityPayload.EventData.Issue i : issues){
+        for(Issue i : issues){
 
             Integer bugId = Integer.valueOf(i.getUuid());
 
             List<UuidIssue> byIssueId = uuidIssueDao.findByIssueId(bugId);
             
             for(UuidIssue ui : byIssueId){
-                identities.add(new RecommendIssuesPayload.EventData.Identity(
+                identities.add(new Identity(
                         ui.getUuid(),
                         "No Name - "+ui.getUuid()
                 ));

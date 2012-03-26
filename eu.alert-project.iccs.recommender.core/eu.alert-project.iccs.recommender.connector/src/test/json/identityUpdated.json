@@ -1,20 +1,21 @@
 {
     "uuid": "asdfasdfasdfasdfasdf",
+    "name": "Fotis",
     "annotations":[
         {
-            "uri" : "owl#1",
+            "uri" : "http://ailab.ijs.si/alert/resource/r1828/"
             "count": 1
         },
         {
-            "uri" : "owl#1",
+            "uri" : "http://ailab.ijs.si/alert/resource/r1829/"
             "count": 1
         },
         {
-            "uri" : "owl#1",
+            "uri" : "http://ailab.ijs.si/alert/resource/r1830/"
             "count": 1
         },
         {
-            "uri" : "owl#1",
+            "uri" : "http://ailab.ijs.si/alert/resource/r1831/"
             "count": 1
         }
     ]

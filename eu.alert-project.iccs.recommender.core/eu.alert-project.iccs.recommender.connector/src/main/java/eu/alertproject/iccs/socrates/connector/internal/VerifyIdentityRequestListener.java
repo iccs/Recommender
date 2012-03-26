@@ -4,7 +4,10 @@ import com.thoughtworks.xstream.XStream;
 import eu.alertproject.iccs.events.activemq.TextMessageCreator;
 import eu.alertproject.iccs.events.api.EventFactory;
 import eu.alertproject.iccs.events.api.Topics;
-import eu.alertproject.iccs.events.socrates.*;
+import eu.alertproject.iccs.events.socrates.Identity;
+import eu.alertproject.iccs.events.socrates.Issue;
+import eu.alertproject.iccs.events.socrates.RecommendIdentityEnvelope;
+import eu.alertproject.iccs.events.socrates.VerifyIdentityEnvelope;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import org.slf4j.Logger;
@@ -24,9 +27,9 @@ import java.util.List;
  * Date: 14/03/12
  * Time: 14:44
  */
-public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
+public class VerifyIdentityRequestListener extends SocratesActiveMQListener{
 
-    private Logger logger = LoggerFactory.getLogger(RecomendationIssueRequestListener.class);
+    private Logger logger = LoggerFactory.getLogger(VerifyIdentityRequestListener.class);
 
     private int sequence = 1;
     
@@ -46,17 +49,26 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
         long start = System.currentTimeMillis();
 
         XStream xStream = new XStream();
-        xStream.processAnnotations(RecommendIssuesEnvelope.class);
-        RecommendIssuesEnvelope rie = (RecommendIssuesEnvelope) xStream.fromXML(text);
+        xStream.processAnnotations(VerifyIdentityEnvelope.class);
+        VerifyIdentityEnvelope rie = (VerifyIdentityEnvelope) xStream.fromXML(text);
 
-        List<Identity> identities = rie.getBody()
+        Issue issue = rie.getBody()
                 .getNotify()
                 .getNotificationMessage()
                 .getMessage()
                 .getEvent()
                 .getPayload()
                 .getEventData()
-                .getIdentities();
+                .getIssue();
+
+        Identity identity = rie.getBody()
+                .getNotify()
+                .getNotificationMessage()
+                .getMessage()
+                .getEvent()
+                .getPayload()
+                .getEventData()
+                .getIdentity();
 
 
         Integer eventId = rie.getBody()
@@ -69,33 +81,34 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
                 .getEventId();
 
 
-        
-        List<Issue> issues = new ArrayList<Issue>();
-        
-        for(Identity i : identities){
+        List<Identity> identities = new ArrayList<Identity>();
 
-            List<UuidIssue> byIssueId = uuidIssueDao.findByUuid(i.getUuid());
+        List<UuidIssue> byIssueId = uuidIssueDao.findByIssueId(Integer.valueOf(issue.getUuid()));
+
+        boolean found = false;
+        for(UuidIssue ui : byIssueId){
             
-            for(UuidIssue ui : byIssueId){
-                issues.add(new Issue(
-                        ui.getUuid(),
-                        "owl#"+ui.getIssueId()
-                ));
+            if(ui.getUuid().equals(identity.getUuid())){
+                found = true;
+                break;
+
             }
+            
         }
 
         //create a response
-        String event = EventFactory.createRecommendationIssuesEvent(
+        final String event = EventFactory.createVerifyIdentityEvent(
                 eventId,
                 start,
                 System.currentTimeMillis(),
                 sequence++,
-                issues
-        );
+                identity,
+                issue,
+                found);
 
-        jmsTemplate.send(
-                Topics.ALERT_SOCRATES_Issue_Recommendation,
-                new TextMessageCreator(event));
+        logger.trace("void process() Replying with {}",event);
+        jmsTemplate.send(Topics.ALERT_SOCRATES_Identity_Verification,new TextMessageCreator(event));
+
 
     }
 

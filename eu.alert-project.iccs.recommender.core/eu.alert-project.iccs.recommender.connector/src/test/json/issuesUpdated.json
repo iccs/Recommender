@@ -1,5 +1,6 @@
 {
     "issueId": "1010",
+    "uri":"owl#bug1"
     "annotations":[
         {
             "subject" : "owl#3",

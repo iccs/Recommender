@@ -30,6 +30,7 @@ import java.util.concurrent.CountDownLatch;
 public class Run {
 
     private static Logger logger = LoggerFactory.getLogger(Run.class);
+    private static final int ISSUE_COUNT = 2000;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -40,17 +41,19 @@ public class Run {
 
         final Run run = new Run();
 
+        final List<String> uuids = IOUtils.readLines(Run.class.getResourceAsStream("/uuids"));
+        final List<String> issues = IOUtils.readLines(Run.class.getResourceAsStream("/issues"));
         final List<String> list = IOUtils.readLines(Run.class.getResourceAsStream("/5desk.txt"));
 
         final CountDownLatch cdl = new CountDownLatch(2);
         final int IDENTITIES_COUNT = 300;
 
-        Thread issues = new Thread() {
+        Thread issuesThread = new Thread() {
 
             @Override
             public void run() {
 
-                List<ArtefactUpdated> artefactUpdateds = run.prepareIssueMap(list);
+                List<ArtefactUpdated> artefactUpdateds = run.prepareIssueMap(issues,list);
 
                 ObjectMapper mapper = new ObjectMapper();
 
@@ -84,13 +87,6 @@ public class Run {
 
             @Override
             public void run() {
-
-                List<String> uuids = new ArrayList<String>();
-                for (int i = 226; i < IDENTITIES_COUNT; i++) {
-                    uuids.add(UUID.randomUUID().toString());
-                }
-
-
 
 
                 List<IdentityUpdated> artefactUpdateds = run.prepareUuidMap(
@@ -126,7 +122,7 @@ public class Run {
 
 
         identities.start();
-        issues.start();
+        issuesThread.start();
 
 
         cdl.await();
@@ -135,16 +131,14 @@ public class Run {
 
     }
 
-    public List<ArtefactUpdated> prepareIssueMap(List<String> topics) {
-
+    public List<ArtefactUpdated> prepareIssueMap(List<String> issues, List<String> topics) {
 
         List<ArtefactUpdated> data = new ArrayList<ArtefactUpdated>();
-        final int ISSUE_COUNT = 2000;
 
-        for (int i = 273; i < ISSUE_COUNT; i++) {
+
+        for (int i = 0; i < ISSUE_COUNT; i++) {
 
             List<AnnotationPair> pairs = new ArrayList<AnnotationPair>();
-
             List<String> addedTopics = new ArrayList<String>();
 
             while (pairs.size() < 100) {
@@ -164,7 +158,7 @@ public class Run {
             }
 
             ArtefactUpdated artefactUpdated = new ArtefactUpdated();
-            artefactUpdated.setId(String.valueOf(i));
+            artefactUpdated.setId(String.valueOf(issues.get(RandomUtils.nextInt(issues.size()))));
             artefactUpdated.setAnnotations(pairs);
 
             data.add(artefactUpdated);
@@ -176,8 +170,6 @@ public class Run {
     }
 
     public List<IdentityUpdated> prepareUuidMap(List<String> uuids, List<String> classes, List<String> topics) {
-
-
 
         List<IdentityUpdated> data = new ArrayList<IdentityUpdated>();
 
