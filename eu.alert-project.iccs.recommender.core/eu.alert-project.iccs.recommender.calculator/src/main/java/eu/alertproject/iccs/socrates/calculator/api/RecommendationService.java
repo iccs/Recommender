@@ -1,7 +1,7 @@
 package eu.alertproject.iccs.socrates.calculator.api;
 
-import eu.alertproject.iccs.socrates.domain.ArtefactUpdated;
-import eu.alertproject.iccs.socrates.domain.IdentityUpdated;
+import eu.alertproject.iccs.events.internal.ArtefactUpdated;
+import eu.alertproject.iccs.events.internal.IdentityUpdated;
 
 /**
  * User: fotis

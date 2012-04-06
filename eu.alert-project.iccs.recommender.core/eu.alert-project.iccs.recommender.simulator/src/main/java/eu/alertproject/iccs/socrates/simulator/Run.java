@@ -1,9 +1,9 @@
 package eu.alertproject.iccs.socrates.simulator;
 
+import eu.alertproject.iccs.events.alert.Keui;
 import eu.alertproject.iccs.events.api.Topics;
-import eu.alertproject.iccs.socrates.domain.AnnotationPair;
-import eu.alertproject.iccs.socrates.domain.ArtefactUpdated;
-import eu.alertproject.iccs.socrates.domain.IdentityUpdated;
+import eu.alertproject.iccs.events.internal.ArtefactUpdated;
+import eu.alertproject.iccs.events.internal.IdentityUpdated;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -18,10 +18,7 @@ import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -62,7 +59,7 @@ public class Run {
                     String s = null;
                     try {
                         s = mapper.writeValueAsString(artefactUpdated);
-                        jmsTemplate.send(Topics.ALERT_STARDOM_Issue_Updated, new TextMessageCreator(s));
+                        jmsTemplate.send(Topics.ICCS_STARDOM_Issue_Updated, new TextMessageCreator(s));
                     } catch (IOException e) {
                         logger.warn("void run(args) ", e);
                     } finally {
@@ -102,7 +99,7 @@ public class Run {
                     String s = null;
                     try {
                         s = mapper.writeValueAsString(au);
-                        jmsTemplate.send(Topics.ALERT_STARDOM_Identity_Updated, new TextMessageCreator(s));
+                        jmsTemplate.send(Topics.ICCS_STARDOM_Identity_Updated, new TextMessageCreator(s));
                     } catch (IOException e) {
                         logger.warn("void run(args) ", e);
                     } finally {
@@ -138,7 +135,7 @@ public class Run {
 
         for (int i = 0; i < ISSUE_COUNT; i++) {
 
-            List<AnnotationPair> pairs = new ArrayList<AnnotationPair>();
+            List<Keui.Concept> pairs = new ArrayList<Keui.Concept>();
             List<String> addedTopics = new ArrayList<String>();
 
             while (pairs.size() < 100) {
@@ -149,17 +146,17 @@ public class Run {
                     continue;
                 }
 
-                AnnotationPair annotationPair = new AnnotationPair();
-                annotationPair.setSubject(topic);
-                annotationPair.setCount(RandomUtils.nextDouble());
-                pairs.add(annotationPair);
+                Keui.Concept concept = new Keui.Concept();
+                concept.setUri(topic);
+                concept.setWeight(RandomUtils.nextInt());
+                pairs.add(concept);
                 addedTopics.add(topic);
 
             }
 
             ArtefactUpdated artefactUpdated = new ArtefactUpdated();
             artefactUpdated.setId(String.valueOf(issues.get(RandomUtils.nextInt(issues.size()))));
-            artefactUpdated.setAnnotations(pairs);
+            artefactUpdated.setConcepts(pairs);
 
             data.add(artefactUpdated);
         }
@@ -175,8 +172,7 @@ public class Run {
 
         for (int i = 0; i < 3000; i++) {
 
-            List<AnnotationPair> pairs = new ArrayList<AnnotationPair>();
-
+            List<Keui.Concept> pairs = new ArrayList<Keui.Concept>();
             List<String> addedTopics = new ArrayList<String>();
 
             while (pairs.size() < 100) {
@@ -189,10 +185,10 @@ public class Run {
                     continue;
                 }
 
-                AnnotationPair annotationPair = new AnnotationPair();
-                annotationPair.setSubject(topic);
-                annotationPair.setCount(RandomUtils.nextDouble());
-                pairs.add(annotationPair);
+                Keui.Concept concept = new Keui.Concept();
+                concept.setUri(topic);
+                concept.setWeight(RandomUtils.nextInt());
+                pairs.add(concept);
                 addedTopics.add(topic);
 
             }
@@ -201,17 +197,12 @@ public class Run {
 
             IdentityUpdated identityUpdated = new IdentityUpdated();
             identityUpdated.setId(uuids.get(RandomUtils.nextInt(uuids.size())));
-            identityUpdated.setAnnotations(pairs);
+            identityUpdated.setConcepts(pairs);
 
-            List<IdentityUpdated.CI> cis = new ArrayList<IdentityUpdated.CI>();
+            Map<String, Double> cis = new HashMap<String, Double>();
 
             for (int j = 0; j < RandomUtils.nextInt(classes.size()); j++) {
-
-                IdentityUpdated.CI ci = new IdentityUpdated.CI();
-                ci.setClazz(classes.get(RandomUtils.nextInt(classes.size() - 1) + 1));
-                ci.setWeight(RandomUtils.nextDouble());
-                cis.add(ci);
-
+                cis.put(classes.get(RandomUtils.nextInt(classes.size() - 1) + 1), RandomUtils.nextDouble());
             }
 
             identityUpdated.setCis(cis);

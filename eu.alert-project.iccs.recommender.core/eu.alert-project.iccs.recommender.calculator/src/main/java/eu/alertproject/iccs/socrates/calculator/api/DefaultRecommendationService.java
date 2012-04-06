@@ -1,10 +1,15 @@
 package eu.alertproject.iccs.socrates.calculator.api;
 
+import eu.alertproject.iccs.events.alert.Keui;
+import eu.alertproject.iccs.events.internal.ArtefactUpdated;
+import eu.alertproject.iccs.events.internal.IdentityUpdated;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
 import eu.alertproject.iccs.socrates.calculator.internal.text.AnnotatedObjectSimilarity;
 import eu.alertproject.iccs.socrates.datastore.api.*;
 import eu.alertproject.iccs.socrates.domain.*;
+
+import java.util.*;
 import java.util.logging.Level;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -15,10 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -62,26 +63,22 @@ public class DefaultRecommendationService implements RecommendationService{
 
         try {
 
-            List<IdentityUpdated.CI> cis = identityUpdated.getCis();
+            Map<String,Double> cis = identityUpdated.getCis();
             uuidClassDao.removeByUuid(identityUpdated.getId());
 
-            for(IdentityUpdated.CI ci : cis){
-
+            for (String key : cis.keySet()) {
                 UuidClass uuidClass = new UuidClass();
-                uuidClass.setUuidAndClass(ci.getClazz(), identityUpdated.getId());
-                uuidClass.setWeight(ci.getWeight());
+                uuidClass.setUuidAndClass(key, identityUpdated.getId());
+                uuidClass.setWeight(cis.get(key));
 
                 uuidClassDao.insert(uuidClass);
             }
 
 
-
-
-            List<AnnotationPair> annotations = identityUpdated.getAnnotations();
-
-
+            List<Keui.Concept> concepts = identityUpdated.getConcepts();
             List<UuidSubject> uuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
-            for(AnnotationPair ap: annotations){
+
+            for(Keui.Concept ap: concepts){
 
                 UuidSubject us = null;
 
@@ -90,9 +87,9 @@ public class DefaultRecommendationService implements RecommendationService{
                 while(iterator.hasNext()){
                     UuidSubject next = iterator.next();
                     
-                    if(StringUtils.equalsIgnoreCase(ap.getSubject(),next.getSubject())){
+                    if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
                         //update previous
-                        next.setWeight(next.getWeight()+ap.getCount());
+                        next.setWeight(next.getWeight()+ap.getWeight());
                         us  = uuidSubjectDao.update(next);
                         iterator.remove();
                     }
@@ -103,15 +100,16 @@ public class DefaultRecommendationService implements RecommendationService{
                 if(us == null ){
                     //create new
                     us = new UuidSubject();
-                    us.setWeight(ap.getCount());
-                    us.setUuidAndSubject(identityUpdated.getId(), ap.getSubject());
+                    us.setWeight(Double.valueOf(ap.getWeight()));
+                    us.setUuidAndSubject(identityUpdated.getId(), ap.getUri());
 
                     logger.trace("void updateSimilaritiesForIdentity() Inserting {} ",us);
+
                     us = uuidSubjectDao.insert(us);
+
                 }
 
             }
-
 
 
             List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
@@ -171,8 +169,6 @@ public class DefaultRecommendationService implements RecommendationService{
 
     }
 
-
-
     @Override
     @Transactional
     public void updateSimilaritiesForIssue(ArtefactUpdated artefactUpdated) {
@@ -180,11 +176,11 @@ public class DefaultRecommendationService implements RecommendationService{
 
         try {
 
-            List<AnnotationPair> annotations = artefactUpdated.getAnnotations();
+            List<Keui.Concept> annotations = artefactUpdated.getConcepts();
 
             List<IssueSubject> issueSubjects  = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
             
-            for(AnnotationPair ap: annotations){
+            for(Keui.Concept ap: annotations){
 
                 IssueSubject us = null;
 
@@ -193,9 +189,9 @@ public class DefaultRecommendationService implements RecommendationService{
                 while(iterator.hasNext()){
                     IssueSubject next = iterator.next();
 
-                    if(StringUtils.equalsIgnoreCase(ap.getSubject(),next.getSubject())){
+                    if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
                         //update previous
-                        next.setWeight(next.getWeight()+ap.getCount());
+                        next.setWeight(next.getWeight()+ap.getWeight());
                         us  = issueSubjectDao.update(next);
                         iterator.remove();
                     }
@@ -204,13 +200,15 @@ public class DefaultRecommendationService implements RecommendationService{
                 }
                 
                 if(us == null ){
+
                     //create new
                     us = new IssueSubject();
-                    us.setWeight(ap.getCount());
-                    us.setIssueAndSubject(Integer.valueOf(artefactUpdated.getId()), ap.getSubject());
+                    us.setWeight(Double.valueOf(ap.getWeight()));
+                    us.setIssueAndSubject(Integer.valueOf(artefactUpdated.getId()), ap.getUri());
 
                     logger.trace("void updateSimilaritiesForIssue() Inserting {} ",us);
                     issueSubjectDao.insert(us);
+
                 }
 
             }
@@ -229,8 +227,6 @@ public class DefaultRecommendationService implements RecommendationService{
             }
             AnnotatedIssue annotatedIssue = new AnnotatedIssue(artefactUpdated.getId(), issueAnnotations);
 
-
-
             //initialize identity annotations\
             HashMap<String, Double> identityAnnotations = new HashMap<String, Double>();
 
@@ -238,6 +234,7 @@ public class DefaultRecommendationService implements RecommendationService{
                 //iterate through all possible identities
 
                 for (String u : uuids) {
+
                     identityAnnotations.clear();
                     List<UuidSubject> thisIdentitySubjects = uuidSubjectDao.findByUuid(u);
 
@@ -251,21 +248,17 @@ public class DefaultRecommendationService implements RecommendationService{
                     currentUuidIssue.setUuidAndIssue(u, Integer.valueOf(artefactUpdated.getId()));
                     currentUuidIssue.setSimilarity(currentSimilarity);
                     newSimilarities.add(currentUuidIssue);
+
                 }
 
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(DefaultRecommendationService.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            
-            // return a List<UuidIssue>
-
 
             uuidIssueDao.removeByIssueId(Integer.valueOf(artefactUpdated.getId()));
             for(UuidIssue u: newSimilarities){
                 uuidIssueDao.insert(u);
             }
-
 
         } finally {
             lock.unlock();

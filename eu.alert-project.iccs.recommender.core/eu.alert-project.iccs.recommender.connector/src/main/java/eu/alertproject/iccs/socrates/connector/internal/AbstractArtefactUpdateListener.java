@@ -1,7 +1,6 @@
 package eu.alertproject.iccs.socrates.connector.internal;
 
-import eu.alertproject.iccs.events.api.AbstractActiveMQListener;
-import eu.alertproject.iccs.socrates.domain.ArtefactUpdated;
+import eu.alertproject.iccs.events.internal.ArtefactUpdated;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

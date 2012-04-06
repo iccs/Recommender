@@ -48,9 +48,8 @@ public class VerifyIdentityRequestListener extends SocratesActiveMQListener{
 
         long start = System.currentTimeMillis();
 
-        XStream xStream = new XStream();
-        xStream.processAnnotations(VerifyIdentityEnvelope.class);
-        VerifyIdentityEnvelope rie = (VerifyIdentityEnvelope) xStream.fromXML(text);
+        VerifyIdentityEnvelope rie =  EventFactory.<VerifyIdentityEnvelope>fromXml(text,VerifyIdentityEnvelope.class);
+
 
         Issue issue = rie.getBody()
                 .getNotify()
@@ -69,6 +68,15 @@ public class VerifyIdentityRequestListener extends SocratesActiveMQListener{
                 .getPayload()
                 .getEventData()
                 .getIdentity();
+
+        String patternId = rie.getBody()
+                .getNotify()
+                .getNotificationMessage()
+                .getMessage()
+                .getEvent()
+                .getPayload()
+                .getEventData()
+                .getPatternId();
 
 
         Integer eventId = rie.getBody()
@@ -104,6 +112,7 @@ public class VerifyIdentityRequestListener extends SocratesActiveMQListener{
                 sequence++,
                 identity,
                 issue,
+                patternId,
                 found);
 
         logger.trace("void process() Replying with {}",event);

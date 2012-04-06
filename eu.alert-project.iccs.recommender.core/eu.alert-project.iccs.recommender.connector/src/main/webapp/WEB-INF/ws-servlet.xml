@@ -125,7 +125,7 @@
             <bean
                 class="org.apache.activemq.command.ActiveMQTopic">
                 <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_STARDOM_Identity_Updated"/>
+                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Identity_Updated"/>
                 </constructor-arg>
             </bean>
         </property>
@@ -142,7 +142,7 @@
             <bean
                 class="org.apache.activemq.command.ActiveMQTopic">
                 <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_STARDOM_Issue_Updated"/>
+                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Issue_Updated"/>
                 </constructor-arg>
             </bean>
         </property>

@@ -45,9 +45,10 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
 
         long start = System.currentTimeMillis();
 
-        XStream xStream = new XStream();
-        xStream.processAnnotations(RecommendIdentityEnvelope.class);
-        RecommendIdentityEnvelope rie = (RecommendIdentityEnvelope) xStream.fromXML(text);
+        RecommendIdentityEnvelope rie =
+                EventFactory.<RecommendIdentityEnvelope>fromXml(
+                        text,
+                        RecommendIdentityEnvelope.class);
 
         List<Issue> issues = rie.getBody()
                 .getNotify()
@@ -67,6 +68,16 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
                 .getPayload()
                 .getMeta()
                 .getEventId();
+
+        String patternId = rie.getBody()
+                .getNotify()
+                .getNotificationMessage()
+                .getMessage()
+                .getEvent()
+                .getPayload()
+                .getEventData().getPatternId();
+
+
 
 
         List<Identity> identities = new ArrayList<Identity>();
@@ -92,6 +103,7 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
                 start,
                 System.currentTimeMillis(),
                 sequence++,
+                patternId,
                 identities
         );
 

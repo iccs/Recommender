@@ -1,8 +1,7 @@
 package eu.alertproject.iccs.socrates.connector.internal;
 
+import eu.alertproject.iccs.events.internal.IdentityUpdated;
 import eu.alertproject.iccs.socrates.calculator.api.RecommendationService;
-import eu.alertproject.iccs.socrates.domain.ArtefactUpdated;
-import eu.alertproject.iccs.socrates.domain.IdentityUpdated;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

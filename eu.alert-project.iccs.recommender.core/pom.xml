@@ -308,13 +308,6 @@
                 <version>0.0.1</version>
             </dependency>
 
-            <!-- EventBus -->
-            <dependency>
-                <groupId>org.bushe</groupId>
-                <artifactId>eventbus</artifactId>
-                <version>1.4</version>
-            </dependency>
-
             <!-- Test -->
             <dependency>
                 <groupId>junit</groupId>
@@ -380,6 +373,12 @@
 
             <!-- Inhouse -->
             <dependency>
+                <groupId>eu.alert-project.iccs.events</groupId>
+                <artifactId>core</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.existanze.libraries</groupId>
                 <artifactId>orm</artifactId>
                 <version>0.0.3</version>
@@ -421,12 +420,6 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>${commons-lang.commons-lang.version}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.bushe</groupId>
-            <artifactId>eventbus</artifactId>
         </dependency>
 
         <!--  Test Dependencies  -->
