@@ -60,8 +60,10 @@ public class AnnotatedObjectSimilarity implements Similarity {
         for (String k : item2.getAnnotations().keySet()) {
             norm2 += item2.getAnnotations().get(k) * item2.getAnnotations().get(k);
         }
-        similarity = numerator / Math.sqrt(norm1 * norm2);
-        return similarity;
+        
+        similarity = numerator / Math.sqrt(norm1 * norm2); //this could return NaN if either norm1 or norm2 are 0 
+        
+        return similarity == Double.NaN ? 0.0 : similarity;
 
     }
 
