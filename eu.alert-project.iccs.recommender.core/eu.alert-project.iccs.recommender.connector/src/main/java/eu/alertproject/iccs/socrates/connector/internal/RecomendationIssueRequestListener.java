@@ -45,18 +45,19 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
 
         long start = System.currentTimeMillis();
 
-        XStream xStream = new XStream();
-        xStream.processAnnotations(RecommendIssuesEnvelope.class);
-        RecommendIssuesEnvelope rie = (RecommendIssuesEnvelope) xStream.fromXML(text);
+        RecommendIssuesEnvelope rie = EventFactory.<RecommendIssuesEnvelope>fromXml(
+                text,
+                RecommendIssuesEnvelope.class
+        );
 
-        List<Identity> identities = rie.getBody()
+        List<IssueIdentities> issueIdentities = rie.getBody()
                 .getNotify()
                 .getNotificationMessage()
                 .getMessage()
                 .getEvent()
                 .getPayload()
                 .getEventData()
-                .getIdentities();
+                .getIssueIdentities();
 
 
         Integer eventId = rie.getBody()
@@ -71,16 +72,19 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
 
         
         List<Issue> issues = new ArrayList<Issue>();
-        
-        for(Identity i : identities){
 
-            List<UuidIssue> byIssueId = uuidIssueDao.findByUuid(i.getUuid());
-            
-            for(UuidIssue ui : byIssueId){
-                issues.add(new Issue(
-                        ui.getUuid(),
-                        "owl#"+ui.getIssueId()
-                ));
+        for(IssueIdentities ii: issueIdentities){
+            List<Identity> identities = ii.getIdentities();
+            for(Identity i : identities){
+
+                List<UuidIssue> byIssueId = uuidIssueDao.findByUuid(i.getUuid());
+
+                for(UuidIssue ui : byIssueId){
+                    issues.add(new Issue(
+                            String.valueOf(ui.getIssueId()),
+                            "owl#"+ui.getIssueId()
+                    ));
+                }
             }
         }
 

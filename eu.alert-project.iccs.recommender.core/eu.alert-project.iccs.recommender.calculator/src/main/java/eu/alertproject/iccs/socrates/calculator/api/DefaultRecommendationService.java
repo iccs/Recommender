@@ -12,6 +12,7 @@ import eu.alertproject.iccs.socrates.domain.*;
 import java.util.*;
 import java.util.logging.Level;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,12 +60,18 @@ public class DefaultRecommendationService implements RecommendationService{
     @Override
     @Transactional
     public void updateSimilaritiesForIdentity(IdentityUpdated identityUpdated) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        logger.trace("void updateSimilaritiesForIdentity() Attemping lock ");
         lock.lock();
+        stopWatch.split();
+        logger.trace("void updateSimilaritiesForIdentity() Attemping lock took {}",stopWatch.toSplitString());
 
         try {
 
             Map<String,Double> cis = identityUpdated.getCis();
             uuidClassDao.removeByUuid(identityUpdated.getId());
+
 
             for (String key : cis.keySet()) {
                 UuidClass uuidClass = new UuidClass();
@@ -74,6 +81,8 @@ public class DefaultRecommendationService implements RecommendationService{
                 uuidClassDao.insert(uuidClass);
             }
 
+            stopWatch.split();
+            logger.trace("void updateSimilaritiesForIdentity() Took {} to insert uuid classes",stopWatch.toSplitString());
 
             List<Keui.Concept> concepts = identityUpdated.getConcepts();
             List<UuidSubject> uuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
@@ -95,6 +104,10 @@ public class DefaultRecommendationService implements RecommendationService{
                     }
                     
                 }
+
+                stopWatch.split();
+                logger.trace("void updateSimilaritiesForIdentity() Took {} to update subjects ",stopWatch.toSplitString());
+
                 
                 
                 if(us == null ){
@@ -112,15 +125,24 @@ public class DefaultRecommendationService implements RecommendationService{
             }
 
 
+            stopWatch.split();
+            logger.trace("void updateSimilaritiesForIdentity() Took {} to handle concepts{}",stopWatch.toSplitString());
+
+
             List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
+
             List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
+            stopWatch.split();
+            logger.trace("void updateSimilaritiesForIdentity() Took {} to get UuidSubject {}",stopWatch.toSplitString());
+
             List<Integer> allIssues = issueSubjectDao.findAllIssues();
-            
+            stopWatch.split();
+            logger.trace("void updateSimilaritiesForIdentity() Took {} to get all Issues {}",stopWatch.toSplitString());
+
             
             
             
             //create annotated object 1: the identity
-            
             HashMap<String,Double> identityAnnotations = new HashMap<String,Double>();
             for (UuidSubject us : newUuidSubjects) {
                 identityAnnotations.put(us.getSubject(), us.getWeight());
@@ -132,6 +154,7 @@ public class DefaultRecommendationService implements RecommendationService{
             HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
             try {
                 //iterate through all possible issues
+                stopWatch.split();
                 for (Integer i : allIssues) {
                     issueAnnotations.clear();
                     List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueId(i);
@@ -147,31 +170,38 @@ public class DefaultRecommendationService implements RecommendationService{
                     newSimilarities.add(currentUuidIssue);
                 }
 
+                stopWatch.split();
+                logger.trace("void updateSimilaritiesForIdentity() Took {} to calculate similarities {}",stopWatch.toSplitString());
+
+
+
             } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(DefaultRecommendationService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Couldn't update the uuid_issues",ex);
             }
 
-            // return a List<UuidIssue>
-            
-
-
             uuidIssueDao.removeByUuid(identityUpdated.getId());
+
+            stopWatch.split();
             for(UuidIssue u: newSimilarities){
                 uuidIssueDao.insert(u);
             }
+            stopWatch.split();
+            logger.trace("void updateSimilaritiesForIdentity() Took {} to insert uuids{}",stopWatch.toSplitString());
+
 
 
         } finally {
+            stopWatch.stop();
+            logger.trace("void updateSimilaritiesForIdentity() Took {} in total ",stopWatch.toString());
             lock.unlock();
         }
-
-
 
     }
 
     @Override
     @Transactional
     public void updateSimilaritiesForIssue(ArtefactUpdated artefactUpdated) {
+
         lock.lock();
 
         try {
@@ -246,13 +276,14 @@ public class DefaultRecommendationService implements RecommendationService{
                     Double currentSimilarity = new AnnotatedObjectSimilarity(annotatedIdentity, annotatedIssue).calculateSimilarity();
                     UuidIssue currentUuidIssue=new UuidIssue();
                     currentUuidIssue.setUuidAndIssue(u, Integer.valueOf(artefactUpdated.getId()));
-                    currentUuidIssue.setSimilarity(currentSimilarity);
+                    //TODO Kostas check why NaN?
+                    currentUuidIssue.setSimilarity(currentSimilarity==Double.NaN ? 0.0 : currentSimilarity);
                     newSimilarities.add(currentUuidIssue);
 
                 }
 
             } catch (Exception ex) {
-                java.util.logging.Logger.getLogger(DefaultRecommendationService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Couldn't update the uuid_issues",ex);
             }
 
             uuidIssueDao.removeByIssueId(Integer.valueOf(artefactUpdated.getId()));
