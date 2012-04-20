@@ -41,9 +41,11 @@ public class DefaultIdentitySearchService implements IdentitySearchService {
         List<UuidIssue> uuidIssues = uuidIssueDao.findByIssueId(issueId);
         List<IdentityBean> recs = new ArrayList<IdentityBean>();
         TreeMap<Double, IdentityBean> recsFull = new TreeMap<Double, IdentityBean>();
+        Integer ranking=1;
         for (UuidIssue ui : uuidIssues) {
             //TODO: We need to retrieve the name and surname of the developer from STARDOM
-            recsFull.put(ui.getSimilarity(), new IdentityBean(ui.getUuid(), "name", "surname"));
+            recsFull.put(ui.getSimilarity(), new IdentityBean(ui.getUuid(), "name", "surname",ui.getSimilarity(),ranking));
+            ranking++;
         }
         Set<Double> descRecsKeySet = recsFull.descendingKeySet();
         Iterator keySetIterator = descRecsKeySet.iterator();
@@ -76,7 +78,7 @@ public class DefaultIdentitySearchService implements IdentitySearchService {
         }
         logger.debug(identityDescription);
 //            // create a Bug & add it to data            
-        IdentityBean identityBean = new IdentityBean(uuid, "name", identityDescription);
+        IdentityBean identityBean = new IdentityBean(uuid, "name", identityDescription,0.0,0);
         return identityBean;
     }
 }

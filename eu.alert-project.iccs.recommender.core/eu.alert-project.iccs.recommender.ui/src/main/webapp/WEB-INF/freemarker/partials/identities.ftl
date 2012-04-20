@@ -12,6 +12,10 @@
                 <tr>
                     <td >${identity.name} ${identity.lastname}</td>
                 </tr>
+<!--                For each row also display the similarity and the ranking-->
+                <tr>
+                    <td >${identity.similarity} /  ${identity.ranking}</td>
+                </tr>
             </tbody>
         </table>
     </li>

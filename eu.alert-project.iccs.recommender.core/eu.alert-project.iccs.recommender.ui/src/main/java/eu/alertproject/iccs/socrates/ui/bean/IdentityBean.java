@@ -1,25 +1,42 @@
 package eu.alertproject.iccs.socrates.ui.bean;
 
 /**
- * Created by IntelliJ IDEA.
- * User: fotis
- * Date: 08/02/12
- * Time: 11:57 PM
- * To change this template use File | Settings | File Templates.
+ * Created by IntelliJ IDEA. User: fotis Date: 08/02/12 Time: 11:57 PM To change
+ * this template use File | Settings | File Templates.
  */
 public class IdentityBean {
 
     private String uuid;
     private String name;
     private String lastname;
-    
+    private Double similarity;
+    private Integer ranking;
+
     public IdentityBean() {
     }
 
-    public IdentityBean(String uuid, String name, String lastname) {
+    public IdentityBean(String uuid, String name, String lastname, Double similarity, Integer ranking) {
         this.uuid = uuid;
         this.name = name;
         this.lastname = lastname;
+        this.similarity = similarity;
+        this.ranking = ranking;
+    }
+
+    public Integer getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(Integer ranking) {
+        this.ranking = ranking;
+    }
+
+    public Double getSimilarity() {
+        return similarity;
+    }
+
+    public void setSimilarity(Double similarity) {
+        this.similarity = similarity;
     }
 
     public String getUuid() {
@@ -48,14 +65,24 @@ public class IdentityBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         IdentityBean that = (IdentityBean) o;
 
-        if (lastname != null ? !lastname.equals(that.lastname) : that.lastname != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) return false;
+        if (lastname != null ? !lastname.equals(that.lastname) : that.lastname != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) {
+            return false;
+        }
 
         return true;
     }
@@ -70,11 +97,12 @@ public class IdentityBean {
 
     @Override
     public String toString() {
-        return "IdentityBean{" +
-                "uuid='" + uuid + '\'' +
-                ", name='" + name + '\'' +
-                ", lastname='" + lastname + '\'' +
-                '}';
+        return "IdentityBean{"
+                + "uuid='" + uuid + '\''
+                + ", name='" + name + '\''
+                + ", lastname='" + lastname + '\''
+                + ", similarity='" + similarity + '\''
+                + ", ranking='" + ranking + '\''
+                + '}';
     }
 }
-
