@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import org.apache.commons.collections15.map.FastHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,14 +69,16 @@ public class DefaultBugSearchService implements BugSearchService {
         List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueId(id);
         bugTitle = "Bug #" + id;
         bugDescription = "";
+        HashMap<String,Double> annotationsMap= new FastHashMap<String, Double>();
         for (IssueSubject is : thisIssueSubjects) {
             bugDescription = bugDescription + "'" + is.getSubject() + "' " +"<em>" +is.getWeight()+"</em>";
+              annotationsMap.put(is.getSubject(), is.getWeight());
         }
 //            logger.debug(bugDescription);
 //            // create a Bug & add it to data            
 
 
-        data.put(id, new Bug(id, bugTitle, bugDescription));
+        data.put(id, new Bug(id, bugTitle, bugDescription,annotationsMap));
 //            // make its title "Bug" + bug id
 
 
@@ -103,10 +106,12 @@ public class DefaultBugSearchService implements BugSearchService {
             //TODO: We need to retrieve the name and surname of the developer from STARDOM
             
             List<IssueSubject> issueSubjects = issueSubjectDao.findByIssueId(ui.getIssueId());
+            HashMap<String,Double> annotationsMap= new FastHashMap<String, Double>();
            for (IssueSubject is : issueSubjects) {
                bugDescription += " " +is.getSubject() +" ";
+               annotationsMap.put(is.getSubject(), is.getWeight());
            }
-            recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug #" + ui.getIssueId(), bugDescription));
+            recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug #" + ui.getIssueId(), bugDescription,annotationsMap));
         }
         Set<Double> descRecsKeySet = recsFull.descendingKeySet();
         Iterator keySetIterator = descRecsKeySet.iterator();

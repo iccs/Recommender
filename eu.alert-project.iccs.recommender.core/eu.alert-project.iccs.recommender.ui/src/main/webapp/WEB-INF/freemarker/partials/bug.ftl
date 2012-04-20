@@ -10,9 +10,10 @@
             <tr>
                 <td>${bug.subject}</td>
             </tr>
-            <tr>
-                <td>${bug.description}</td>
+            <#list bug.annotationMap?keys as key><tr>
+                <td class="annot">${key}</td> <td class="annotweight">${bug.annotationMap[key]}</td>
             </tr>
+            </#list>
         </tbody>
     </table>
     <#else>
