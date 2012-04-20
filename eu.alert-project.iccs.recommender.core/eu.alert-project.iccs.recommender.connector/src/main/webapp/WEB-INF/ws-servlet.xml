@@ -154,21 +154,6 @@
 
 
     <bean id="recomendationIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIdentityRequestListener" />
-    <!--<bean id="iccsRecomendationIdentityRequestListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">-->
-        <!--<property name="connectionFactory" ref="jmsConnectionFactory"/>-->
-        <!--<property name="destination">-->
-            <!--<bean-->
-                <!--class="org.apache.activemq.command.ActiveMQTopic">-->
-                <!--<constructor-arg>-->
-                    <!--<util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_SEARCH_SOCRATES_Identity_Recommendation_Request"/>-->
-                <!--</constructor-arg>-->
-            <!--</bean>-->
-        <!--</property>-->
-        <!--<property name="messageListener" ref="recomendationIdentityRequestListener"/>-->
-        <!--<property name="recoveryInterval" value="60000"/>-->
-        <!--<property name="cacheLevel" value="3" />-->
-    <!--</bean>-->
-
     <bean id="iccsAllRecomendationIdentityRequestListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
         <property name="destination">
@@ -180,6 +165,22 @@
             </bean>
         </property>
         <property name="messageListener" ref="recomendationIdentityRequestListener"/>
+        <property name="recoveryInterval" value="60000"/>
+        <property name="cacheLevel" value="3" />
+    </bean>
+
+    <bean id="recomendationIssueRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIssueRequestListener" />
+    <bean id="iccsAllRecomendationIssueRequestListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+        <property name="destination">
+            <bean
+                class="org.apache.activemq.command.ActiveMQTopic">
+                <constructor-arg>
+                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Issue_Recommendation_Request"/>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="messageListener" ref="recomendationIssueRequestListener"/>
         <property name="recoveryInterval" value="60000"/>
         <property name="cacheLevel" value="3" />
     </bean>

@@ -79,8 +79,9 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
 
 
 
+        
 
-        List<Identity> identities = new ArrayList<Identity>();
+        List<IssueIdentities> issueIdentitieses = new ArrayList<IssueIdentities>();
 
 
         for(Issue i : issues){
@@ -89,12 +90,20 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
 
             List<UuidIssue> byIssueId = uuidIssueDao.findByIssueId(bugId);
             
+            List<Identity> identities =new ArrayList<Identity>();
             for(UuidIssue ui : byIssueId){
-                identities.add(new Identity(
-                        ui.getUuid(),
-                        "No Name - "+ui.getUuid()
+                
+                
+                identities.add(new Identity(ui.getUuid(),"No Name - "+ui.getUuid()
                 ));
             }
+
+            issueIdentitieses.add(
+                    new IssueIdentities(
+                            i,
+                            identities
+                    )
+            );
         }
 
         //create a response
@@ -104,7 +113,7 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
                 System.currentTimeMillis(),
                 sequence++,
                 patternId,
-                identities
+                issueIdentitieses
         );
 
 

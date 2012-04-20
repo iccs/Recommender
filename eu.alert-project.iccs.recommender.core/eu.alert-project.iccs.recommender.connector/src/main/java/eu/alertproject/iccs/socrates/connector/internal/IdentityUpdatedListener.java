@@ -21,6 +21,9 @@ public class IdentityUpdatedListener extends AbstractArtefactUpdateListener<Iden
     @Autowired
     RecommendationService recommendationService;
 
+    @Autowired
+    StoreEventService storeEventService;
+
 
     @Override
     void updateSimilarities(IdentityUpdated identityUpdated) {
@@ -32,6 +35,8 @@ public class IdentityUpdatedListener extends AbstractArtefactUpdateListener<Iden
     @Override
     public IdentityUpdated processText(ObjectMapper mapper, String text) throws IOException {
 
+        storeEventService.store("identity",text);
+        //store
         IdentityUpdated identityUpdated = mapper.readValue(text, IdentityUpdated.class);
         logger.trace("IdentityUpdated process() {} ",identityUpdated);
         return identityUpdated;

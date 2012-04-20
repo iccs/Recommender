@@ -21,6 +21,10 @@ public class IssueUpdatedListener extends AbstractArtefactUpdateListener<Artefac
     @Autowired
     RecommendationService recommendationService;
 
+    @Autowired
+    StoreEventService storeEventService;
+
+
     @Override
     void updateSimilarities(ArtefactUpdated artefactUpdated) {
         logger.trace("void updateSimilarities() {} ",artefactUpdated);
@@ -29,6 +33,9 @@ public class IssueUpdatedListener extends AbstractArtefactUpdateListener<Artefac
 
     @Override
     public ArtefactUpdated processText(ObjectMapper mapper, String text) throws IOException {
+
+        storeEventService.store("issue",text);
+
         ArtefactUpdated artefactUpdated = mapper.readValue(text, ArtefactUpdated.class);
         logger.trace("ArtefactUpdated process() {} ",artefactUpdated);
         return artefactUpdated;
