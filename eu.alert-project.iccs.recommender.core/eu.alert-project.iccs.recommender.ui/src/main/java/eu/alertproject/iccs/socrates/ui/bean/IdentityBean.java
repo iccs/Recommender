@@ -10,12 +10,12 @@ public class IdentityBean {
     private String name;
     private String lastname;
     private Double similarity;
-    private Integer ranking;
+    private Double ranking;
 
     public IdentityBean() {
     }
 
-    public IdentityBean(String uuid, String name, String lastname, Double similarity, Integer ranking) {
+    public IdentityBean(String uuid, String name, String lastname, Double similarity, Double ranking) {
         this.uuid = uuid;
         this.name = name;
         this.lastname = lastname;
@@ -23,11 +23,11 @@ public class IdentityBean {
         this.ranking = ranking;
     }
 
-    public Integer getRanking() {
+    public Double getRanking() {
         return ranking;
     }
 
-    public void setRanking(Integer ranking) {
+    public void setRanking(Double ranking) {
         this.ranking = ranking;
     }
 

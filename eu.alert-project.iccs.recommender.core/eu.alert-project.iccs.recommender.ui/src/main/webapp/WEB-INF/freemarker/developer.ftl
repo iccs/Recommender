@@ -47,7 +47,7 @@ recommend sticking to 'spring' -->
         lockLinks();
   $("#devview").html("trying to find it");
         $.get(
-            "<@spring.url "/developer/search"/>/"+getSearchString(),
+            "<@spring.url "/developer/developer/search"/>/"+getSearchString(),
             function(data){
 
                 if(data == undefined){
@@ -57,7 +57,7 @@ recommend sticking to 'spring' -->
 
                $("#devview").html(data);
                $("#devview").fadeIn();
-
+               unlockLinks();
                
 
             }

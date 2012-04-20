@@ -69,7 +69,7 @@ public class DefaultBugSearchService implements BugSearchService {
         bugTitle = "Bug #" + id;
         bugDescription = "";
         for (IssueSubject is : thisIssueSubjects) {
-            bugDescription = bugDescription + "'" + is.getSubject() + "' ";
+            bugDescription = bugDescription + "'" + is.getSubject() + "' " +"<em>" +is.getWeight()+"</em>";
         }
 //            logger.debug(bugDescription);
 //            // create a Bug & add it to data            
@@ -97,9 +97,16 @@ public class DefaultBugSearchService implements BugSearchService {
         List<Bug> recs = new ArrayList<Bug>();
 
         TreeMap<Double, Bug> recsFull = new TreeMap<Double, Bug>();
+        String bugDescription="";
         for (UuidIssue ui : uuidIssues) {
+            bugDescription="";
             //TODO: We need to retrieve the name and surname of the developer from STARDOM
-            recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug", "bug desc"));
+            
+            List<IssueSubject> issueSubjects = issueSubjectDao.findByIssueId(ui.getIssueId());
+           for (IssueSubject is : issueSubjects) {
+               bugDescription += " " +is.getSubject() +" ";
+           }
+            recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug #" + ui.getIssueId(), bugDescription));
         }
         Set<Double> descRecsKeySet = recsFull.descendingKeySet();
         Iterator keySetIterator = descRecsKeySet.iterator();

@@ -1,7 +1,9 @@
 package eu.alertproject.iccs.socrates.ui.services;
 
+import eu.alertproject.iccs.socrates.datastore.api.UuidClassDao;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
 import eu.alertproject.iccs.socrates.datastore.api.UuidSubjectDao;
+import eu.alertproject.iccs.socrates.domain.UuidClass;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import eu.alertproject.iccs.socrates.domain.UuidSubject;
 import eu.alertproject.iccs.socrates.ui.bean.Bug;
@@ -26,9 +28,14 @@ public class DefaultIdentitySearchService implements IdentitySearchService {
     UuidIssueDao uuidIssueDao;
     @Autowired
     UuidSubjectDao uuidSubjectDao;
+    @Autowired
+    UuidClassDao uuidClassDao;
+    
     private Logger logger = LoggerFactory.getLogger(DefaultIdentitySearchService.class);
     private NavigableSet<Double> descRecsKeySet;
     private final Integer MAX_RECS_NO = 10;
+    private final Double similarityWeight=1.0;
+    private final Double rankingWeight=1.0;
 
     public DefaultIdentitySearchService() {
     }
@@ -41,11 +48,17 @@ public class DefaultIdentitySearchService implements IdentitySearchService {
         List<UuidIssue> uuidIssues = uuidIssueDao.findByIssueId(issueId);
         List<IdentityBean> recs = new ArrayList<IdentityBean>();
         TreeMap<Double, IdentityBean> recsFull = new TreeMap<Double, IdentityBean>();
-        Integer ranking=1;
+        Double ranking = 0.0;
+        Double finalSimilarity = 0.0;
         for (UuidIssue ui : uuidIssues) {
+            List<UuidClass> uuidClasses = uuidClassDao.findByUuidAndClass(ui.getUuid(), classification);
+            for (UuidClass uc : uuidClasses) {
+                ranking = uc.getWeight();
+            }
+            finalSimilarity = ((ui.getSimilarity() * similarityWeight) + (ranking * rankingWeight)) / (similarityWeight + rankingWeight);
             //TODO: We need to retrieve the name and surname of the developer from STARDOM
-            recsFull.put(ui.getSimilarity(), new IdentityBean(ui.getUuid(), "name", "surname",ui.getSimilarity(),ranking));
-            ranking++;
+            recsFull.put(finalSimilarity, new IdentityBean(ui.getUuid(), "name", "surname", ui.getSimilarity(), ranking));
+
         }
         Set<Double> descRecsKeySet = recsFull.descendingKeySet();
         Iterator keySetIterator = descRecsKeySet.iterator();
@@ -78,7 +91,7 @@ public class DefaultIdentitySearchService implements IdentitySearchService {
         }
         logger.debug(identityDescription);
 //            // create a Bug & add it to data            
-        IdentityBean identityBean = new IdentityBean(uuid, "name", identityDescription,0.0,0);
+        IdentityBean identityBean = new IdentityBean(uuid, "name", identityDescription,0.0,0.0);
         return identityBean;
     }
 }
