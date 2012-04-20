@@ -151,8 +151,6 @@
         <property name="cacheLevel" value="3" />
     </bean>
 
-
-
     <bean id="recomendationIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIdentityRequestListener" />
     <bean id="iccsAllRecomendationIdentityRequestListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>

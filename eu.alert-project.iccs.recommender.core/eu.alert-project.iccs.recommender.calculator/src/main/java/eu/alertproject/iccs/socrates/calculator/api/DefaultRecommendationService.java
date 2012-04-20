@@ -87,43 +87,49 @@ public class DefaultRecommendationService implements RecommendationService{
             List<Keui.Concept> concepts = identityUpdated.getConcepts();
             List<UuidSubject> uuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
 
-            for(Keui.Concept ap: concepts){
+            List<Keui.Concept> processed = new ArrayList<Keui.Concept>();
 
-                UuidSubject us = null;
+            if(concepts != null){
+                for(Keui.Concept ap: concepts){
 
-                //check if one exists
-                Iterator<UuidSubject> iterator = uuidSubjects.iterator();
-                while(iterator.hasNext()){
-                    UuidSubject next = iterator.next();
-                    
-                    if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
-                        //update previous
-                        next.setWeight(next.getWeight()+ap.getWeight());
-                        us  = uuidSubjectDao.update(next);
-                        iterator.remove();
+
+                    UuidSubject us = null;
+
+                    //check if one exists
+                    Iterator<UuidSubject> iterator = uuidSubjects.iterator();
+                    while(iterator.hasNext()){
+                        UuidSubject next = iterator.next();
+
+                        if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
+                            //update previous
+                            next.setWeight(next.getWeight()+ap.getWeight());
+                            us  = uuidSubjectDao.update(next);
+                            iterator.remove();
+                        }
+
                     }
-                    
+
+                    stopWatch.split();
+                    logger.trace("void updateSimilaritiesForIdentity() Took {} to update subjects ",stopWatch.toSplitString());
+
+
+
+                    if(us == null && ! processed.contains(ap)){
+                        //create new
+                        us = new UuidSubject();
+                        us.setWeight(Double.valueOf(ap.getWeight()));
+                        us.setUuidAndSubject(identityUpdated.getId(), ap.getUri());
+
+                        logger.trace("void updateSimilaritiesForIdentity() Inserting {} ",us);
+
+                        us = uuidSubjectDao.insert(us);
+
+                        processed.add(ap);
+
+                    }
+
                 }
-
-                stopWatch.split();
-                logger.trace("void updateSimilaritiesForIdentity() Took {} to update subjects ",stopWatch.toSplitString());
-
-                
-                
-                if(us == null ){
-                    //create new
-                    us = new UuidSubject();
-                    us.setWeight(Double.valueOf(ap.getWeight()));
-                    us.setUuidAndSubject(identityUpdated.getId(), ap.getUri());
-
-                    logger.trace("void updateSimilaritiesForIdentity() Inserting {} ",us);
-
-                    us = uuidSubjectDao.insert(us);
-
-                }
-
             }
-
 
             stopWatch.split();
             logger.trace("void updateSimilaritiesForIdentity() Took {} to handle concepts{}",stopWatch.toSplitString());
@@ -276,8 +282,7 @@ public class DefaultRecommendationService implements RecommendationService{
                     Double currentSimilarity = new AnnotatedObjectSimilarity(annotatedIdentity, annotatedIssue).calculateSimilarity();
                     UuidIssue currentUuidIssue=new UuidIssue();
                     currentUuidIssue.setUuidAndIssue(u, Integer.valueOf(artefactUpdated.getId()));
-                    //TODO Kostas check why NaN?
-                    currentUuidIssue.setSimilarity(currentSimilarity==Double.NaN ? 0.0 : currentSimilarity);
+                    currentUuidIssue.setSimilarity(currentSimilarity);
                     newSimilarities.add(currentUuidIssue);
 
                 }
