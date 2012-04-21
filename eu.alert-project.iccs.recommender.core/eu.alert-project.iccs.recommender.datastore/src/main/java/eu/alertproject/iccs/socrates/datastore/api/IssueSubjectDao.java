@@ -17,4 +17,6 @@ public interface IssueSubjectDao extends CommonDao<IssueSubject> {
     List<Integer> findAllIssues();
 
 
+    @SuppressWarnings("unchecked")
+    List<IssueSubject> findByIssueIdLimitByWeight(Integer id, Double weight);
 }

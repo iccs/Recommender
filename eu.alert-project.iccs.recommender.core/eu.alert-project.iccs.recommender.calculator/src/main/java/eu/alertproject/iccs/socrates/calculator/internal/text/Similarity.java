@@ -12,6 +12,5 @@ public interface Similarity {
     
   
     public Double calculateSimilarity() throws Exception;
-    public Double getSimilarity() throws Exception;
-    
+
 }

@@ -1,6 +1,7 @@
 package eu.alertproject.iccs.socrates.datastore.api;
 
 import com.existanze.libraries.orm.dao.CommonDao;
+import eu.alertproject.iccs.socrates.domain.IssueSubject;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import eu.alertproject.iccs.socrates.domain.UuidSubject;
 
@@ -15,4 +16,6 @@ public interface UuidSubjectDao extends CommonDao<UuidSubject>{
     List<UuidSubject> findByUuid(String id);
 
     List<String> findAllUuid();
+    @SuppressWarnings("unchecked")
+    List<UuidSubject> findByUuidLimitByWeight(String uuid, Double weight);
 }

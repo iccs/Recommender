@@ -30,6 +30,20 @@ public class JpaIssueSubjectDao extends JpaCommonDao<IssueSubject> implements Is
         return query.getResultList();
 
     }
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<IssueSubject> findByIssueIdLimitByWeight(Integer id, Double weight) {
+
+        Query query = getEntityManager().createQuery("SELECT i FROM IssueSubject i " +
+                "WHERE " +
+                "i.issueSubjectPk.issueId = :id " +
+                "AND " +
+                "i.weight >= :weight");
+        query.setParameter("id", id);
+        query.setParameter("weight", weight);
+        return query.getResultList();
+
+    }
 
     @Override
     public List<Integer> findAllIssues() {

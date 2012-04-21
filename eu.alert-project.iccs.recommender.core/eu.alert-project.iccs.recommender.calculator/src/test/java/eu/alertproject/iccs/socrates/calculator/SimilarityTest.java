@@ -5,11 +5,12 @@
 package eu.alertproject.iccs.socrates.calculator;
 
 import java.util.HashMap;
+
+import eu.alertproject.iccs.socrates.calculator.api.CosineSimilarityCalculator;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedObject;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedComment;
-import eu.alertproject.iccs.socrates.calculator.internal.text.AnnotatedObjectSimilarity;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -29,6 +30,8 @@ public class SimilarityTest {
     private AnnotatedIdentity annotatedIdentity;
     private AnnotatedIssue annotatedIssue;
     private AnnotatedObject annotatedObject;
+
+    private CosineSimilarityCalculator similarityCalculator;
 
     public SimilarityTest() {
     }
@@ -68,9 +71,8 @@ public class SimilarityTest {
             annotatedIssue = new AnnotatedIssue("1394", issueAnnotations);
 
 
-            AnnotatedObjectSimilarity annotatedObjectSimilarity = new AnnotatedObjectSimilarity(annotatedIssue, annotatedIdentity);
-            annotatedObjectSimilarity.calculateSimilarity();
-            Double similarity = annotatedObjectSimilarity.getSimilarity();
+            Double similarity =
+                    similarityCalculator.getSimilarity(annotatedIssue, annotatedIdentity);
             System.out.println("Issue to identity similarity - zero common: " + similarity);
             assertNotNull(similarity);
             assertEquals(0.0, similarity, 0.0001);
@@ -103,9 +105,8 @@ public class SimilarityTest {
             annotatedIssue = new AnnotatedIssue("1394", issueAnnotations);
 
 
-            AnnotatedObjectSimilarity annotatedObjectSimilarity = new AnnotatedObjectSimilarity(annotatedIssue, annotatedIdentity);
-            annotatedObjectSimilarity.calculateSimilarity();
-            Double similarity = annotatedObjectSimilarity.getSimilarity();
+            Double similarity =
+                               similarityCalculator.getSimilarity(annotatedIssue, annotatedIdentity);
             System.out.println("Issue to identity similarity: " + similarity);
             assertNotNull(similarity);
             assertEquals(0.23809523809523808, similarity, 0.0001);
@@ -134,9 +135,8 @@ public class SimilarityTest {
             commentAnnotations.put("dog", 0.5);
             annotatedComment = new AnnotatedComment("10138", commentAnnotations);
 
-            AnnotatedObjectSimilarity annotatedObjectSimilarity = new AnnotatedObjectSimilarity(annotatedComment, annotatedIdentity);
-            annotatedObjectSimilarity.calculateSimilarity();
-            Double similarity = annotatedObjectSimilarity.getSimilarity();
+            Double similarity =
+                                similarityCalculator.getSimilarity(annotatedIssue, annotatedIdentity);
             System.out.println("Comment to identity similarity: " + similarity);
             assertNotNull(similarity);
             assertEquals(0.6546536707079771, similarity, 0.0001);
