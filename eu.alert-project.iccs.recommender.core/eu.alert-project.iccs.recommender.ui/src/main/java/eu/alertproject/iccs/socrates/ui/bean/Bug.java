@@ -1,5 +1,7 @@
 package eu.alertproject.iccs.socrates.ui.bean;
 
+import java.util.HashMap;
+
 /**
  * Created by IntelliJ IDEA.
  * User: fotis
@@ -8,14 +10,25 @@ package eu.alertproject.iccs.socrates.ui.bean;
  * To change this template use File | Settings | File Templates.
  */
 public class Bug {
+
+    public HashMap<String, Double> getAnnotationMap() {
+        return annotationMap;
+    }
+
+    public void setAnnotationMap(HashMap<String, Double> annotationMap) {
+        this.annotationMap = annotationMap;
+    }
     private int id;
     private String subject;
     private String description;
+    private HashMap<String,Double> annotationMap;
 
-    public Bug(int id, String subject, String description) {
+    public Bug(int id, String subject, String description, HashMap<String,Double> annotationMap) {
         this.id = id;
         this.subject = subject;
         this.description = description;
+        this.annotationMap=annotationMap;
+                
     }
 
     public int getId() {

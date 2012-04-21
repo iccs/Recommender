@@ -1,6 +1,7 @@
 <div id="classes-container">
 
-<h1>Classifications</h1>
+<h1>Classes</h1>
+<h3><em>Select Type of Developer</em></h3>
 <ul class="classess-list">
 <#list classess as clazz>
     <li>

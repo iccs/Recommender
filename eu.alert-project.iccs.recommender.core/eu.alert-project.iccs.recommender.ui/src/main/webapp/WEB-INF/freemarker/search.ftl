@@ -16,6 +16,8 @@ recommend sticking to 'spring' -->
     <script src="<@spring.url "/static/js/jquery.timers-1.2.js"/>" type="text/javascript"></script>
 </head>
 <body class="search">
+    
+    
 <script type="text/javascript">
 
     $(document).ready(function(){
@@ -142,7 +144,11 @@ recommend sticking to 'spring' -->
     }
 
 </script>
-    <div class="container">
+
+<div class="container">
+    <div align=”center”>
+    <img src="<@spring.url "/static/images/banner.png"/>" alt="Alert Banner" border="none"/>
+</div>
         <h1> Start by looking for a bug</h1>
         <div id="search-control">
             <input type="text" id="search-text">

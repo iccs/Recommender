@@ -14,7 +14,7 @@ blockquote, q { quotes: "" ""; }
 
 @blue:#3A6997;
 
-@layout-identity:25%;
+@layout-identity:30%;
 @layout-profile:35%;
 @layout-metrics:30%;
 @layout-ci:5%;
@@ -38,6 +38,27 @@ h2{
 
 }
 
+
+h3{
+    color:@blue;
+    font-weight:bold;
+    font-size: 120%;
+    margin:5px 0px;
+
+}
+
+td
+{
+
+text-align:center;
+vertical-align:middle;
+}
+
+th
+{
+text-align:center;
+vertical-align:middle;
+}
 .container{
     display:block;
     overflow:hidden;
@@ -114,7 +135,6 @@ h2{
     .identity-uuid{
         font-size:90%;
         color: @blue;
-        font-weight:bolder;
     }
 
 }
@@ -396,3 +416,47 @@ div.pagination{
    clear: both;
 }
 
+
+.annot{
+        font-size: 90%;
+}
+
+.annotweight{
+        font-size: 80%;
+   font-style: italic;
+}
+
+.realidentity{
+    font-style: italic;
+}
+.uuidvalue{
+        font-size: 70%;
+    font-style: italic;
+}
+
+span.dropt {border-bottom: thin dotted; background: #ffeedd;}
+span.dropt:hover {text-decoration: none; background: #ffffff; z-index: 6; }
+span.dropt span {position: absolute; right: -9999px;
+  margin: 20px 0 0 0px; padding: 3px 3px 3px 3px;
+  border-style:solid; border-color:black; border-width:2px; z-index: 6;}
+span.dropt:hover span {left: 2%; background: #ffffff;} 
+span.dropt span {position: absolute; right: -9999px;
+  margin: 4px 0 0 0px; padding: 3px 3px 3px 3px; 
+  border-style:solid; border-color:black; border-width:1px;}
+span.dropt:hover span {margin: 20px 0 0 170px; background: #ffffff; z-index:6;} 
+
+table.identity{
+        border-width: 2px;
+	border-style: outset;
+	border-color: gray;
+}
+table.identity th{
+	border-width: 0px;
+        	border-style: outset;
+	border-color: gray;
+}
+table.identity td{
+	border-width: 0px;
+        	border-style: outset;
+	border-color: gray;
+}
