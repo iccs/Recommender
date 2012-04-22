@@ -33,7 +33,8 @@ recommend sticking to 'spring' -->
 
 
     function searchDev(){
-      
+
+        console.log("Search");
         var link = $("#search-dev-button");
 
         if(ICCS.isLocked(link)){
@@ -78,7 +79,16 @@ recommend sticking to 'spring' -->
         ICCS.lockLink("#search-dev-button","");
 
     }
+    function unlockLinks(){
 
+        console.log("unlockLinks");
+
+        $("#search-loader").fadeOut(function(){
+            ICCS.unlockLink("#search-dev-button","Search Developer");
+
+        });
+
+    }
 
     
 

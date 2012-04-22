@@ -1,5 +1,6 @@
 package eu.alertproject.iccs.socrates.ui.controllers;
 
+import eu.alertproject.iccs.socrates.datastore.api.DatastoreRecommendationService;
 import eu.alertproject.iccs.socrates.ui.services.BugSearchService;
 import eu.alertproject.iccs.socrates.ui.services.ClassSearchService;
 import eu.alertproject.iccs.socrates.ui.services.IdentitySearchService;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Properties;
 
 /**
  * User: fotis
@@ -26,10 +29,10 @@ public class DeveloperController {
 
 
     @Autowired
-    private IdentitySearchService identitySearchService;
-    
+    private DatastoreRecommendationService datastoreRecommendationService;
+
     @Autowired
-    private BugSearchService bugSearchService;
+    private Properties systemProperties;
 
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView index(){
@@ -47,7 +50,13 @@ public class DeveloperController {
 
         ModelAndView mv = new ModelAndView();
         mv.setViewName("/partials/developer");
-        mv.addObject("developer", bugSearchService.retrieveForDevId(query));
+        mv.addObject("developer",
+                datastoreRecommendationService.retrieveForDevId(
+                        query,
+                        Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")),
+                                        Double.valueOf(systemProperties.getProperty("subject.similarity.weight")),
+                                        Double.valueOf(systemProperties.getProperty("subject.ranking.weight")),
+                                        Integer.valueOf(systemProperties.getProperty("recommendation.max.results"))));
         return mv;
 
     }

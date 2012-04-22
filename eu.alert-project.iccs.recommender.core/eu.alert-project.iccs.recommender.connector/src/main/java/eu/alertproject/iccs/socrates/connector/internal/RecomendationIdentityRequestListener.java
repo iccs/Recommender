@@ -5,7 +5,9 @@ import eu.alertproject.iccs.events.activemq.TextMessageCreator;
 import eu.alertproject.iccs.events.api.EventFactory;
 import eu.alertproject.iccs.events.api.Topics;
 import eu.alertproject.iccs.events.socrates.*;
+import eu.alertproject.iccs.socrates.datastore.api.DatastoreRecommendationService;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
+import eu.alertproject.iccs.socrates.domain.IdentityBean;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,7 @@ import javax.jms.TextMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * User: fotis
@@ -35,6 +38,13 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
     
     @Autowired
     UuidIssueDao uuidIssueDao;
+
+    @Autowired
+    Properties systemProperties;
+
+
+    @Autowired
+    private DatastoreRecommendationService datastoreRecommendationService;
 
     @Override
     public void process(Message message) throws IOException, JMSException {
@@ -88,15 +98,23 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
 
             Integer bugId = Integer.valueOf(i.getUuid());
 
-            List<UuidIssue> byIssueId = uuidIssueDao.findByIssueId(bugId);
-            
+
+            List<IdentityBean> byForClass = datastoreRecommendationService.findByForClass(
+                    "core developers",
+                    bugId,
+                    Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")),
+                    Double.valueOf(systemProperties.getProperty("subject.similarity.weight")),
+                    Double.valueOf(systemProperties.getProperty("subject.ranking.weight")),
+                    Integer.valueOf(systemProperties.getProperty("recommendation.max.results")));
+//            List<UuidIssue> byIssueId = uuidIssueDao.findByIssueId(bugId,
+//                                    Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")));
+
             List<Identity> identities =new ArrayList<Identity>();
-            for(UuidIssue ui : byIssueId){
-                
-                
-                identities.add(new Identity(ui.getUuid(),"No Name - "+ui.getUuid()
-                ));
+//            for(UuidIssue ui : byIssueId){
+            for(IdentityBean ib : byForClass){
+                identities.add(new Identity(ib.getUuid(),"No Name - "+ib.getUuid()));
             }
+
 
             issueIdentitieses.add(
                     new IssueIdentities(

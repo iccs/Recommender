@@ -83,7 +83,7 @@ public class DefaultRecommendationService implements RecommendationService{
 
             for (String key : cis.keySet()) {
                 UuidClass uuidClass = new UuidClass();
-                uuidClass.setUuidAndClass(key, identityUpdated.getId());
+                uuidClass.setUuidAndClass(identityUpdated.getId(),key);
                 uuidClass.setWeight(cis.get(key));
 
                 uuidClassDao.insert(uuidClass);

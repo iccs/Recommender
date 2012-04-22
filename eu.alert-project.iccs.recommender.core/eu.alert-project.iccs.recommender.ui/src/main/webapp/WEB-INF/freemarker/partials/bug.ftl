@@ -3,14 +3,15 @@
     <table>
         <thead>
             <tr>
-                <th>#{bug.id}</th>
+                <th colspan="2">#{bug.id}</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>${bug.subject}</td>
             </tr>
-            <#list bug.annotationMap?keys as key><tr>
+            <#list bug.annotationMap?keys as key>
+            <tr>
                 <td class="annot">${key}</td> <td class="annotweight">${bug.annotationMap[key]}</td>
             </tr>
             </#list>

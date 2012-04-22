@@ -12,4 +12,7 @@ import java.util.List;
 public interface ClassSearchService {
 
     List<String> retrieveClassByBugId(Integer id);
+
+    String getClassForName(String query);
+
 }

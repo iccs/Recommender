@@ -12,9 +12,9 @@ import java.util.List;
  */
 public interface UuidIssueDao extends CommonDao<UuidIssue>{
 
-    List<UuidIssue> findByUuid(String uuid);
+    List<UuidIssue> findByUuid(String uuid,double similarity);
+    List<UuidIssue> findByIssueId(Integer id,double similarity);
     void removeByUuid(String id);
     void removeByIssueId(Integer integer);
 
-    List<UuidIssue> findByIssueId(Integer id);
 }

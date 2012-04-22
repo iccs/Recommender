@@ -1,6 +1,6 @@
 package eu.alertproject.iccs.socrates.ui.services;
 
-import eu.alertproject.iccs.socrates.ui.bean.IdentityBean;
+import eu.alertproject.iccs.socrates.domain.IdentityBean;
 
 import java.util.List;
 
@@ -12,7 +12,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public interface IdentitySearchService {
-    List<IdentityBean> findByForClass(String classification,Integer issueId);
     IdentityBean findByUuid(String uuid);
 
 }

@@ -1,6 +1,6 @@
-package eu.alertproject.iccs.socrates.ui.bean;
+package eu.alertproject.iccs.socrates.domain;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,19 +11,13 @@ import java.util.HashMap;
  */
 public class Bug {
 
-    public HashMap<String, Double> getAnnotationMap() {
-        return annotationMap;
-    }
 
-    public void setAnnotationMap(HashMap<String, Double> annotationMap) {
-        this.annotationMap = annotationMap;
-    }
     private int id;
     private String subject;
     private String description;
-    private HashMap<String,Double> annotationMap;
+    private Map<String,Double> annotationMap;
 
-    public Bug(int id, String subject, String description, HashMap<String,Double> annotationMap) {
+    public Bug(int id, String subject, String description, Map<String,Double> annotationMap) {
         this.id = id;
         this.subject = subject;
         this.description = description;
@@ -53,6 +47,14 @@ public class Bug {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Map<String, Double> getAnnotationMap() {
+        return annotationMap;
+    }
+
+    public void setAnnotationMap(Map<String, Double> annotationMap) {
+        this.annotationMap = annotationMap;
     }
 
     @Override

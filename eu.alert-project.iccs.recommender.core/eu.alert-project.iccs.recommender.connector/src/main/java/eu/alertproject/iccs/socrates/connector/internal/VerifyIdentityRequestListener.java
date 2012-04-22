@@ -21,6 +21,7 @@ import javax.jms.TextMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * User: fotis
@@ -38,6 +39,9 @@ public class VerifyIdentityRequestListener extends SocratesActiveMQListener{
     
     @Autowired
     UuidIssueDao uuidIssueDao;
+
+    @Autowired
+    Properties systemProperties;
 
     @Override
     public void process(Message message) throws IOException, JMSException {
@@ -91,7 +95,9 @@ public class VerifyIdentityRequestListener extends SocratesActiveMQListener{
 
         List<Identity> identities = new ArrayList<Identity>();
 
-        List<UuidIssue> byIssueId = uuidIssueDao.findByIssueId(Integer.valueOf(issue.getUuid()));
+        List<UuidIssue> byIssueId = uuidIssueDao.findByIssueId(
+                        Integer.valueOf(issue.getUuid()),
+                        Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")));
 
         boolean found = false;
         for(UuidIssue ui : byIssueId){

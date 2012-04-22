@@ -3,9 +3,12 @@ package eu.alertproject.iccs.socrates.datastore.internal;
 import com.existanze.libraries.orm.dao.JpaCommonDao;
 import eu.alertproject.iccs.socrates.datastore.api.UuidClassDao;
 import eu.alertproject.iccs.socrates.domain.UuidClass;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 /**
@@ -15,6 +18,7 @@ import javax.persistence.Query;
  */
 @Repository("uuidClassDao")
 public class JpaUuidClassDao extends JpaCommonDao<UuidClass> implements UuidClassDao{
+    private Logger logger = LoggerFactory.getLogger(JpaUuidClassDao.class);
 
     protected JpaUuidClassDao() {
         super(UuidClass.class);
@@ -29,14 +33,37 @@ public class JpaUuidClassDao extends JpaCommonDao<UuidClass> implements UuidClas
         query.executeUpdate();
 
     }
-    
-        @Override
-    public List<UuidClass> findByUuidAndClass(String uuid, String classification) {
 
-        Query query = getEntityManager().createQuery("SELECT u FROM UuidClass u WHERE u.uuidClassPk.uuid =:uuid AND u.uuidClassPk.clazz=:classification");
-        query.setParameter("uuid", uuid);
+    @Override
+    public Double getMaxWeight(String classification){
+        Query nativeQuery = getEntityManager().createNativeQuery(
+                "select max(weight) from uuid_class where class=?1");
+
+        nativeQuery.setParameter(1,classification);
+
+        return ((Number)nativeQuery.getSingleResult()).doubleValue();
+
+    }
+    
+    @Override
+    public UuidClass findByUuidAndClass(String uuid, String classification) {
+
+        Query query = getEntityManager().createQuery(
+                "SELECT u FROM UuidClass u " +
+                        "WHERE u.uuidClassPk.uuid =:uuid AND u.uuidClassPk.clazz=:classification ORDER BY u.weight DESC");
+
+        query.setMaxResults(1);
         query.setParameter("classification", classification);
-        return query.getResultList();
+        query.setParameter("uuid", uuid);
+
+        UuidClass uc = null;
+        try{
+            uc = (UuidClass) query.getSingleResult();
+        }catch (NoResultException e){
+            logger.warn("Couldn't find result for uuid={}, class={}", uuid, classification);
+        }
+
+        return uc;
     }
 
 }

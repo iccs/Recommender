@@ -29,8 +29,8 @@ public class UuidClass implements SimpleBean{
 
     public void setUuidAndClass(String uuid, String clazz) {
         uuidClassPk = new UuidClassPk();
-        uuidClassPk.setClazz(clazz);
         uuidClassPk.setUuid(uuid);
+        uuidClassPk.setClazz(clazz);
     }
 
 

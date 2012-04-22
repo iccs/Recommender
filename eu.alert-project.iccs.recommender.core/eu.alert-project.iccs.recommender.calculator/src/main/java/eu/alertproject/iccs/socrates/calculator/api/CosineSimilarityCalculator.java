@@ -31,9 +31,26 @@ public class CosineSimilarityCalculator implements SimilarityCalculator {
 
         //Calculates the cosine similarity. For the numerator we need only the common words, for the denominator the norms of the words found in each vector.
         double numerator = 0, norm1 = 0, norm2 = 0;
+
+        /**
+         * There is not point calculating the similarity if the
+         * common wordset is empty as well as if any annotated
+         * object has no annotations
+         *
+         */
+        if(     commonWordsSet.size() <=0
+           ||   item1.getAnnotations().keySet().size() <=0
+           ||   item2.getAnnotations().keySet().size() <=0
+                ){
+            return 0.0;
+        }
+
         for (String k : commonWordsSet) {
             numerator += item1.getAnnotations().get(k) * item2.getAnnotations().get(k);
         }
+
+
+
         for (String k : item1.getAnnotations().keySet()) {
             norm1 += item1.getAnnotations().get(k) * item1.getAnnotations().get(k);
         }

@@ -5,7 +5,9 @@ import eu.alertproject.iccs.events.activemq.TextMessageCreator;
 import eu.alertproject.iccs.events.api.EventFactory;
 import eu.alertproject.iccs.events.api.Topics;
 import eu.alertproject.iccs.events.socrates.*;
+import eu.alertproject.iccs.socrates.datastore.api.DatastoreRecommendationService;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
+import eu.alertproject.iccs.socrates.domain.Bug;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,7 @@ import javax.jms.TextMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * User: fotis
@@ -35,6 +38,12 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
     
     @Autowired
     UuidIssueDao uuidIssueDao;
+
+    @Autowired
+    Properties systemProperties;
+
+    @Autowired
+    private DatastoreRecommendationService datastoreRecommendationService;
 
     @Override
     public void process(Message message) throws IOException, JMSException {
@@ -77,12 +86,21 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
             List<Identity> identities = ii.getIdentities();
             for(Identity i : identities){
 
-                List<UuidIssue> byIssueId = uuidIssueDao.findByUuid(i.getUuid());
 
-                for(UuidIssue ui : byIssueId){
+                List<Bug> bugs = datastoreRecommendationService.retrieveForDevId(i.getUuid(),
+                        Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")),
+                        Double.valueOf(systemProperties.getProperty("subject.similarity.weight")),
+                        Double.valueOf(systemProperties.getProperty("subject.ranking.weight")),
+                        Integer.valueOf(systemProperties.getProperty("recommendation.max.results")));
+
+//                List<UuidIssue> byIssueId = uuidIssueDao.findByUuid(i.getUuid(),
+//                        Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")));
+
+//                for(UuidIssue ui : byIssueId){
+                  for(Bug b : bugs){
                     issues.add(new Issue(
-                            String.valueOf(ui.getIssueId()),
-                            "owl#"+ui.getIssueId()
+                            String.valueOf(b.getId()),
+                            b.getSubject()
                     ));
                 }
             }

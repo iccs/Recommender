@@ -5,13 +5,16 @@
         <table class="bug">
             <thead>
                 <tr>
-                    <th>${bug.id}</th>
+                    <th>${bug.id?c}</th>
                 </tr>
             </thead>
             <tbody>
+                <#list bug.annotationMap?keys as key>
                 <tr>
-                    <td >${bug.subject} ${bug.description}</td>
+                    <td class="annot">${key}</td> <td class="annotweight">${bug.annotationMap[key]}</td>
                 </tr>
+                </#list>
+
             </tbody>
         </table>
     </li>

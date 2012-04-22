@@ -12,5 +12,7 @@ import java.util.List;
  */
 public interface UuidClassDao extends CommonDao<UuidClass> {
     void removeByUuid(String id);
-    List<UuidClass> findByUuidAndClass(String uuid, String classification);
+    UuidClass findByUuidAndClass(String uuid, String classification);
+
+    Double getMaxWeight(String classification);
 }

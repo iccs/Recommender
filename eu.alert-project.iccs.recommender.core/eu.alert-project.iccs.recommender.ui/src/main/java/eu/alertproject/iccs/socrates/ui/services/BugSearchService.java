@@ -1,6 +1,7 @@
 package eu.alertproject.iccs.socrates.ui.services;
 
-import eu.alertproject.iccs.socrates.ui.bean.Bug;
+import eu.alertproject.iccs.socrates.domain.Bug;
+
 import java.util.List;
 
 /**
@@ -13,6 +14,4 @@ import java.util.List;
 public interface BugSearchService {
 
     Bug retrieveBugById(Integer id);
-
-    List<Bug> retrieveForDevId(String uuid);
 }

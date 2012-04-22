@@ -310,17 +310,17 @@ div.pagination{
     }
 }
 
+#search-control{
+
+    float:left;
+    font-size: 130%;
+    input{
+        font-size: 130%;
+    }
+
+}
 .search{
 
-    #search-control{
-
-        float:left;
-        font-size: 130%;
-        input{
-            font-size: 130%;
-        }
-
-    }
 
     #results-container{
 
@@ -407,24 +407,42 @@ div.pagination{
 }
 
 
+th{
+    width:120%;
+    font-weight: bold;
+    color:@blue;
+}
 
-.clearfix:after {
-   content: ".";
-   visibility: hidden;
-   display: block;
-   height: 0;
-   clear: both;
+.developer{
+
+    .bug{
+        width: 100%;
+    }
+
+
+    .annot{
+        font-size: 110%;
+    }
+
+    .annotweight{
+        font-size: 110%;
+        font-style: italic;
+        font-weight: bolder;
+    }
+
+
 }
 
 
 .annot{
-        font-size: 90%;
+    font-size: 90%;
 }
 
 .annotweight{
-        font-size: 80%;
-   font-style: italic;
+    font-size: 80%;
+    font-style: italic;
 }
+
 
 .realidentity{
     font-style: italic;
@@ -433,6 +451,7 @@ div.pagination{
         font-size: 70%;
     font-style: italic;
 }
+
 
 span.dropt {border-bottom: thin dotted; background: #ffeedd;}
 span.dropt:hover {text-decoration: none; background: #ffffff; z-index: 6; }
@@ -459,4 +478,13 @@ table.identity td{
 	border-width: 0px;
         	border-style: outset;
 	border-color: gray;
+}
+
+
+.clearfix:after {
+   content: ".";
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
 }

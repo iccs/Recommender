@@ -1,4 +1,4 @@
-package eu.alertproject.iccs.socrates.ui.bean;
+package eu.alertproject.iccs.socrates.domain;
 
 /**
  * Created by IntelliJ IDEA. User: fotis Date: 08/02/12 Time: 11:57 PM To change
