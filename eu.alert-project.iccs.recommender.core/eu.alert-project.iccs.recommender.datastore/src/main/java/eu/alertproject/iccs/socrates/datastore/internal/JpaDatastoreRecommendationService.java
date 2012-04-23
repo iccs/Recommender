@@ -29,6 +29,8 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
     IssueSubjectDao issueSubjectDao;
     @Autowired
     UuidClassDao uuidClassDao;
+    @Autowired
+    UuidNameDao uuidNameDao;
 
     private NavigableSet<Double> descRecsKeySet;
 
@@ -75,7 +77,9 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
         Iterator keySetIterator = descRecsKeySet.iterator();
         Integer counter = 0;
         while (keySetIterator.hasNext()) {
-            recs.add(recsFull.get(keySetIterator.next()));
+            IdentityBean e = recsFull.get(keySetIterator.next());
+            e.setName(uuidNameDao.findNameByUuid(e.getUuid()));
+            recs.add(e);
             counter++;
             if (counter > maxRecommendations) {
                 break;

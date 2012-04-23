@@ -5,14 +5,8 @@ import eu.alertproject.iccs.events.internal.ArtefactUpdated;
 import eu.alertproject.iccs.events.internal.IdentityUpdated;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
-import eu.alertproject.iccs.socrates.datastore.api.IssueSubjectDao;
-import eu.alertproject.iccs.socrates.datastore.api.UuidClassDao;
-import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
-import eu.alertproject.iccs.socrates.datastore.api.UuidSubjectDao;
-import eu.alertproject.iccs.socrates.domain.IssueSubject;
-import eu.alertproject.iccs.socrates.domain.UuidClass;
-import eu.alertproject.iccs.socrates.domain.UuidIssue;
-import eu.alertproject.iccs.socrates.domain.UuidSubject;
+import eu.alertproject.iccs.socrates.datastore.api.*;
+import eu.alertproject.iccs.socrates.domain.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
@@ -42,6 +36,9 @@ public class DefaultRecommendationService implements RecommendationService{
 
     @Autowired
     UuidIssueDao uuidIssueDao;
+
+    @Autowired
+    UuidNameDao uuidNameDao;
 
     @Autowired
     UuidSubjectDao uuidSubjectDao;
@@ -77,6 +74,19 @@ public class DefaultRecommendationService implements RecommendationService{
 
         try {
 
+//
+//            //store the new name
+//            UuidName byUuid = uuidNameDao.findByUuid(identityUpdated.getId());
+//            if(byUuid == null){
+//                UuidName un = new UuidName();
+//                un.setUuidAndName(identityUpdated.getId(), identityUpdated.getName());
+//                uuidNameDao.insert(un);
+//            }else{
+//                byUuid.setUuidAndName(byUuid.getUuid(),byUuid.getName());
+//                uuidNameDao.update(byUuid);
+//            }
+
+
             Map<String,Double> cis = identityUpdated.getCis();
             uuidClassDao.removeByUuid(identityUpdated.getId());
 
@@ -88,6 +98,8 @@ public class DefaultRecommendationService implements RecommendationService{
 
                 uuidClassDao.insert(uuidClass);
             }
+
+
 
             stopWatch.split();
             logger.trace("void updateSimilaritiesForIdentity() Took {} to insert uuid classes",stopWatch.toSplitString());

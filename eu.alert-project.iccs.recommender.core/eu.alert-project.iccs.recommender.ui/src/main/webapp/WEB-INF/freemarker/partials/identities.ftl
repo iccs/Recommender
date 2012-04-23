@@ -12,10 +12,10 @@
             </thead>
             <tbody>
                 <tr>
-                    <td  colspan="2" class="realidentity"><span class="dropt">${identity.name} ${identity.lastname}
-                    <span style="width:500px;">names currently hidden for privacy purposes</span></span>
-                    </td>
-         
+                    <td colspan="2">${identity.name}</td>
+                    <#--<td  colspan="2" class="realidentity"><span class="dropt">${identity.name} ${identity.lastname}-->
+                    <#--<span style="width:500px;">names currently hidden for privacy purposes</span></span>-->
+                    <#--</td>-->
                 </tr>
                 <!--                For each row also display the similarity and the ranking-->
                 <tr>

@@ -7,6 +7,7 @@ import eu.alertproject.iccs.events.api.Topics;
 import eu.alertproject.iccs.events.socrates.*;
 import eu.alertproject.iccs.socrates.datastore.api.DatastoreRecommendationService;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
+import eu.alertproject.iccs.socrates.datastore.api.UuidNameDao;
 import eu.alertproject.iccs.socrates.domain.IdentityBean;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
 
     @Autowired
     Properties systemProperties;
+
+
 
 
     @Autowired
@@ -112,7 +115,7 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
             List<Identity> identities =new ArrayList<Identity>();
 //            for(UuidIssue ui : byIssueId){
             for(IdentityBean ib : byForClass){
-                identities.add(new Identity(ib.getUuid(),"No Name - "+ib.getUuid()));
+                identities.add(new Identity(ib.getUuid(),ib.getName()+" "+ib.getLastname()));
             }
 
 
