@@ -12,5 +12,5 @@ public interface RecommendationService {
 
     void updateSimilaritiesForIdentity(IdentityUpdated identityUpdated);
     void updateSimilaritiesForIssue(ArtefactUpdated artefactUpdated);
-
+    void updateSimilaritiesForComponent(ArtefactUpdated artefactUpdated);
 }

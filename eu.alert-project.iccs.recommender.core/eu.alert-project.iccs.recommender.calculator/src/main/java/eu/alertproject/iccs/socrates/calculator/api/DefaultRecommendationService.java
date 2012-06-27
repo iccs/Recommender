@@ -344,4 +344,110 @@ public class DefaultRecommendationService implements RecommendationService{
             lock.unlock();
         }
     }
+
+
+    @Override
+    public void updateSimilaritiesForComponent(ArtefactUpdated artefactUpdated) {
+        lock.lock();
+
+        try {
+
+            List<Keui.Concept> annotations = artefactUpdated.getConcepts();
+
+
+
+
+
+            List<IssueSubject> issueSubjects  = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
+
+            for(Keui.Concept ap: annotations){
+
+                IssueSubject us = null;
+
+                //check if one exists
+                Iterator<IssueSubject> iterator = issueSubjects.iterator();
+                while(iterator.hasNext()){
+                    IssueSubject next = iterator.next();
+
+                    if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
+                        //update previous
+                        next.setWeight(next.getWeight()+ap.getWeight());
+                        us  = issueSubjectDao.update(next);
+                        iterator.remove();
+                    }
+
+
+                }
+
+                if(us == null ){
+
+                    //create new
+                    us = new IssueSubject();
+                    us.setWeight(Double.valueOf(ap.getWeight()));
+                    us.setIssueAndSubject(Integer.valueOf(artefactUpdated.getId()), ap.getUri());
+
+                    logger.trace("void updateSimilaritiesForIssue() Inserting {} ",us);
+                    issueSubjectDao.insert(us);
+
+                }
+
+            }
+
+
+            List<IssueSubject> newIssueSubjects = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
+            List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
+            List<String>  uuids = uuidSubjectDao.findAllUuid();
+
+
+            //create annotated object 1: the issue
+            HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
+
+            for (IssueSubject is : newIssueSubjects) {
+                issueAnnotations.put(is.getSubject(), is.getWeight());
+            }
+            AnnotatedIssue annotatedIssue = new AnnotatedIssue(artefactUpdated.getId(), issueAnnotations);
+
+            //initialize identity annotations\
+            HashMap<String, Double> identityAnnotations = new HashMap<String, Double>();
+
+            try {
+                //iterate through all possible identities
+
+                for (String u : uuids) {
+
+                    identityAnnotations.clear();
+                    List<UuidSubject> thisIdentitySubjects = uuidSubjectDao.findByUuidLimitByWeight(u,
+                            Double.valueOf(systemProperties.getProperty("subject.uuid.weight.limit")));
+
+
+                    for (UuidSubject us : thisIdentitySubjects) {
+                        identityAnnotations.put(us.getSubject(), us.getWeight());
+                    }
+                    AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(u, identityAnnotations);
+
+                    Double currentSimilarity =similarityCalculator.getSimilarity(
+                            annotatedIdentity, annotatedIssue);
+
+                    UuidIssue currentUuidIssue=new UuidIssue();
+                    currentUuidIssue.setUuidAndIssue(u, Integer.valueOf(artefactUpdated.getId()));
+                    currentUuidIssue.setSimilarity(currentSimilarity);
+                    newSimilarities.add(currentUuidIssue);
+
+                }
+
+            } catch (Exception ex) {
+                logger.error("Couldn't update the uuid_issues",ex);
+            }
+
+            uuidIssueDao.removeByIssueId(Integer.valueOf(artefactUpdated.getId()));
+            for(UuidIssue u: newSimilarities){
+                uuidIssueDao.insert(u);
+            }
+
+        } finally {
+            lock.unlock();
+        }
+
+
+    }
 }
