@@ -48,7 +48,7 @@ recommend sticking to 'spring' -->
         lockLinks();
   $("#devview").html("trying to find it");
         $.get(
-            "<@spring.url "/developer/developer/search"/>/"+getSearchString(),
+            "<@spring.url "/developer/search"/>/"+getSearchString(),
             function(data){
 
                 if(data == undefined){
@@ -107,6 +107,7 @@ recommend sticking to 'spring' -->
             <div id="widgets">
                 <div id="classes"></div>
                 <div id="bugs"></div>
+                <div id="components"></div>
             </div>
         </div>
     </div>

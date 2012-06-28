@@ -36,7 +36,7 @@ public class JpaComponentSubjectDao extends JpaCommonDao<ComponentSubject> imple
     public List<ComponentSubject> findByComponentLimitByWeight(String component, Double weight) {
         Query query = getEntityManager().createQuery("SELECT i FROM ComponentSubject i " +
                 "WHERE " +
-                "i.issueSubjectPk.issueId = :id " +
+                "i.componentSubjectPk.component = :id " +
                 "AND " +
                 "i.weight >= :weight");
         query.setParameter("id", component);

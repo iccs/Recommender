@@ -2,6 +2,7 @@ package eu.alertproject.iccs.socrates.calculator.api;
 
 import eu.alertproject.iccs.events.alert.Keui;
 import eu.alertproject.iccs.events.internal.ArtefactUpdated;
+import eu.alertproject.iccs.events.internal.ComponentUpdated;
 import eu.alertproject.iccs.events.internal.IdentityUpdated;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
@@ -45,6 +46,12 @@ public class DefaultRecommendationService implements RecommendationService{
 
     @Autowired
     IssueSubjectDao issueSubjectDao;
+
+    @Autowired
+    ComponentSubjectDao componentSubjectDao;
+
+    @Autowired
+    UuidComponentDao uuidComponentDao;
 
     @Autowired
     SimilarityCalculator similarityCalculator;
@@ -347,7 +354,8 @@ public class DefaultRecommendationService implements RecommendationService{
 
 
     @Override
-    public void updateSimilaritiesForComponent(ArtefactUpdated artefactUpdated) {
+    @Transactional
+    public void updateSimilaritiesForComponent(ComponentUpdated artefactUpdated) {
         lock.lock();
 
         try {
@@ -355,57 +363,53 @@ public class DefaultRecommendationService implements RecommendationService{
             List<Keui.Concept> annotations = artefactUpdated.getConcepts();
 
 
-
-
-
-            List<IssueSubject> issueSubjects  = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
-
+            List<ComponentSubject> byComponent = componentSubjectDao.findByComponent(artefactUpdated.getComponent());
             for(Keui.Concept ap: annotations){
 
-                IssueSubject us = null;
+                ComponentSubject cs = null;
 
                 //check if one exists
-                Iterator<IssueSubject> iterator = issueSubjects.iterator();
+                Iterator<ComponentSubject> iterator = byComponent.iterator();
                 while(iterator.hasNext()){
-                    IssueSubject next = iterator.next();
+
+                    ComponentSubject next = iterator.next();
 
                     if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
                         //update previous
                         next.setWeight(next.getWeight()+ap.getWeight());
-                        us  = issueSubjectDao.update(next);
+                        cs = componentSubjectDao.update(next);
                         iterator.remove();
                     }
 
 
                 }
 
-                if(us == null ){
+                if(cs == null ){
 
                     //create new
-                    us = new IssueSubject();
-                    us.setWeight(Double.valueOf(ap.getWeight()));
-                    us.setIssueAndSubject(Integer.valueOf(artefactUpdated.getId()), ap.getUri());
-
-                    logger.trace("void updateSimilaritiesForIssue() Inserting {} ",us);
-                    issueSubjectDao.insert(us);
+                    cs = new ComponentSubject();
+                    cs.setWeight(Double.valueOf(ap.getWeight()));
+                    cs.setComponenAndSubject(artefactUpdated.getComponent(), ap.getUri());
+                    logger.trace("void updateSimilaritiesForComponent() Inserting {} ",cs);
+                    componentSubjectDao.insert(cs);
 
                 }
-
             }
 
 
-            List<IssueSubject> newIssueSubjects = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
-            List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
+            List<ComponentSubject> newComponentSubjects = componentSubjectDao.findByComponent(artefactUpdated.getComponent());
+
+            List<UuidComponent> newSimilarities = new ArrayList<UuidComponent>();
             List<String>  uuids = uuidSubjectDao.findAllUuid();
 
 
             //create annotated object 1: the issue
-            HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
+            HashMap<String, Double> componentAnnotations = new HashMap<String, Double>();
 
-            for (IssueSubject is : newIssueSubjects) {
-                issueAnnotations.put(is.getSubject(), is.getWeight());
+            for (ComponentSubject is : newComponentSubjects) {
+                componentAnnotations.put(is.getSubject(), is.getWeight());
             }
-            AnnotatedIssue annotatedIssue = new AnnotatedIssue(artefactUpdated.getId(), issueAnnotations);
+            AnnotatedIssue annotatedIssue = new AnnotatedIssue(artefactUpdated.getId(), componentAnnotations);
 
             //initialize identity annotations\
             HashMap<String, Double> identityAnnotations = new HashMap<String, Double>();
@@ -428,8 +432,8 @@ public class DefaultRecommendationService implements RecommendationService{
                     Double currentSimilarity =similarityCalculator.getSimilarity(
                             annotatedIdentity, annotatedIssue);
 
-                    UuidIssue currentUuidIssue=new UuidIssue();
-                    currentUuidIssue.setUuidAndIssue(u, Integer.valueOf(artefactUpdated.getId()));
+                    UuidComponent currentUuidIssue=new UuidComponent();
+                    currentUuidIssue.setUuidAndComponent(u, artefactUpdated.getComponent());
                     currentUuidIssue.setSimilarity(currentSimilarity);
                     newSimilarities.add(currentUuidIssue);
 
@@ -440,8 +444,8 @@ public class DefaultRecommendationService implements RecommendationService{
             }
 
             uuidIssueDao.removeByIssueId(Integer.valueOf(artefactUpdated.getId()));
-            for(UuidIssue u: newSimilarities){
-                uuidIssueDao.insert(u);
+            for(UuidComponent u: newSimilarities){
+                uuidComponentDao.insert(u);
             }
 
         } finally {

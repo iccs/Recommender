@@ -14,7 +14,7 @@ import javax.persistence.Table;
  * Time: 13:05
  */
 @Entity
-@Table(name="issue_subject")
+@Table(name="component_subject")
 public class ComponentSubject implements SimpleBean{
 
     @EmbeddedId
@@ -33,9 +33,10 @@ public class ComponentSubject implements SimpleBean{
 
     public void setComponenAndSubject(String component, String subject) {
 
-        ComponentSubjectPk componentSubjectPk = new ComponentSubjectPk();
+        componentSubjectPk = new ComponentSubjectPk();
         componentSubjectPk.setComponent(component);
         componentSubjectPk.setSubject(subject);
+
 
     }
 

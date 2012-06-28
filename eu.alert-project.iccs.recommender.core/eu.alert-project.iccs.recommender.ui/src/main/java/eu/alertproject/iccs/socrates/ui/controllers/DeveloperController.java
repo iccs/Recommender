@@ -43,7 +43,7 @@ public class DeveloperController {
     }
 
 
-    @RequestMapping(value = "/developer/search/{query}", method = RequestMethod.GET)
+    @RequestMapping(value = "/search/{query}", method = RequestMethod.GET)
     public ModelAndView search(@PathVariable("query") String query){
 
         logger.error("ModelAndView search() {} ",query);
