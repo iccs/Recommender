@@ -14,7 +14,9 @@
         <module>eu.alert-project.iccs.recommender.domain</module>
         <module>eu.alert-project.iccs.recommender.calculator</module>
         <module>eu.alert-project.iccs.recommender.simulator</module>
-      <module>eu.alert-project.iccs.recommender.assemble</module>
+
+        <!-- Keep this last-->
+        <module>eu.alert-project.iccs.recommender.assemble</module>
     </modules>
     <name>eu.alertproject.iccs.recommender.core</name>
     <packaging>pom</packaging>

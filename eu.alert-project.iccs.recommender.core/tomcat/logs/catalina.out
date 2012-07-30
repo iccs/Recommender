@@ -1,0 +1,381 @@
+Mar 3, 2012 12:44:18 PM org.apache.catalina.startup.Catalina initDirs
+SEVERE: Cannot find specified temporary folder at /Users/fotis/Development/idea/Recommender/eu.alert-project.iccs.recommender.core/tomcat/temp
+Mar 3, 2012 12:44:19 PM org.apache.catalina.core.AprLifecycleListener init
+INFO: The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: .:/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java
+Mar 3, 2012 12:44:19 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:44:19 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:44:19 PM org.apache.catalina.startup.Catalina load
+INFO: Initialization processed in 975 ms
+Mar 3, 2012 12:44:19 PM org.apache.catalina.core.StandardService startInternal
+INFO: Starting service Catalina
+Mar 3, 2012 12:44:19 PM org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet Engine: Apache Tomcat/7.0.14
+Mar 3, 2012 12:44:19 PM org.apache.catalina.startup.HostConfig deployDirectory
+INFO: Deploying web application directory ui
+Mar 3, 2012 12:44:20 PM org.apache.catalina.startup.ContextConfig webConfig
+INFO: No global web.xml found
+Mar 3, 2012 12:44:23 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:44:23 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:44:23 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in 3452 ms
+Mar 3, 2012 12:44:33 PM org.apache.catalina.core.ApplicationContext log
+INFO: Initializing Spring FrameworkServlet 'ui'
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found a
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found
+"http-bio-8080"-exec-1 ERROR [org.springframework.web.servlet.DispatcherServlet] - Context initialization failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler#0': Initialization of bean failed; nested exception is java.lang.IllegalStateException: Unable to locate the default servlet for serving static content. Please set the 'defaultServletName' property explicitly.
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:527)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:456)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:291)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:190)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:580)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:895)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:425)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:442)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:458)
+	at org.springframework.web.servlet.FrameworkServlet.initWebApplicationContext(FrameworkServlet.java:339)
+	at org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:306)
+	at org.springframework.web.servlet.HttpServletBean.init(HttpServletBean.java:127)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:160)
+	at org.apache.catalina.core.StandardWrapper.initServlet(StandardWrapper.java:1190)
+	at org.apache.catalina.core.StandardWrapper.loadServlet(StandardWrapper.java:1103)
+	at org.apache.catalina.core.StandardWrapper.allocate(StandardWrapper.java:813)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:135)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:164)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:462)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:164)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:100)
+	at org.apache.catalina.valves.AccessLogValve.invoke(AccessLogValve.java:563)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:118)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:399)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:317)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:204)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:182)
+	at org.apache.tomcat.util.net.JIoEndpoint$SocketProcessor.run(JIoEndpoint.java:311)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:680)
+Caused by: java.lang.IllegalStateException: Unable to locate the default servlet for serving static content. Please set the 'defaultServletName' property explicitly.
+	at org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler.setServletContext(DefaultServletHttpRequestHandler.java:98)
+	at org.springframework.web.context.support.ServletContextAwareProcessor.postProcessBeforeInitialization(ServletContextAwareProcessor.java:75)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:394)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1413)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:519)
+	... 32 more
+Mar 3, 2012 12:44:39 PM org.apache.catalina.core.ApplicationContext log
+SEVERE: StandardWrapper.Throwable
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler#0': Initialization of bean failed; nested exception is java.lang.IllegalStateException: Unable to locate the default servlet for serving static content. Please set the 'defaultServletName' property explicitly.
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:527)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:456)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:291)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:190)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:580)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:895)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:425)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:442)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:458)
+	at org.springframework.web.servlet.FrameworkServlet.initWebApplicationContext(FrameworkServlet.java:339)
+	at org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:306)
+	at org.springframework.web.servlet.HttpServletBean.init(HttpServletBean.java:127)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:160)
+	at org.apache.catalina.core.StandardWrapper.initServlet(StandardWrapper.java:1190)
+	at org.apache.catalina.core.StandardWrapper.loadServlet(StandardWrapper.java:1103)
+	at org.apache.catalina.core.StandardWrapper.allocate(StandardWrapper.java:813)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:135)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:164)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:462)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:164)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:100)
+	at org.apache.catalina.valves.AccessLogValve.invoke(AccessLogValve.java:563)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:118)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:399)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:317)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:204)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:182)
+	at org.apache.tomcat.util.net.JIoEndpoint$SocketProcessor.run(JIoEndpoint.java:311)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:680)
+Caused by: java.lang.IllegalStateException: Unable to locate the default servlet for serving static content. Please set the 'defaultServletName' property explicitly.
+	at org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler.setServletContext(DefaultServletHttpRequestHandler.java:98)
+	at org.springframework.web.context.support.ServletContextAwareProcessor.postProcessBeforeInitialization(ServletContextAwareProcessor.java:75)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:394)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1413)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:519)
+	... 32 more
+Mar 3, 2012 12:44:39 PM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Allocate exception for servlet ui
+java.lang.IllegalStateException: Unable to locate the default servlet for serving static content. Please set the 'defaultServletName' property explicitly.
+	at org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler.setServletContext(DefaultServletHttpRequestHandler.java:98)
+	at org.springframework.web.context.support.ServletContextAwareProcessor.postProcessBeforeInitialization(ServletContextAwareProcessor.java:75)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:394)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1413)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:519)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:456)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:291)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:190)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:580)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:895)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:425)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:442)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:458)
+	at org.springframework.web.servlet.FrameworkServlet.initWebApplicationContext(FrameworkServlet.java:339)
+	at org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:306)
+	at org.springframework.web.servlet.HttpServletBean.init(HttpServletBean.java:127)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:160)
+	at org.apache.catalina.core.StandardWrapper.initServlet(StandardWrapper.java:1190)
+	at org.apache.catalina.core.StandardWrapper.loadServlet(StandardWrapper.java:1103)
+	at org.apache.catalina.core.StandardWrapper.allocate(StandardWrapper.java:813)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:135)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:164)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:462)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:164)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:100)
+	at org.apache.catalina.valves.AccessLogValve.invoke(AccessLogValve.java:563)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:118)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:399)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:317)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:204)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:182)
+	at org.apache.tomcat.util.net.JIoEndpoint$SocketProcessor.run(JIoEndpoint.java:311)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:680)
+Mar 3, 2012 12:44:50 PM org.apache.catalina.core.StandardServer await
+INFO: A valid shutdown command was received via the shutdown port. Stopping the Server instance.
+Mar 3, 2012 12:44:50 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:44:51 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:44:52 PM org.apache.catalina.core.StandardService stopInternal
+INFO: Stopping service Catalina
+Mar 3, 2012 12:44:52 PM org.apache.catalina.loader.WebappClassLoader clearReferencesJdbc
+SEVERE: The web application [/ui] registered the JDBC driver [com.mysql.jdbc.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+Mar 3, 2012 12:44:52 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:44:52 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:46:03 PM org.apache.catalina.startup.Catalina initDirs
+SEVERE: Cannot find specified temporary folder at /Users/fotis/Development/idea/Recommender/eu.alert-project.iccs.recommender.core/tomcat/temp
+Mar 3, 2012 12:46:03 PM org.apache.catalina.core.AprLifecycleListener init
+INFO: The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: .:/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java
+Mar 3, 2012 12:46:04 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:46:04 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:46:04 PM org.apache.catalina.startup.Catalina load
+INFO: Initialization processed in 912 ms
+Mar 3, 2012 12:46:04 PM org.apache.catalina.core.StandardService startInternal
+INFO: Starting service Catalina
+Mar 3, 2012 12:46:04 PM org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet Engine: Apache Tomcat/7.0.14
+Mar 3, 2012 12:46:04 PM org.apache.catalina.startup.HostConfig deployDirectory
+INFO: Deploying web application directory ui
+Mar 3, 2012 12:46:07 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:46:07 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:46:07 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in 3320 ms
+Mar 3, 2012 12:46:10 PM org.apache.catalina.core.ApplicationContext log
+INFO: Initializing Spring FrameworkServlet 'ui'
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found a
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found
+Mar 3, 2012 12:46:17 PM org.apache.catalina.core.ApplicationContext log
+SEVERE: StandardWrapper.Throwable
+java.lang.NoClassDefFoundError: freemarker/cache/TemplateLoader
+	at java.lang.Class.getDeclaredConstructors0(Native Method)
+	at java.lang.Class.privateGetDeclaredConstructors(Class.java:2389)
+	at java.lang.Class.getDeclaredConstructors(Class.java:1836)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors(AutowiredAnnotationBeanPostProcessor.java:228)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineConstructorsFromBeanPostProcessors(AbstractAutowireCapableBeanFactory.java:930)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:903)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:485)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:456)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:291)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:190)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:580)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:895)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:425)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:442)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:458)
+	at org.springframework.web.servlet.FrameworkServlet.initWebApplicationContext(FrameworkServlet.java:339)
+	at org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:306)
+	at org.springframework.web.servlet.HttpServletBean.init(HttpServletBean.java:127)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:160)
+	at org.apache.catalina.core.StandardWrapper.initServlet(StandardWrapper.java:1190)
+	at org.apache.catalina.core.StandardWrapper.loadServlet(StandardWrapper.java:1103)
+	at org.apache.catalina.core.StandardWrapper.allocate(StandardWrapper.java:813)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:135)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:164)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:462)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:164)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:100)
+	at org.apache.catalina.valves.AccessLogValve.invoke(AccessLogValve.java:563)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:118)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:399)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:317)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:204)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:182)
+	at org.apache.tomcat.util.net.JIoEndpoint$SocketProcessor.run(JIoEndpoint.java:311)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:680)
+Caused by: java.lang.ClassNotFoundException: freemarker.cache.TemplateLoader
+	at org.apache.catalina.loader.WebappClassLoader.loadClass(WebappClassLoader.java:1676)
+	at org.apache.catalina.loader.WebappClassLoader.loadClass(WebappClassLoader.java:1521)
+	... 39 more
+Mar 3, 2012 12:46:17 PM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Allocate exception for servlet ui
+java.lang.ClassNotFoundException: freemarker.cache.TemplateLoader
+	at org.apache.catalina.loader.WebappClassLoader.loadClass(WebappClassLoader.java:1676)
+	at org.apache.catalina.loader.WebappClassLoader.loadClass(WebappClassLoader.java:1521)
+	at java.lang.Class.getDeclaredConstructors0(Native Method)
+	at java.lang.Class.privateGetDeclaredConstructors(Class.java:2389)
+	at java.lang.Class.getDeclaredConstructors(Class.java:1836)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors(AutowiredAnnotationBeanPostProcessor.java:228)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineConstructorsFromBeanPostProcessors(AbstractAutowireCapableBeanFactory.java:930)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:903)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:485)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:456)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:291)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:222)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:288)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:190)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:580)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:895)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:425)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:442)
+	at org.springframework.web.servlet.FrameworkServlet.createWebApplicationContext(FrameworkServlet.java:458)
+	at org.springframework.web.servlet.FrameworkServlet.initWebApplicationContext(FrameworkServlet.java:339)
+	at org.springframework.web.servlet.FrameworkServlet.initServletBean(FrameworkServlet.java:306)
+	at org.springframework.web.servlet.HttpServletBean.init(HttpServletBean.java:127)
+	at javax.servlet.GenericServlet.init(GenericServlet.java:160)
+	at org.apache.catalina.core.StandardWrapper.initServlet(StandardWrapper.java:1190)
+	at org.apache.catalina.core.StandardWrapper.loadServlet(StandardWrapper.java:1103)
+	at org.apache.catalina.core.StandardWrapper.allocate(StandardWrapper.java:813)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:135)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:164)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:462)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:164)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:100)
+	at org.apache.catalina.valves.AccessLogValve.invoke(AccessLogValve.java:563)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:118)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:399)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:317)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:204)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:182)
+	at org.apache.tomcat.util.net.JIoEndpoint$SocketProcessor.run(JIoEndpoint.java:311)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:680)
+Mar 3, 2012 12:55:09 PM org.apache.catalina.core.StandardServer await
+INFO: A valid shutdown command was received via the shutdown port. Stopping the Server instance.
+Mar 3, 2012 12:55:09 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:55:10 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:55:11 PM org.apache.catalina.core.StandardService stopInternal
+INFO: Stopping service Catalina
+Mar 3, 2012 12:55:11 PM org.apache.catalina.loader.WebappClassLoader clearReferencesJdbc
+SEVERE: The web application [/ui] registered the JDBC driver [com.mysql.jdbc.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+Mar 3, 2012 12:55:11 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:55:11 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:56:54 PM org.apache.catalina.startup.Catalina initDirs
+SEVERE: Cannot find specified temporary folder at /Users/fotis/Development/idea/Recommender/eu.alert-project.iccs.recommender.core/tomcat/temp
+Mar 3, 2012 12:56:55 PM org.apache.catalina.core.AprLifecycleListener init
+INFO: The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: .:/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java
+Mar 3, 2012 12:56:55 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:56:55 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:56:55 PM org.apache.catalina.startup.Catalina load
+INFO: Initialization processed in 1096 ms
+Mar 3, 2012 12:56:55 PM org.apache.catalina.core.StandardService startInternal
+INFO: Starting service Catalina
+Mar 3, 2012 12:56:55 PM org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet Engine: Apache Tomcat/7.0.14
+Mar 3, 2012 12:56:55 PM org.apache.catalina.startup.HostConfig deployDirectory
+INFO: Deploying web application directory ui
+Mar 3, 2012 12:56:59 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:56:59 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:56:59 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in 3656 ms
+Mar 3, 2012 12:57:04 PM org.apache.catalina.core.ApplicationContext log
+INFO: Initializing Spring FrameworkServlet 'ui'
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found a
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found
+Mar 3, 2012 12:57:23 PM org.apache.catalina.core.StandardServer await
+INFO: A valid shutdown command was received via the shutdown port. Stopping the Server instance.
+Mar 3, 2012 12:57:23 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:57:24 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 12:57:25 PM org.apache.catalina.core.StandardService stopInternal
+INFO: Stopping service Catalina
+Mar 3, 2012 12:57:25 PM org.apache.catalina.core.ApplicationContext log
+INFO: Destroying Spring FrameworkServlet 'ui'
+Mar 3, 2012 12:57:25 PM org.apache.catalina.loader.WebappClassLoader clearReferencesJdbc
+SEVERE: The web application [/ui] registered the JDBC driver [com.mysql.jdbc.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+Mar 3, 2012 12:57:25 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 12:57:25 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 1:52:24 PM org.apache.catalina.startup.Catalina initDirs
+SEVERE: Cannot find specified temporary folder at /Users/fotis/Development/idea/Recommender/eu.alert-project.iccs.recommender.core/tomcat/temp
+Mar 3, 2012 1:52:25 PM org.apache.catalina.core.AprLifecycleListener init
+INFO: The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: .:/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java
+Mar 3, 2012 1:52:26 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 1:52:26 PM org.apache.coyote.AbstractProtocolHandler init
+INFO: Initializing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 1:52:26 PM org.apache.catalina.startup.Catalina load
+INFO: Initialization processed in 1735 ms
+Mar 3, 2012 1:52:26 PM org.apache.catalina.core.StandardService startInternal
+INFO: Starting service Catalina
+Mar 3, 2012 1:52:26 PM org.apache.catalina.core.StandardEngine startInternal
+INFO: Starting Servlet Engine: Apache Tomcat/7.0.14
+Mar 3, 2012 1:52:26 PM org.apache.catalina.startup.HostConfig deployDirectory
+INFO: Deploying web application directory ui
+Mar 3, 2012 1:52:35 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 1:52:35 PM org.apache.coyote.AbstractProtocolHandler start
+INFO: Starting ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 1:52:35 PM org.apache.catalina.startup.Catalina start
+INFO: Server startup in 8772 ms
+Mar 3, 2012 1:52:59 PM org.apache.catalina.core.ApplicationContext log
+INFO: Initializing Spring FrameworkServlet 'ui'
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found a
+"http-bio-8080"-exec-1 ERROR [eu.alertproject.iccs.socrates.ui.services.DefaultBugSearchService] - null autowired object found
+Mar 3, 2012 1:53:35 PM org.apache.catalina.core.StandardServer await
+INFO: A valid shutdown command was received via the shutdown port. Stopping the Server instance.
+Mar 3, 2012 1:53:35 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 1:53:36 PM org.apache.coyote.AbstractProtocolHandler pause
+INFO: Pausing ProtocolHandler ["ajp-bio-8009"]
+Mar 3, 2012 1:53:37 PM org.apache.catalina.core.StandardService stopInternal
+INFO: Stopping service Catalina
+Mar 3, 2012 1:53:37 PM org.apache.catalina.core.ApplicationContext log
+INFO: Destroying Spring FrameworkServlet 'ui'
+Mar 3, 2012 1:53:37 PM org.apache.catalina.loader.WebappClassLoader clearReferencesJdbc
+SEVERE: The web application [/ui] registered the JDBC driver [com.mysql.jdbc.Driver] but failed to unregister it when the web application was stopped. To prevent a memory leak, the JDBC Driver has been forcibly unregistered.
+Mar 3, 2012 1:53:38 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["http-bio-8080"]
+Mar 3, 2012 1:53:38 PM org.apache.coyote.AbstractProtocolHandler stop
+INFO: Stopping ProtocolHandler ["ajp-bio-8009"]
