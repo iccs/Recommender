@@ -4,6 +4,7 @@ import eu.alertproject.iccs.events.alert.Keui;
 import eu.alertproject.iccs.events.internal.ArtefactUpdated;
 import eu.alertproject.iccs.events.internal.ComponentUpdated;
 import eu.alertproject.iccs.events.internal.IdentityUpdated;
+import eu.alertproject.iccs.events.internal.IssueUpdated;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
 import eu.alertproject.iccs.socrates.datastore.api.*;
@@ -253,9 +254,10 @@ public class DefaultRecommendationService implements RecommendationService{
 
     @Override
     @Transactional
-    public void updateSimilaritiesForIssue(ArtefactUpdated artefactUpdated) {
+    public void updateSimilaritiesForIssue(IssueUpdated artefactUpdated) {
 
         lock.lock();
+
 
         try {
 

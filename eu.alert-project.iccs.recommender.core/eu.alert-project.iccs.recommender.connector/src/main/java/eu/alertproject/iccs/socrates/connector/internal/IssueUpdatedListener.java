@@ -1,6 +1,7 @@
 package eu.alertproject.iccs.socrates.connector.internal;
 
 import eu.alertproject.iccs.events.internal.ArtefactUpdated;
+import eu.alertproject.iccs.events.internal.IssueUpdated;
 import eu.alertproject.iccs.socrates.calculator.api.RecommendationService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class IssueUpdatedListener extends AbstractArtefactUpdateListener<Artefac
     @Override
     void updateSimilarities(ArtefactUpdated artefactUpdated) {
         logger.trace("void updateSimilarities() {} ",artefactUpdated);
-        recommendationService.updateSimilaritiesForIssue(artefactUpdated);
+        recommendationService.updateSimilaritiesForIssue((IssueUpdated) artefactUpdated);
     }
 
     @Override
@@ -36,7 +37,7 @@ public class IssueUpdatedListener extends AbstractArtefactUpdateListener<Artefac
 
         storeEventService.store("issue",text);
 
-        ArtefactUpdated artefactUpdated = mapper.readValue(text, ArtefactUpdated.class);
+        IssueUpdated artefactUpdated = mapper.readValue(text, IssueUpdated.class);
         logger.trace("ArtefactUpdated process() {} ",artefactUpdated);
         return artefactUpdated;
     }

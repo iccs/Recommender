@@ -3,6 +3,7 @@ package eu.alertproject.iccs.socrates.calculator.api;
 import eu.alertproject.iccs.events.internal.ArtefactUpdated;
 import eu.alertproject.iccs.events.internal.ComponentUpdated;
 import eu.alertproject.iccs.events.internal.IdentityUpdated;
+import eu.alertproject.iccs.events.internal.IssueUpdated;
 
 /**
  * User: fotis
@@ -12,6 +13,6 @@ import eu.alertproject.iccs.events.internal.IdentityUpdated;
 public interface RecommendationService {
 
     void updateSimilaritiesForIdentity(IdentityUpdated identityUpdated);
-    void updateSimilaritiesForIssue(ArtefactUpdated artefactUpdated);
+    void updateSimilaritiesForIssue(IssueUpdated artefactUpdated);
     void updateSimilaritiesForComponent(ComponentUpdated artefactUpdated);
 }

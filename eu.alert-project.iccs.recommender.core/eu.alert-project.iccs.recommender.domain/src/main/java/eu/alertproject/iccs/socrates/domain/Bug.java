@@ -7,7 +7,6 @@ import java.util.Map;
  * User: fotis
  * Date: 08/02/12
  * Time: 7:02 PM
- * To change this template use File | Settings | File Templates.
  */
 public class Bug {
 

@@ -83,140 +83,82 @@
         <property name="dataSource" ref="dataSource" />
     </bean>
 
-    <!-- ActiveMQ -->
-    <bean   id="jmsConnectionFactory"
-            class="org.apache.activemq.ActiveMQConnectionFactory" >
-        <property name="brokerURL" value="${activemq.brokerURL}" />
-        <property name="userName" value="" />
-        <property name="password" value="" />
-    </bean>
-
-    <bean id="pooledJmsConnectionFactory"
-          class="org.apache.activemq.pool.PooledConnectionFactory"
-          destroy-method="stop">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    </bean>
-
-    <bean id="jmsConfig"
-          class="org.apache.camel.component.jms.JmsConfiguration">
-        <property name="connectionFactory" ref="pooledJmsConnectionFactory"/>
-        <property name="transacted" value="false"/>
-        <property name="concurrentConsumers" value="10"/>
-    </bean>
-
-    <bean id="activemq"
-          class="org.apache.activemq.camel.component.ActiveMQComponent">
-        <property name="configuration" ref="jmsConfig"/>
-    </bean>
-
-    <!-- Spring JMS Template -->
-    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory" ref="pooledJmsConnectionFactory" />
-        <property name="pubSubDomain" value="true"/>
-    </bean>
-
     <bean id="marshaller" class="org.springframework.oxm.xstream.XStreamMarshaller" />
+
+    <!-- ActiveMQ -->
+    <import resource="classpath:/iccs/active-mq-connection.xml" />
+
 
 
     <bean id="identityUpdatedListener" class="eu.alertproject.iccs.socrates.connector.internal.IdentityUpdatedListener" />
-    <bean id="iccsIdentityUpdatedListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-        <property name="destination">
-            <bean
-                class="org.apache.activemq.command.ActiveMQTopic">
-                <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Identity_Updated"/>
-                </constructor-arg>
-            </bean>
-        </property>
-        <property name="messageListener"  ref="identityUpdatedListener"/>
-        <property name="recoveryInterval" value="60000"/>
-        <property name="cacheLevel" value="3" />
+    <bean id="iccsIdentityUpdatedListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
+        <constructor-arg>
+            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Identity_Updated"/>
+        </constructor-arg>
+        <constructor-arg ref="identityUpdatedListener"/>
+        <constructor-arg ref="jmsConnectionFactory"/>
+        <constructor-arg value="${activemq.recoveryInterval}" />
+        <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
 
 
     <bean id="itsNewIssueListener" class="eu.alertproject.iccs.socrates.connector.internal.IssueUpdatedListener" />
-    <bean id="iccsItsNewIssueListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-        <property name="destination">
-            <bean
-                class="org.apache.activemq.command.ActiveMQTopic">
-                <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Issue_Updated"/>
-                </constructor-arg>
-            </bean>
-        </property>
-        <property name="messageListener" ref="itsNewIssueListener"/>
-        <property name="recoveryInterval" value="60000"/>
-        <property name="cacheLevel" value="3" />
+    <bean id="iccsItsNewIssueListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
+        <constructor-arg>
+            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Issue_Updated"/>
+        </constructor-arg>
+        <constructor-arg ref="itsNewIssueListener"/>
+        <constructor-arg ref="jmsConnectionFactory"/>
+        <constructor-arg value="${activemq.recoveryInterval}" />
+        <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
 
-
-    <bean id="componentListener" class="eu.alertproject.iccs.socrates.connector.internal.ComponentUpdatedListener" />
-    <bean id="iccsComponentListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-        <property name="destination">
-            <bean
-                class="org.apache.activemq.command.ActiveMQTopic">
-                <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Component_Updated"/>
-                </constructor-arg>
-            </bean>
-        </property>
-        <property name="messageListener" ref="componentListener"/>
-        <property name="recoveryInterval" value="60000"/>
-        <property name="cacheLevel" value="3" />
+    <bean id="componentListener" class="eu.alertproject.iccs.socrates.connector.internal.IssueUpdatedListener" />
+    <bean id="iccsComponentListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
+        <constructor-arg>
+            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Component_Updated"/>
+        </constructor-arg>
+        <constructor-arg ref="componentListener"/>
+        <constructor-arg ref="jmsConnectionFactory"/>
+        <constructor-arg value="${activemq.recoveryInterval}" />
+        <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
+
 
     <bean id="recomendationIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIdentityRequestListener" />
-    <bean id="iccsAllRecomendationIdentityRequestListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-        <property name="destination">
-            <bean
-                class="org.apache.activemq.command.ActiveMQTopic">
-                <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Recommendation_Request"/>
-                </constructor-arg>
-            </bean>
-        </property>
-        <property name="messageListener" ref="recomendationIdentityRequestListener"/>
-        <property name="recoveryInterval" value="60000"/>
-        <property name="cacheLevel" value="3" />
+    <bean id="iccsAllRecomendationIdentityRequestListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
+        <constructor-arg>
+            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Recommendation_Request"/>
+        </constructor-arg>
+        <constructor-arg ref="recomendationIdentityRequestListener"/>
+        <constructor-arg ref="jmsConnectionFactory"/>
+        <constructor-arg value="${activemq.recoveryInterval}" />
+        <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
 
+
     <bean id="recomendationIssueRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIssueRequestListener" />
-    <bean id="iccsAllRecomendationIssueRequestListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-        <property name="destination">
-            <bean
-                class="org.apache.activemq.command.ActiveMQTopic">
-                <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Issue_Recommendation_Request"/>
-                </constructor-arg>
-            </bean>
-        </property>
-        <property name="messageListener" ref="recomendationIssueRequestListener"/>
-        <property name="recoveryInterval" value="60000"/>
-        <property name="cacheLevel" value="3" />
+    <bean id="iccsAllRecomendationIssueRequestListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
+        <constructor-arg>
+            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Issue_Recommendation_Request"/>
+        </constructor-arg>
+        <constructor-arg ref="recomendationIssueRequestListener"/>
+        <constructor-arg ref="jmsConnectionFactory"/>
+        <constructor-arg value="${activemq.recoveryInterval}" />
+        <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
 
 
     <bean id="iccsAllVerifyIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.VerifyIdentityRequestListener" />
-    <bean id="iccsAllVerifyIdentityListener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-        <property name="destination">
-            <bean
-                class="org.apache.activemq.command.ActiveMQTopic">
-                <constructor-arg>
-                    <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Verification_Request"/>
-                </constructor-arg>
-            </bean>
-        </property>
-        <property name="messageListener" ref="iccsAllVerifyIdentityRequestListener"/>
-        <property name="recoveryInterval" value="60000"/>
-        <property name="cacheLevel" value="3" />
+    <bean id="iccsAllVerifyIdentityListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
+        <constructor-arg>
+            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Verification_Request"/>
+        </constructor-arg>
+        <constructor-arg ref="iccsAllVerifyIdentityRequestListener"/>
+        <constructor-arg ref="jmsConnectionFactory"/>
+        <constructor-arg value="${activemq.recoveryInterval}" />
+        <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
-
 
 
 </beans>
