@@ -1,5 +1,7 @@
 package eu.alertproject.iccs.socrates.domain;
 
+import com.existanze.libraries.orm.domain.SimpleBean;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -11,7 +13,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name="issue_meta")
-public class IssueMeta {
+public class IssueMeta implements SimpleBean{
 
     @Id
     private Integer id;

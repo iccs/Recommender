@@ -87,6 +87,8 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
             for(Identity i : identities){
 
 
+
+                //TODO Kostas figure out ranking on the request
                 List<Bug> bugs = datastoreRecommendationService.retrieveForDevId(i.getUuid(),
                         Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")),
                         Double.valueOf(systemProperties.getProperty("subject.similarity.weight")),
@@ -100,6 +102,7 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
                   for(Bug b : bugs){
                     issues.add(new Issue(
                             String.valueOf(b.getId()),
+                            b.getSubject(),
                             b.getSubject()
                     ));
                 }

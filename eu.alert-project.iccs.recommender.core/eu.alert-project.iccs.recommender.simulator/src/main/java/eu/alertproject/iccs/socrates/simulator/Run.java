@@ -3,7 +3,10 @@ package eu.alertproject.iccs.socrates.simulator;
 import eu.alertproject.iccs.events.alert.Keui;
 import eu.alertproject.iccs.events.api.Topics;
 import eu.alertproject.iccs.events.internal.ArtefactUpdated;
+import eu.alertproject.iccs.events.internal.ComponentUpdated;
 import eu.alertproject.iccs.events.internal.IdentityUpdated;
+import eu.alertproject.iccs.events.internal.IssueUpdated;
+import eu.alertproject.iccs.socrates.domain.ComponentSubject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -28,6 +31,7 @@ public class Run {
 
     private static Logger logger = LoggerFactory.getLogger(Run.class);
     private static final int ISSUE_COUNT = 2000;
+    private static final int COMPONENT_COUNT= 2000;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -118,7 +122,46 @@ public class Run {
         };
 
 
+        Thread components = new Thread() {
+
+            @Override
+            public void run() {
+
+
+                List<ArtefactUpdated> artefactUpdateds = run.prepareComponentMap(
+                        Arrays.asList("kde-bluetooth-utils","solid","kde-hardware-libs","none"),
+                        list
+                );
+
+
+                ObjectMapper mapper = new ObjectMapper();
+
+                for (ArtefactUpdated au : artefactUpdateds) {
+
+                    String s = null;
+                    try {
+                        s = mapper.writeValueAsString(au);
+                        jmsTemplate.send(Topics.ICCS_STARDOM_Component_Updated, new TextMessageCreator(s));
+                    } catch (IOException e) {
+                        logger.warn("void run(args) ", e);
+                    } finally {
+
+                        try {
+                            Thread.sleep(RandomUtils.nextInt(5) * 1000);
+                        } catch (InterruptedException e) {
+                            logger.warn("void run(args) ", e);
+                        }
+
+                    }
+                }
+
+                cdl.countDown();
+            }
+        };
+
+
         identities.start();
+        components.start();
         issuesThread.start();
 
 
@@ -154,11 +197,13 @@ public class Run {
 
             }
 
-            ArtefactUpdated artefactUpdated = new ArtefactUpdated();
-            artefactUpdated.setId(String.valueOf(issues.get(RandomUtils.nextInt(issues.size()))));
-            artefactUpdated.setConcepts(pairs);
+            IssueUpdated issueUpdated = new IssueUpdated();
+            issueUpdated.setDate(new Date());
+            issueUpdated.setId(String.valueOf(issues.get(RandomUtils.nextInt(issues.size()))));
+            issueUpdated.setSubject("This is the subject of issue " + issueUpdated.getId());
+            issueUpdated.setConcepts(pairs);
 
-            data.add(artefactUpdated);
+            data.add(issueUpdated);
         }
 
 
@@ -209,6 +254,46 @@ public class Run {
             data.add(identityUpdated);
 
         }
+
+        return data;
+
+    }
+
+    public List<ArtefactUpdated> prepareComponentMap(List<String> components, List<String> topics) {
+
+        List<ArtefactUpdated> data = new ArrayList<ArtefactUpdated>();
+
+
+        for (int i = 0; i < COMPONENT_COUNT; i++) {
+
+            List<Keui.Concept> pairs = new ArrayList<Keui.Concept>();
+            List<String> addedTopics = new ArrayList<String>();
+
+            while (pairs.size() < 100) {
+                String topic = topics.get(RandomUtils.nextInt(topics.size()));
+
+                if (addedTopics.contains(topic)) {
+                    logger.trace("List<ArtefactUpdated> prepareIssueMap() Already added {} ", topic);
+                    continue;
+                }
+
+                Keui.Concept concept = new Keui.Concept();
+                concept.setUri(topic);
+                concept.setWeight(RandomUtils.nextInt());
+                pairs.add(concept);
+                addedTopics.add(topic);
+
+            }
+
+            String componentStr = components.get(RandomUtils.nextInt(components.size()));
+            ComponentUpdated cu = new ComponentUpdated();
+            cu.setId("uri#"+componentStr);
+            cu.setComponent(componentStr);
+            cu.setConcepts(pairs);
+
+            data.add(cu);
+        }
+
 
         return data;
 

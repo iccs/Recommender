@@ -1,12 +1,9 @@
 package eu.alertproject.iccs.socrates.calculator.api;
 
 import eu.alertproject.iccs.events.alert.Keui;
-import eu.alertproject.iccs.events.internal.ArtefactUpdated;
 import eu.alertproject.iccs.events.internal.ComponentUpdated;
 import eu.alertproject.iccs.events.internal.IdentityUpdated;
 import eu.alertproject.iccs.events.internal.IssueUpdated;
-import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
-import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
 import eu.alertproject.iccs.socrates.datastore.api.*;
 import eu.alertproject.iccs.socrates.domain.*;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -40,6 +40,10 @@ public class DefaultRecommendationService implements RecommendationService{
     UuidIssueDao uuidIssueDao;
 
     @Autowired
+    IssueMetaDao issueMetaDao;
+
+
+    @Autowired
     UuidNameDao uuidNameDao;
 
     @Autowired
@@ -54,20 +58,76 @@ public class DefaultRecommendationService implements RecommendationService{
     @Autowired
     UuidComponentDao uuidComponentDao;
 
+
     @Autowired
-    SimilarityCalculator similarityCalculator;
+    SimilarityComputationService similarityComputationService;
 
     @Autowired
     Properties systemProperties;
 
+    private boolean realtimeEnabled;
+    private ScheduledExecutorService scheduler;
+
     @PostConstruct
     public void init(){
         lock = new ReentrantLock();
+        realtimeEnabled = systemProperties.getProperty("similarity.realtime").toLowerCase().equals("true");
+        final long ms = Long.valueOf(systemProperties.getProperty("similarity.timer"));
+        if(!systemProperties.getProperty("similarity.realtime").equals("true")){
+            //this means we are going for scheduled tasks
+            if(ms > 0 ){
+
+                scheduler = Executors.newScheduledThreadPool(1);
+                scheduler.scheduleWithFixedDelay(
+                        new Runnable(){
+                            public void run(){
+
+                                try{
+
+//                    while(runTimer.get()){
+//
+//                        Thread.sleep(ms);
+                                    getLock("timer");
+
+                                    long start = System.currentTimeMillis();
+
+                                    logger.info("Updating similarities {} ",new Date());
+                                    similarityComputationService.computeSimilaritiesForAllIdentities();
+                                    similarityComputationService.computeSimilaritiesForAllIssues();
+                                    similarityComputationService.computeSimilaritiesForAllComponents();
+//                    }
+                                    logger.info("Last run took {} minutes ",
+                                            ((double)System.currentTimeMillis()-start)/1000.0/60.0);
+//
+//                    logger.info("void run([]) Timer stopped");
+
+
+//                }catch (InterruptedException e){
+//                    logger.warn("This thread was interrupted {}",e);
+                                }catch (Exception e){
+                                    logger.warn("An unexpected erro was encountered {}",e);
+                                }finally {
+                                    releaseLock("timer");
+                                }
+
+
+                            }
+                        },ms,ms,TimeUnit.SECONDS);
+
+//                new Thread(timer).start();
+            }
+        }
     }
 
     @PreDestroy
     public void destroy(){
-        lock.unlock();
+
+        if(scheduler !=null){
+            scheduler.shutdown();
+        }
+        //get the lock first before
+        releaseLock("destroy");
+
     }
 
     @Override
@@ -75,8 +135,8 @@ public class DefaultRecommendationService implements RecommendationService{
     public void updateSimilaritiesForIdentity(IdentityUpdated identityUpdated) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        logger.trace("void updateSimilaritiesForIdentity() Attemping lock ");
-        lock.lock();
+
+        getLock("updateSimilaritiesForIdentity");
         stopWatch.split();
         logger.trace("void updateSimilaritiesForIdentity() Attemping lock took {}",stopWatch.toSplitString());
 
@@ -163,91 +223,14 @@ public class DefaultRecommendationService implements RecommendationService{
             logger.trace("void updateSimilaritiesForIdentity() Took {} to handle concepts{}",stopWatch.toSplitString());
 
 
-            List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
-
-            List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
-            stopWatch.split();
-            logger.trace("void updateSimilaritiesForIdentity() Took {} to get UuidSubject {}",stopWatch.toSplitString());
-
-            List<Integer> allIssues = issueSubjectDao.findAllIssues();
-            stopWatch.split();
-            logger.trace("void updateSimilaritiesForIdentity() Took {} to get all Issues {}",stopWatch.toSplitString());
-
-            
-            
-            
-            //create annotated object 1: the identity
-            HashMap<String,Double> identityAnnotations = new HashMap<String,Double>();
-            for (UuidSubject us : newUuidSubjects) {
-                identityAnnotations.put(us.getSubject(), us.getWeight());
+            if(realtimeEnabled){
+                similarityComputationService.computeSimilaritesForIdentity(identityUpdated.getId());
             }
-            AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(identityUpdated.getId(), identityAnnotations);
-
-
-            stopWatch.split();
-            logger.trace("void updateSimilaritiesForIdentity() Took {} to get the identityAnnotations",stopWatch.toSplitString());
-
-
-            //initialize issue annotations
-            HashMap<String, Double> issueAnnotations = null;
-            try {
-                //iterate through all possible issues
-                stopWatch.split();
-                for (Integer i : allIssues) {
-
-                    issueAnnotations = new HashMap<String, Double>();
-
-                    List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueIdLimitByWeight(
-                            i,
-                            Double.valueOf(systemProperties.getProperty("subject.issue.weight.limit")));
-
-                    for (IssueSubject is : thisIssueSubjects) {
-                        issueAnnotations.put(is.getSubject(), is.getWeight());
-                    }
-
-                    stopWatch.split();
-                    logger.trace("void updateSimilaritiesForIdentity() Took {} to get the all the Issue Subjects",stopWatch.toSplitString());
-
-
-                    AnnotatedIssue annotatedIssue = new AnnotatedIssue(i.toString(), issueAnnotations);
-
-
-                    stopWatch.split();
-                    Double currentSimilarity =similarityCalculator.getSimilarity(
-                            annotatedIdentity, annotatedIssue);
-                    stopWatch.split();
-                    logger.trace("void updateSimilaritiesForIdentity() Took {} to calculate similarities {}",stopWatch.toSplitString());
-
-
-                    stopWatch.split();
-                    UuidIssue currentUuidIssue=new UuidIssue();
-                    currentUuidIssue.setUuidAndIssue(annotatedIdentity.getIdentityId(), i);
-                    currentUuidIssue.setSimilarity(currentSimilarity);
-                    newSimilarities.add(currentUuidIssue);
-                    stopWatch.split();
-                    logger.trace("void updateSimilaritiesForIdentity() Took {} to store similarities {}", stopWatch.toSplitString());
-
-                }
-
-            } catch (Exception ex) {
-                logger.error("Couldn't update the uuid_issues",ex);
-            }
-
-            uuidIssueDao.removeByUuid(identityUpdated.getId());
-
-            stopWatch.split();
-            for(UuidIssue u: newSimilarities){
-                uuidIssueDao.insert(u);
-            }
-            stopWatch.split();
-            logger.trace("void updateSimilaritiesForIdentity() Took {} to insert uuids{}",stopWatch.toSplitString());
-
-
 
         } finally {
             stopWatch.stop();
             logger.trace("void updateSimilaritiesForIdentity() Took {} in total ",stopWatch.toString());
-            lock.unlock();
+            releaseLock("updateSimilaritiesForIdentity");
         }
 
     }
@@ -256,9 +239,8 @@ public class DefaultRecommendationService implements RecommendationService{
     @Transactional
     public void updateSimilaritiesForIssue(IssueUpdated artefactUpdated) {
 
-        lock.lock();
 
-
+        getLock("updateSimilaritiesForIssue");
         try {
 
             List<Keui.Concept> annotations = artefactUpdated.getConcepts();
@@ -291,6 +273,15 @@ public class DefaultRecommendationService implements RecommendationService{
                     us.setWeight(Double.valueOf(ap.getWeight()));
                     us.setIssueAndSubject(Integer.valueOf(artefactUpdated.getId()), ap.getUri());
 
+
+                    IssueMeta is = new IssueMeta();
+                    is.setDate(artefactUpdated.getDate());
+                    is.setSubject(artefactUpdated.getSubject());
+                    is.setId(Integer.valueOf(artefactUpdated.getId()));
+
+
+                    issueMetaDao.insert(is);
+
                     logger.trace("void updateSimilaritiesForIssue() Inserting {} ",us);
                     issueSubjectDao.insert(us);
 
@@ -299,58 +290,13 @@ public class DefaultRecommendationService implements RecommendationService{
             }
 
 
-            List<IssueSubject> newIssueSubjects = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
-            List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
-            List<String>  uuids = uuidSubjectDao.findAllUuid();
-    
-
-            //create annotated object 1: the issue
-            HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
-
-            for (IssueSubject is : newIssueSubjects) {
-                issueAnnotations.put(is.getSubject(), is.getWeight());
-            }
-            AnnotatedIssue annotatedIssue = new AnnotatedIssue(artefactUpdated.getId(), issueAnnotations);
-
-            //initialize identity annotations\
-            HashMap<String, Double> identityAnnotations = new HashMap<String, Double>();
-
-            try {
-                //iterate through all possible identities
-
-                for (String u : uuids) {
-
-                    identityAnnotations.clear();
-                    List<UuidSubject> thisIdentitySubjects = uuidSubjectDao.findByUuidLimitByWeight(u,
-                            Double.valueOf(systemProperties.getProperty("subject.uuid.weight.limit")));
-
-
-                    for (UuidSubject us : thisIdentitySubjects) {
-                        identityAnnotations.put(us.getSubject(), us.getWeight());
-                    }
-                    AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(u, identityAnnotations);
-
-                    Double currentSimilarity =similarityCalculator.getSimilarity(
-                            annotatedIdentity, annotatedIssue);
-
-                    UuidIssue currentUuidIssue=new UuidIssue();
-                    currentUuidIssue.setUuidAndIssue(u, Integer.valueOf(artefactUpdated.getId()));
-                    currentUuidIssue.setSimilarity(currentSimilarity);
-                    newSimilarities.add(currentUuidIssue);
-
-                }
-
-            } catch (Exception ex) {
-                logger.error("Couldn't update the uuid_issues",ex);
-            }
-
-            uuidIssueDao.removeByIssueId(Integer.valueOf(artefactUpdated.getId()));
-            for(UuidIssue u: newSimilarities){
-                uuidIssueDao.insert(u);
+            if(realtimeEnabled){
+                similarityComputationService.computeSimilaritesForIssue(
+                        Integer.valueOf(artefactUpdated.getId()));
             }
 
         } finally {
-            lock.unlock();
+            releaseLock("updateSimilaritiesForIssue");
         }
     }
 
@@ -358,7 +304,9 @@ public class DefaultRecommendationService implements RecommendationService{
     @Override
     @Transactional
     public void updateSimilaritiesForComponent(ComponentUpdated artefactUpdated) {
-        lock.lock();
+
+        getLock("updateSimilaritiesForComponent");
+
 
         try {
 
@@ -398,62 +346,29 @@ public class DefaultRecommendationService implements RecommendationService{
                 }
             }
 
-
-            List<ComponentSubject> newComponentSubjects = componentSubjectDao.findByComponent(artefactUpdated.getComponent());
-
-            List<UuidComponent> newSimilarities = new ArrayList<UuidComponent>();
-            List<String>  uuids = uuidSubjectDao.findAllUuid();
-
-
-            //create annotated object 1: the issue
-            HashMap<String, Double> componentAnnotations = new HashMap<String, Double>();
-
-            for (ComponentSubject is : newComponentSubjects) {
-                componentAnnotations.put(is.getSubject(), is.getWeight());
-            }
-            AnnotatedIssue annotatedIssue = new AnnotatedIssue(artefactUpdated.getId(), componentAnnotations);
-
-            //initialize identity annotations\
-            HashMap<String, Double> identityAnnotations = new HashMap<String, Double>();
-
-            try {
-                //iterate through all possible identities
-
-                for (String u : uuids) {
-
-                    identityAnnotations.clear();
-                    List<UuidSubject> thisIdentitySubjects = uuidSubjectDao.findByUuidLimitByWeight(u,
-                            Double.valueOf(systemProperties.getProperty("subject.uuid.weight.limit")));
-
-
-                    for (UuidSubject us : thisIdentitySubjects) {
-                        identityAnnotations.put(us.getSubject(), us.getWeight());
-                    }
-                    AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(u, identityAnnotations);
-
-                    Double currentSimilarity =similarityCalculator.getSimilarity(
-                            annotatedIdentity, annotatedIssue);
-
-                    UuidComponent currentUuidIssue=new UuidComponent();
-                    currentUuidIssue.setUuidAndComponent(u, artefactUpdated.getComponent());
-                    currentUuidIssue.setSimilarity(currentSimilarity);
-                    newSimilarities.add(currentUuidIssue);
-
-                }
-
-            } catch (Exception ex) {
-                logger.error("Couldn't update the uuid_issues",ex);
+            if(realtimeEnabled){
+                //do
+                similarityComputationService.computeSimilarityForComponent(artefactUpdated.getComponent());
             }
 
-            uuidIssueDao.removeByIssueId(Integer.valueOf(artefactUpdated.getId()));
-            for(UuidComponent u: newSimilarities){
-                uuidComponentDao.insert(u);
-            }
 
         } finally {
-            lock.unlock();
+            releaseLock("updateSimilaritiesForComponent");
+
         }
-
-
     }
+
+
+
+    private void getLock(String method){
+        logger.trace("void getLock([]) Attempting to lock {}",method);
+        lock.lock();
+        logger.trace("void getLock([method]) lock aquired {} ",method);
+    }
+
+    private void releaseLock(String method){
+        logger.trace("void releaseLock([]) {}",method);
+        lock.unlock();
+    }
+
 }

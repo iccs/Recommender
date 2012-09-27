@@ -38,38 +38,8 @@
     </bean>
 
 
+    <import resource="/iccs/active-mq-connection.xml"/>
 
-    <!-- ActiveMQ -->
-    <bean   id="jmsConnectionFactory"
-            class="org.apache.activemq.ActiveMQConnectionFactory" >
-        <property name="brokerURL" value="${activemq.url}" />
-        <property name="userName" value="${activemq.username}" />
-        <property name="password" value="${activemq.password}" />
-    </bean>
-
-    <bean id="pooledJmsConnectionFactory"
-          class="org.apache.activemq.pool.PooledConnectionFactory"
-          destroy-method="stop">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    </bean>
-
-    <bean id="jmsConfig"
-          class="org.apache.camel.component.jms.JmsConfiguration">
-        <property name="connectionFactory" ref="pooledJmsConnectionFactory"/>
-        <property name="transacted" value="false"/>
-        <property name="concurrentConsumers" value="10"/>
-    </bean>
-
-    <bean id="activemq"
-          class="org.apache.activemq.camel.component.ActiveMQComponent">
-        <property name="configuration" ref="jmsConfig"/>
-    </bean>
-
-    <!-- Spring JMS Template -->
-    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory" ref="pooledJmsConnectionFactory" />
-        <property name="pubSubDomain" value="true"/>
-    </bean>
 
 
 </beans>

@@ -6,7 +6,7 @@ package eu.alertproject.iccs.socrates.calculator;
 
 import java.util.HashMap;
 
-import eu.alertproject.iccs.socrates.calculator.api.CosineSimilarityCalculator;
+import eu.alertproject.iccs.socrates.calculator.api.SimilarityComputationServiceImpl;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedObject;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIdentity;
@@ -31,7 +31,7 @@ public class SimilarityTest {
     private AnnotatedIdentity annotatedIdentity;
     private AnnotatedIssue annotatedIssue;
     private AnnotatedObject annotatedObject;
-    private CosineSimilarityCalculator similarityCalculator;
+    private SimilarityComputationServiceImpl similarityCalculator;
 
     public SimilarityTest() {
     }
@@ -46,7 +46,7 @@ public class SimilarityTest {
 
     @Before
     public void setUp() {
-        similarityCalculator = new CosineSimilarityCalculator();
+        similarityCalculator = new SimilarityComputationServiceImpl();
     }
 
     @After

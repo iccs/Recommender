@@ -102,6 +102,8 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
             Integer bugId = Integer.valueOf(i.getUuid());
 
 
+            //TODO Kostas - Which ranking to use
+
             List<IdentityBean> byForClass = datastoreRecommendationService.findByForClass(
                     "core developers",
                     bugId,

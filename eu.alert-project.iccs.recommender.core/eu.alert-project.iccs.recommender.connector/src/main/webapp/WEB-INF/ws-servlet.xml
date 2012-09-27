@@ -113,7 +113,7 @@
         <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
 
-    <bean id="componentListener" class="eu.alertproject.iccs.socrates.connector.internal.IssueUpdatedListener" />
+    <bean id="componentListener" class="eu.alertproject.iccs.socrates.connector.internal.ComponentUpdatedListener" />
     <bean id="iccsComponentListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
         <constructor-arg>
             <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Component_Updated"/>
