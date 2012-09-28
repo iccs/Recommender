@@ -92,10 +92,8 @@ public class DefaultRecommendationService implements RecommendationService{
                                     long start = System.currentTimeMillis();
 
                                     logger.info("Updating similarities {} ",new Date());
-                                    similarityComputationService.computeSimilaritiesForAllIdentities();
-                                    similarityComputationService.computeSimilaritiesForAllIssues();
-                                    similarityComputationService.computeSimilaritiesForAllComponents();
-//                    }
+                                    similarityComputationService.computeAllSimilarities();
+
                                     logger.info("Last run took {} minutes ",
                                             ((double)System.currentTimeMillis()-start)/1000.0/60.0);
 //

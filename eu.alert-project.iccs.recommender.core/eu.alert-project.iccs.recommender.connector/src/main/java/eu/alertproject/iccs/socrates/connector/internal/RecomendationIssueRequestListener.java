@@ -79,7 +79,20 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
                 .getEventId();
 
 
-        
+        Double threshold = rie.getBody()
+                .getNotify()
+                .getNotificationMessage()
+                .getMessage()
+                .getEvent()
+                .getPayload()
+                .getEventData()
+                .getRanking();
+
+        threshold = threshold == null ?
+                Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")):
+                threshold.doubleValue();
+
+
         List<Issue> issues = new ArrayList<Issue>();
 
         for(IssueIdentities ii: issueIdentities){
@@ -87,10 +100,8 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
             for(Identity i : identities){
 
 
-
-                //TODO Kostas figure out ranking on the request
                 List<Bug> bugs = datastoreRecommendationService.retrieveForDevId(i.getUuid(),
-                        Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")),
+                        threshold,
                         Double.valueOf(systemProperties.getProperty("subject.similarity.weight")),
                         Double.valueOf(systemProperties.getProperty("subject.ranking.weight")),
                         Integer.valueOf(systemProperties.getProperty("recommendation.max.results")));

@@ -14,9 +14,10 @@ public interface SimilarityComputationService {
     void computeSimilaritesForIssue(Integer id);
     void computeSimilarityForComponent(String component);
 
-    void computeSimilaritiesForAllIdentities();
-    void computeSimilaritiesForAllIssues();
-    void computeSimilaritiesForAllComponents();
+    void computeAllSimilarities();
+//    void computeSimilaritiesForAllIdentities();
+//    void computeSimilaritiesForAllIssues();
+//    void computeSimilaritiesForAllComponents();
 
 
 }

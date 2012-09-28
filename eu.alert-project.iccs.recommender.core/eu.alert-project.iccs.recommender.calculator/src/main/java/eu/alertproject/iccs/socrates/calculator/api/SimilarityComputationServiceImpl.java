@@ -44,36 +44,35 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
     Properties systemProperties;
 
 
+//    @Override
+//    @Transactional
+//    public void computeSimilaritiesForAllComponents(){
+//
+//        logger.info("void computeSimilaritiesForAllComponents([]) ");
+//        List<String> allComponents = componentSubjectDao.findAllComponents();
+//
+//        for(String component: allComponents){
+//            computeSimilarityForComponent(component);
+//        }
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void computeSimilaritiesForAllIssues() {
+//
+//        logger.info("void computeSimilaritiesForAllIssues([]) ");
+//
+//        List<Integer> allIssues = issueSubjectDao.findAllIssues();
+//
+//        for(Integer issue: allIssues){
+//            computeSimilaritesForIssue(issue);
+//        }
+//
+//    }
+
     @Override
     @Transactional
-    public void computeSimilaritiesForAllComponents(){
-
-        logger.info("void computeSimilaritiesForAllComponents([]) ");
-        List<String> allComponents = componentSubjectDao.findAllComponents();
-
-        for(String component: allComponents){
-            computeSimilarityForComponent(component);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void computeSimilaritiesForAllIssues() {
-
-        logger.info("void computeSimilaritiesForAllIssues([]) ");
-
-        List<Integer> allIssues = issueSubjectDao.findAllIssues();
-
-        for(Integer issue: allIssues){
-            computeSimilaritesForIssue(issue);
-        }
-
-    }
-
-    @Override
-    @Transactional
-    public void computeSimilaritiesForAllIdentities() {
-
+    public void computeAllSimilarities() {
 
         logger.info("void computeSimilaritiesForAllIdentities([]) ");
         List<String> allUuid = uuidSubjectDao.findAllUuid();
@@ -147,9 +146,6 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
         logger.trace("void computeSimilaritesForIssue([id]) {}",id);
 
         List<IssueSubject> newIssueSubjects = issueSubjectDao.findByIssueId(id);
-        List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
-        List<String>  uuids = uuidSubjectDao.findAllUuid();
-
 
         //create annotated object 1: the issue
         HashMap<String, Double> issueAnnotations = new HashMap<String, Double>();
@@ -161,6 +157,9 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
         //initialize identity annotations\
         HashMap<String, Double> identityAnnotations = new HashMap<String, Double>();
+        List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
+        List<String>  uuids = uuidSubjectDao.findAllUuid();
+
 
         try {
             //iterate through all possible identities
@@ -205,11 +204,8 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
         logger.trace("void computeSimilaritesForIdentity([uuid]) {}",uuid);
 
-        List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
-
         List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(uuid);
 
-        List<Integer> allIssues = issueSubjectDao.findAllIssues();
 
         //create annotated object 1: the identity
         HashMap<String,Double> identityAnnotations = new HashMap<String,Double>();
@@ -217,6 +213,12 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
             identityAnnotations.put(us.getSubject(), us.getWeight());
         }
         AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(uuid, identityAnnotations);
+
+
+
+
+        List<Integer> allIssues = issueSubjectDao.findAllIssues();
+        List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
 
         //initialize issue annotations
         HashMap<String, Double> issueAnnotations = null;
@@ -243,6 +245,8 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
                 newSimilarities.add(currentUuidIssue);
             }
 
+
+
         } catch (Exception ex) {
             logger.error("Couldn't update the uuid_issues",ex);
         }
@@ -253,12 +257,52 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
         }
 
 
+
         /**
          * Update the similarity to the components
          *
          */
+        //initialize issue annotations
+        HashMap<String, Double> componentAnnotations = null;
+        List<String> allComponents= componentSubjectDao.findAllComponents();
+        List<UuidComponent> newComponentSimilarities = new ArrayList<UuidComponent>();
 
-        //TODO  Kostas
+
+        try {
+            //iterate through all possible components
+            for (String c : allComponents) {
+
+                issueAnnotations = new HashMap<String, Double>();
+
+                List<ComponentSubject> thisComponentSubjects = componentSubjectDao.findByComponentLimitByWeight(
+                        c,
+                        Double.valueOf(systemProperties.getProperty("subject.issue.weight.limit")));
+
+                for (ComponentSubject cs : thisComponentSubjects) {
+                    componentAnnotations.put(cs.getSubject(), cs.getWeight());
+                }
+
+                AnnotatedComponent annotatedComponent = new AnnotatedComponent(c, issueAnnotations);
+
+                Double currentSimilarity =this.getSimilarity(annotatedIdentity, annotatedComponent);
+
+                UuidComponent currentUuidComponent =new UuidComponent();
+                currentUuidComponent.setUuidAndComponent(annotatedIdentity.getIdentityId(), c);
+                currentUuidComponent.setSimilarity(currentSimilarity);
+                newComponentSimilarities.add(currentUuidComponent);
+            }
+
+
+
+        } catch (Exception ex) {
+            logger.error("Couldn't update the uuid_issues",ex);
+        }
+
+        uuidComponentDao.removeByUuid(uuid);
+        for(UuidComponent u: newComponentSimilarities){
+            uuidComponentDao.insert(u);
+        }
+
     }
 
     public final Double getSimilarity(AnnotatedObject item1, AnnotatedObject item2) {
@@ -379,12 +423,12 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
 
         Double similarity = numerator / Math.sqrt(norm1 * norm2);
-        logger.trace("Double getSimilarity() {}/Math.sqrt({}*{})={}",
-                new Object[]{
-                    numerator,
-                    norm1,
-                    norm2,
-                    similarity});
+//        logger.trace("Double getSimilarity() {}/Math.sqrt({}*{})={}",
+//                new Object[]{
+//                    numerator,
+//                    norm1,
+//                    norm2,
+//                    similarity});
 
         return similarity;
 

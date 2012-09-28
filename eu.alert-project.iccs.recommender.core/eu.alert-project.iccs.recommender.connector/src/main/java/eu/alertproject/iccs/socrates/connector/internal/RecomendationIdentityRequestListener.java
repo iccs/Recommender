@@ -91,8 +91,23 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
                 .getEventData().getPatternId();
 
 
+        Double threshold = rie.getBody()
+                .getNotify()
+                .getNotificationMessage()
+                .getMessage()
+                .getEvent()
+                .getPayload()
+                .getEventData()
+                .getRanking();
 
-        
+
+        threshold = threshold == null ?
+                        Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")):
+                        threshold.doubleValue();
+
+
+
+
 
         List<IssueIdentities> issueIdentitieses = new ArrayList<IssueIdentities>();
 
@@ -101,13 +116,10 @@ public class RecomendationIdentityRequestListener extends SocratesActiveMQListen
 
             Integer bugId = Integer.valueOf(i.getUuid());
 
-
-            //TODO Kostas - Which ranking to use
-
             List<IdentityBean> byForClass = datastoreRecommendationService.findByForClass(
                     "core developers",
                     bugId,
-                    Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")),
+                    threshold,
                     Double.valueOf(systemProperties.getProperty("subject.similarity.weight")),
                     Double.valueOf(systemProperties.getProperty("subject.ranking.weight")),
                     Integer.valueOf(systemProperties.getProperty("recommendation.max.results")));
