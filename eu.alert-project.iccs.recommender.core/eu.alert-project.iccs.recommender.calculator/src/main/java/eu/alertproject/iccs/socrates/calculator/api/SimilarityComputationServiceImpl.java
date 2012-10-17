@@ -263,7 +263,7 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
          *
          */
         //initialize issue annotations
-        HashMap<String, Double> componentAnnotations = new HashMap<String, Double>();
+        HashMap<String, Double> componentAnnotations = null;
         List<String> allComponents= componentSubjectDao.findAllComponents();
         List<UuidComponent> newComponentSimilarities = new ArrayList<UuidComponent>();
 
@@ -272,17 +272,17 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
             //iterate through all possible components
             for (String c : allComponents) {
 
-                issueAnnotations = new HashMap<String, Double>();
+                componentAnnotations = new HashMap<String, Double>();
 
                 List<ComponentSubject> thisComponentSubjects = componentSubjectDao.findByComponentLimitByWeight(
                         c,
-                        Double.valueOf(systemProperties.getProperty("subject.issue.weight.limit")));
+                        Double.valueOf(systemProperties.getProperty("subject.component.weight.limit")));
 
                 for (ComponentSubject cs : thisComponentSubjects) {
                     componentAnnotations.put(cs.getSubject(), cs.getWeight());
                 }
 
-                AnnotatedComponent annotatedComponent = new AnnotatedComponent(c, issueAnnotations);
+                AnnotatedComponent annotatedComponent = new AnnotatedComponent(c, componentAnnotations);
 
                 Double currentSimilarity =this.getSimilarity(annotatedIdentity, annotatedComponent);
 
