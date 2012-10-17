@@ -263,7 +263,7 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
          *
          */
         //initialize issue annotations
-        HashMap<String, Double> componentAnnotations = null;
+        HashMap<String, Double> componentAnnotations = new HashMap<String, Double>();
         List<String> allComponents= componentSubjectDao.findAllComponents();
         List<UuidComponent> newComponentSimilarities = new ArrayList<UuidComponent>();
 
