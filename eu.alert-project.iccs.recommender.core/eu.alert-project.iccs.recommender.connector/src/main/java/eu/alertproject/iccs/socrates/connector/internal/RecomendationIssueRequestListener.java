@@ -1,18 +1,19 @@
 package eu.alertproject.iccs.socrates.connector.internal;
 
-import com.thoughtworks.xstream.XStream;
-import eu.alertproject.iccs.events.activemq.TextMessageCreator;
+import eu.alertproject.iccs.events.api.AbstractActiveMQHandler;
+import eu.alertproject.iccs.events.api.ActiveMQMessageBroker;
 import eu.alertproject.iccs.events.api.EventFactory;
 import eu.alertproject.iccs.events.api.Topics;
-import eu.alertproject.iccs.events.socrates.*;
+import eu.alertproject.iccs.events.socrates.Identity;
+import eu.alertproject.iccs.events.socrates.Issue;
+import eu.alertproject.iccs.events.socrates.IssueIdentities;
+import eu.alertproject.iccs.events.socrates.RecommendIssuesEnvelope;
 import eu.alertproject.iccs.socrates.datastore.api.DatastoreRecommendationService;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
 import eu.alertproject.iccs.socrates.domain.Bug;
-import eu.alertproject.iccs.socrates.domain.UuidIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -27,15 +28,12 @@ import java.util.Properties;
  * Date: 14/03/12
  * Time: 14:44
  */
-public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
+public class RecomendationIssueRequestListener extends AbstractActiveMQHandler {
 
     private Logger logger = LoggerFactory.getLogger(RecomendationIssueRequestListener.class);
 
     private int sequence = 1;
-    
-    @Autowired
-    JmsTemplate jmsTemplate;
-    
+
     @Autowired
     UuidIssueDao uuidIssueDao;
 
@@ -46,11 +44,9 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
     private DatastoreRecommendationService datastoreRecommendationService;
 
     @Override
-    public void process(Message message) throws IOException, JMSException {
-
+    public void process(ActiveMQMessageBroker broker, Message message) throws IOException, JMSException {
 
         String text = ((TextMessage) message).getText();
-        logger.trace("void process() xml {} ",text);
 
         long start = System.currentTimeMillis();
 
@@ -69,7 +65,7 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
                 .getIssueIdentities();
 
 
-        Integer eventId = rie.getBody()
+        String eventId = rie.getBody()
                 .getNotify()
                 .getNotificationMessage()
                 .getMessage()
@@ -129,9 +125,8 @@ public class RecomendationIssueRequestListener extends SocratesActiveMQListener{
                 issues
         );
 
-        jmsTemplate.send(
-                Topics.ALERT_SOCRATES_Issue_Recommendation,
-                new TextMessageCreator(event));
+
+        broker.sendTextMessage(Topics.ALERT_SOCRATES_Issue_Recommendation, event);
 
     }
 

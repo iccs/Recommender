@@ -88,77 +88,70 @@
     <!-- ActiveMQ -->
     <import resource="classpath:/iccs/active-mq-connection.xml" />
 
+    <bean id="messageBroker" class="eu.alertproject.iccs.events.api.ActiveMQMessageBroker">
+        <property name="processDisabled" value="${activemq.processDisabled}"/>
+        <property name="recordIncoming" value="${activemq.recordIncoming}"/>
+        <property name="recordOutgoing" value="${activemq.recordOutgoing}"/>
+        <property name="jmsTemplate" ref="jmsTemplate"/>
+        <property name="listenerMap">
+            <util:map>
+                <entry>
+                    <key>
+                        <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Identity_Updated"/>
+                    </key>
+                    <bean id="identityUpdatedListener" class="eu.alertproject.iccs.socrates.connector.internal.IdentityUpdatedListener" />
+                </entry>
+                <entry>
+                    <key>
+                        <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Issue_Updated"/>
+                    </key>
+                    <bean id="itsNewIssueListener" class="eu.alertproject.iccs.socrates.connector.internal.IssueUpdatedListener" />
+                </entry>
+                <entry>
+                    <key>
+                        <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Component_Updated"/>
+                    </key>
+                    <bean id="componentListener" class="eu.alertproject.iccs.socrates.connector.internal.ComponentUpdatedListener" />
+                </entry>
+                <entry>
+                    <key>
+                        <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Recommendation_Request"/>
+                    </key>
+                    <bean id="recomendationIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIdentityRequestListener" />
+                </entry>
+                <entry>
+                    <key>
+                        <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Issue_Recommendation_Request"/>
+                    </key>
+                    <bean id="recomendationIssueRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIssueRequestListener" />
+                </entry>
+                <entry>
+                    <key>
+                        <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Verification_Request"/>
+                    </key>
+                    <bean id="iccsAllVerifyIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.VerifyIdentityRequestListener" />
+                </entry>
+            </util:map>
+        </property>
+    </bean>
 
-
-    <bean id="identityUpdatedListener" class="eu.alertproject.iccs.socrates.connector.internal.IdentityUpdatedListener" />
-    <bean id="iccsIdentityUpdatedListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
+    <bean id="socratesListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
         <constructor-arg>
-            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Identity_Updated"/>
+            <array>
+                <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Identity_Updated"/>
+                <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Issue_Updated"/>
+                <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Component_Updated"/>
+                <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Recommendation_Request"/>
+                <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Issue_Recommendation_Request"/>
+                <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Verification_Request"/>
+            </array>
         </constructor-arg>
-        <constructor-arg ref="identityUpdatedListener"/>
+        <constructor-arg ref="messageBroker"/>
         <constructor-arg ref="jmsConnectionFactory"/>
         <constructor-arg value="${activemq.recoveryInterval}" />
         <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
 
-
-    <bean id="itsNewIssueListener" class="eu.alertproject.iccs.socrates.connector.internal.IssueUpdatedListener" />
-    <bean id="iccsItsNewIssueListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
-        <constructor-arg>
-            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Issue_Updated"/>
-        </constructor-arg>
-        <constructor-arg ref="itsNewIssueListener"/>
-        <constructor-arg ref="jmsConnectionFactory"/>
-        <constructor-arg value="${activemq.recoveryInterval}" />
-        <constructor-arg value="${activemq.cacheLevel}" />
-    </bean>
-
-    <bean id="componentListener" class="eu.alertproject.iccs.socrates.connector.internal.ComponentUpdatedListener" />
-    <bean id="iccsComponentListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
-        <constructor-arg>
-            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Component_Updated"/>
-        </constructor-arg>
-        <constructor-arg ref="componentListener"/>
-        <constructor-arg ref="jmsConnectionFactory"/>
-        <constructor-arg value="${activemq.recoveryInterval}" />
-        <constructor-arg value="${activemq.cacheLevel}" />
-    </bean>
-
-
-    <bean id="recomendationIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIdentityRequestListener" />
-    <bean id="iccsAllRecomendationIdentityRequestListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
-        <constructor-arg>
-            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Recommendation_Request"/>
-        </constructor-arg>
-        <constructor-arg ref="recomendationIdentityRequestListener"/>
-        <constructor-arg ref="jmsConnectionFactory"/>
-        <constructor-arg value="${activemq.recoveryInterval}" />
-        <constructor-arg value="${activemq.cacheLevel}" />
-    </bean>
-
-
-    <bean id="recomendationIssueRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationIssueRequestListener" />
-    <bean id="iccsAllRecomendationIssueRequestListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
-        <constructor-arg>
-            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Issue_Recommendation_Request"/>
-        </constructor-arg>
-        <constructor-arg ref="recomendationIssueRequestListener"/>
-        <constructor-arg ref="jmsConnectionFactory"/>
-        <constructor-arg value="${activemq.recoveryInterval}" />
-        <constructor-arg value="${activemq.cacheLevel}" />
-    </bean>
-
-
-    <bean id="iccsAllVerifyIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.VerifyIdentityRequestListener" />
-    <bean id="iccsAllVerifyIdentityListener" class="eu.alertproject.iccs.events.activemq.ALERTDefaultMessageListenerContainer">
-        <constructor-arg>
-            <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Verification_Request"/>
-        </constructor-arg>
-        <constructor-arg ref="iccsAllVerifyIdentityRequestListener"/>
-        <constructor-arg ref="jmsConnectionFactory"/>
-        <constructor-arg value="${activemq.recoveryInterval}" />
-        <constructor-arg value="${activemq.cacheLevel}" />
-    </bean>
 
 
 </beans>

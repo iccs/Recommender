@@ -65,7 +65,6 @@ public class UuidSubject implements SimpleBean{
 
         if (uuidSubjectPk != null ? !uuidSubjectPk.equals(that.uuidSubjectPk) : that.uuidSubjectPk != null)
             return false;
-        if (weight != null ? !weight.equals(that.weight) : that.weight != null) return false;
 
         return true;
     }
@@ -73,7 +72,6 @@ public class UuidSubject implements SimpleBean{
     @Override
     public int hashCode() {
         int result = uuidSubjectPk != null ? uuidSubjectPk.hashCode() : 0;
-        result = 31 * result + (weight != null ? weight.hashCode() : 0);
         return result;
     }
 

@@ -6,7 +6,6 @@ import eu.alertproject.iccs.events.internal.ArtefactUpdated;
 import eu.alertproject.iccs.events.internal.ComponentUpdated;
 import eu.alertproject.iccs.events.internal.IdentityUpdated;
 import eu.alertproject.iccs.events.internal.IssueUpdated;
-import eu.alertproject.iccs.socrates.domain.ComponentSubject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -27,9 +26,9 @@ import java.util.concurrent.CountDownLatch;
 /**
  * User: fotis Date: 25/02/12 Time: 15:23
  */
-public class Run {
+public class ReommendationEventsSimulator {
 
-    private static Logger logger = LoggerFactory.getLogger(Run.class);
+    private static Logger logger = LoggerFactory.getLogger(ReommendationEventsSimulator.class);
     private static final int ISSUE_COUNT = 2000;
     private static final int COMPONENT_COUNT= 2000;
 
@@ -40,11 +39,11 @@ public class Run {
 
         final JmsTemplate jmsTemplate = (JmsTemplate) classPathXmlApplicationContext.getBean("jmsTemplate");
 
-        final Run run = new Run();
+        final ReommendationEventsSimulator run = new ReommendationEventsSimulator();
 
-        final List<String> uuids = IOUtils.readLines(Run.class.getResourceAsStream("/uuids"));
-        final List<String> issues = IOUtils.readLines(Run.class.getResourceAsStream("/issues"));
-        final List<String> list = IOUtils.readLines(Run.class.getResourceAsStream("/5desk.txt"));
+        final List<String> uuids = IOUtils.readLines(ReommendationEventsSimulator.class.getResourceAsStream("/uuids"));
+        final List<String> issues = IOUtils.readLines(ReommendationEventsSimulator.class.getResourceAsStream("/issues"));
+        final List<String> list = IOUtils.readLines(ReommendationEventsSimulator.class.getResourceAsStream("/5desk.txt"));
 
         final CountDownLatch cdl = new CountDownLatch(2);
         final int IDENTITIES_COUNT = 300;

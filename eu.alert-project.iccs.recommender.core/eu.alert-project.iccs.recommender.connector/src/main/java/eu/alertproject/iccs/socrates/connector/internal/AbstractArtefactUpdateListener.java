@@ -1,5 +1,7 @@
 package eu.alertproject.iccs.socrates.connector.internal;
 
+import eu.alertproject.iccs.events.api.AbstractActiveMQHandler;
+import eu.alertproject.iccs.events.api.ActiveMQMessageBroker;
 import eu.alertproject.iccs.events.internal.ArtefactUpdated;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -15,12 +17,12 @@ import java.io.IOException;
  * Date: 25/02/12
  * Time: 14:48
  */
-public abstract class AbstractArtefactUpdateListener<T extends ArtefactUpdated> extends SocratesActiveMQListener{
+public abstract class AbstractArtefactUpdateListener<T extends ArtefactUpdated> extends AbstractActiveMQHandler {
 
     private Logger logger = LoggerFactory.getLogger(AbstractArtefactUpdateListener.class);
 
     @Override
-    public final void process(Message message) throws IOException, JMSException {
+    public final void process(ActiveMQMessageBroker broker, Message message) throws IOException, JMSException {
 
         ObjectMapper mapper = new ObjectMapper();
         String text = ((TextMessage) message).getText();

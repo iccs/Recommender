@@ -7,7 +7,6 @@ import eu.alertproject.iccs.events.internal.IssueUpdated;
 import eu.alertproject.iccs.socrates.datastore.api.*;
 import eu.alertproject.iccs.socrates.domain.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,12 +130,9 @@ public class DefaultRecommendationService implements RecommendationService{
     @Override
     @Transactional
     public void updateSimilaritiesForIdentity(IdentityUpdated identityUpdated) {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+
 
         getLock("updateSimilaritiesForIdentity");
-        stopWatch.split();
-        logger.trace("void updateSimilaritiesForIdentity() Attemping lock took {}",stopWatch.toSplitString());
 
         try {
 
@@ -165,17 +161,13 @@ public class DefaultRecommendationService implements RecommendationService{
                 uuidClassDao.insert(uuidClass);
             }
 
-
-
-            stopWatch.split();
-            logger.trace("void updateSimilaritiesForIdentity() Took {} to insert uuid classes",stopWatch.toSplitString());
-
-            List<Keui.Concept> concepts = identityUpdated.getConcepts();
+            List<Keui.Concept> concepts = filterConcepts(identityUpdated.getConcepts());
             List<UuidSubject> uuidSubjects  = uuidSubjectDao.findByUuid(identityUpdated.getId());
 
-            List<Keui.Concept> processed = new ArrayList<Keui.Concept>();
+            List<String> processed = new ArrayList<String>();
 
             if(concepts != null){
+
                 for(Keui.Concept ap: concepts){
 
 
@@ -189,45 +181,36 @@ public class DefaultRecommendationService implements RecommendationService{
                         if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
                             //update previous
                             next.setWeight(next.getWeight()+ap.getWeight());
+                            logger.trace("void updateSimilaritiesForIdentity([identityUpdated]) Updating {}", next);
                             us  = uuidSubjectDao.update(next);
+                            logger.trace("void updateSimilaritiesForIdentity([identityUpdated]) Updating Result {}",us);
                             iterator.remove();
                         }
 
                     }
 
-                    stopWatch.split();
-                    logger.trace("void updateSimilaritiesForIdentity() Took {} to update subjects ",stopWatch.toSplitString());
-
-
-
-                    if(us == null && ! processed.contains(ap)){
+                    if(us == null && !processed.contains(ap.getUri())){
                         //create new
                         us = new UuidSubject();
                         us.setWeight(Double.valueOf(ap.getWeight()));
                         us.setUuidAndSubject(identityUpdated.getId(), ap.getUri());
 
-                        logger.trace("void updateSimilaritiesForIdentity() Inserting {} ",us);
+                        logger.trace("void updateSimilaritiesForIdentity() Inserting {} from {} ",us,ap);
 
-                        us = uuidSubjectDao.insert(us);
+                        uuidSubjectDao.insert(us);
 
-                        processed.add(ap);
+                        processed.add(ap.getUri());
 
                     }
 
                 }
             }
 
-            stopWatch.split();
-            logger.trace("void updateSimilaritiesForIdentity() Took {} to handle concepts{}",stopWatch.toSplitString());
-
-
             if(realtimeEnabled){
                 similarityComputationService.computeSimilaritesForIdentity(identityUpdated.getId());
             }
 
         } finally {
-            stopWatch.stop();
-            logger.trace("void updateSimilaritiesForIdentity() Took {} in total ",stopWatch.toString());
             releaseLock("updateSimilaritiesForIdentity");
         }
 
@@ -241,10 +224,17 @@ public class DefaultRecommendationService implements RecommendationService{
         getLock("updateSimilaritiesForIssue");
         try {
 
-            List<Keui.Concept> annotations = artefactUpdated.getConcepts();
+            List<Keui.Concept> annotations = filterConcepts(artefactUpdated.getConcepts());
 
             List<IssueSubject> issueSubjects  = issueSubjectDao.findByIssueId(Integer.valueOf(artefactUpdated.getId()));
-            
+
+            /**
+             * This is only possible for update issue events where a comment hasn't been added!
+             */
+            if(annotations == null ){
+                logger.warn("Issue {} has null annotations skipping issue update ",artefactUpdated.getId());
+                return;
+            }
             for(Keui.Concept ap: annotations){
 
                 IssueSubject us = null;
@@ -272,13 +262,17 @@ public class DefaultRecommendationService implements RecommendationService{
                     us.setIssueAndSubject(Integer.valueOf(artefactUpdated.getId()), ap.getUri());
 
 
-                    IssueMeta is = new IssueMeta();
-                    is.setDate(artefactUpdated.getDate());
-                    is.setSubject(artefactUpdated.getSubject());
-                    is.setId(Integer.valueOf(artefactUpdated.getId()));
+                    IssueMeta byId = issueMetaDao.findById(Integer.valueOf(artefactUpdated.getId()));
+                    if(byId == null){
+                        byId= new IssueMeta();
+                        byId.setId(Integer.valueOf(artefactUpdated.getId()));
+                        byId = issueMetaDao.insert(byId);
 
+                    }
+                    byId.setDate(artefactUpdated.getDate());
+                    byId.setSubject(artefactUpdated.getSubject());
+                    issueMetaDao.update(byId);
 
-                    issueMetaDao.insert(is);
 
                     logger.trace("void updateSimilaritiesForIssue() Inserting {} ",us);
                     issueSubjectDao.insert(us);
@@ -308,10 +302,19 @@ public class DefaultRecommendationService implements RecommendationService{
 
         try {
 
-            List<Keui.Concept> annotations = artefactUpdated.getConcepts();
+            List<Keui.Concept> annotations = filterConcepts(artefactUpdated.getConcepts());
 
 
             List<ComponentSubject> byComponent = componentSubjectDao.findByComponent(artefactUpdated.getComponent());
+
+            /**
+             * This is only possible for update issue events where a comment hasn't been added!
+             */
+            if(annotations == null ){
+                logger.warn("Issue {} has null annotations skipping component similarity",artefactUpdated.getId());
+                return;
+            }
+
             for(Keui.Concept ap: annotations){
 
                 ComponentSubject cs = null;
@@ -328,9 +331,9 @@ public class DefaultRecommendationService implements RecommendationService{
                         cs = componentSubjectDao.update(next);
                         iterator.remove();
                     }
-
-
                 }
+
+
 
                 if(cs == null ){
 
@@ -369,4 +372,32 @@ public class DefaultRecommendationService implements RecommendationService{
         lock.unlock();
     }
 
+
+    /**
+     * The following method is necessary since we may have multiple concepts with the
+     * same uri arriving in the list which need to be combined
+     * @param e
+     * @return
+     */
+    private List<Keui.Concept> filterConcepts(List<Keui.Concept> incoming){
+
+        List<Keui.Concept> results = new ArrayList<Keui.Concept>();
+
+            if(incoming == null){
+            return results;
+        }
+        for(Keui.Concept c: incoming){
+            if(!results.contains(c)){
+                results.add(c);
+            }else{
+                int index = results.indexOf(c);
+                Keui.Concept concept = results.get(index);
+                concept.setWeight(concept.getWeight()+c.getWeight());
+                results.set(index,concept);
+            }
+        }
+
+        return results;
+
+    }
 }

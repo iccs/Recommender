@@ -4,8 +4,12 @@
 
 <head></head>
 
-	<body>
-		<h1>SOCRaTeS</h1>
-	</body>
+<body>
+<h1>SoCRaTeS Services</h1>
+<ul>
+    <li><a href="<%=request.getRequestURL()%>/ws/status">Current Status</a></li>
+</ul>
+
+</body>
 
 </html>
