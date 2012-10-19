@@ -1,5 +1,7 @@
 package eu.alertproject.iccs.socrates.datastore.internal;
 
+import eu.alertproject.iccs.events.socrates.Module;
+import eu.alertproject.iccs.events.socrates.RecommendModulesPayload;
 import eu.alertproject.iccs.socrates.datastore.api.*;
 import eu.alertproject.iccs.socrates.domain.*;
 import org.apache.commons.collections15.map.FastHashMap;
@@ -25,6 +27,9 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
     UuidIssueDao uuidIssueDao;
     @Autowired
     UuidSubjectDao uuidSubjectDao;
+
+    @Autowired
+    UuidComponentDao uuidComponentDao;
     @Autowired
     IssueSubjectDao issueSubjectDao;
     @Autowired
@@ -120,6 +125,43 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
 
             recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug #" + ui.getIssueId(), bugDescription,annotationsMap));
 
+        }
+
+
+
+        Set<Double> descRecsKeySet = recsFull.descendingKeySet();
+        Iterator keySetIterator = descRecsKeySet.iterator();
+        Integer counter = 0;
+        while (keySetIterator.hasNext()) {
+            recs.add(recsFull.get(keySetIterator.next()));
+            counter++;
+            if (counter > maxRecommendations) {
+                break;
+            }
+        }
+        if (recs == null) {
+            logger.debug("recs are null");
+        }
+        return recs;
+
+    }
+    @Override
+    public List<Module> retrieveModulesForDevId(String uuid,
+                                      double threshold,
+                                      double similarityWeight,
+                                      double rankingWeight,
+                                      int maxRecommendations) {
+
+        //TODO: @Fotis We need to sort by similarity! ?
+        List<UuidComponent> uuidComponents = uuidComponentDao.findByUuid(uuid,threshold);
+        List<Module> recs = new ArrayList<Module>();
+        TreeMap<Double, Module> recsFull = new TreeMap<Double, Module>();
+        String bugDescription="";
+
+        for (UuidComponent ui : uuidComponents) {
+
+            bugDescription="";
+            recsFull.put(ui.getSimilarity(), new Module(ui.getComponent()));
         }
 
 

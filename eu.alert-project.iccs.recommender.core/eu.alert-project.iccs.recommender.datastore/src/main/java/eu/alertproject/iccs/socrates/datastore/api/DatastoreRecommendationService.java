@@ -1,5 +1,6 @@
 package eu.alertproject.iccs.socrates.datastore.api;
 
+import eu.alertproject.iccs.events.socrates.Module;
 import eu.alertproject.iccs.socrates.domain.Bug;
 import eu.alertproject.iccs.socrates.domain.IdentityBean;
 
@@ -21,6 +22,12 @@ public interface DatastoreRecommendationService {
             int maxRecommendations);
 
     List<Bug> retrieveForDevId(String uuid,
+                               double threshold,
+                               double similarityWeight,
+                               double rankingWeight,
+                               int maxRecommendations);
+
+    List<Module> retrieveModulesForDevId(String uuid,
                                double threshold,
                                double similarityWeight,
                                double rankingWeight,

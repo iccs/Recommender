@@ -44,32 +44,6 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
     Properties systemProperties;
 
 
-//    @Override
-//    @Transactional
-//    public void computeSimilaritiesForAllComponents(){
-//
-//        logger.info("void computeSimilaritiesForAllComponents([]) ");
-//        List<String> allComponents = componentSubjectDao.findAllComponents();
-//
-//        for(String component: allComponents){
-//            computeSimilarityForComponent(component);
-//        }
-//    }
-//
-//    @Override
-//    @Transactional
-//    public void computeSimilaritiesForAllIssues() {
-//
-//        logger.info("void computeSimilaritiesForAllIssues([]) ");
-//
-//        List<Integer> allIssues = issueSubjectDao.findAllIssues();
-//
-//        for(Integer issue: allIssues){
-//            computeSimilaritesForIssue(issue);
-//        }
-//
-//    }
-
     @Override
     @Transactional
     public void computeAllSimilarities() {

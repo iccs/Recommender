@@ -72,6 +72,19 @@ public class DefaultRecommendationService implements RecommendationService{
         lock = new ReentrantLock();
         realtimeEnabled = systemProperties.getProperty("similarity.realtime").toLowerCase().equals("true");
         final long ms = Long.valueOf(systemProperties.getProperty("similarity.timer"));
+        logger.trace("void init([]) Hello World");
+        if(systemProperties.getProperty("similarity.calculateOnBoot").equals("true")){
+
+            Executors.newScheduledThreadPool(1).schedule(new Runnable() {
+                @Override
+                public void run() {
+                    getLock("Updating Similarities");
+                    similarityComputationService.computeAllSimilarities();
+                    releaseLock("similarities updated");
+                }
+            },30,TimeUnit.SECONDS);
+        }
+
         if(!systemProperties.getProperty("similarity.realtime").equals("true")){
             //this means we are going for scheduled tasks
             if(ms > 0 ){
@@ -82,10 +95,6 @@ public class DefaultRecommendationService implements RecommendationService{
                             public void run(){
 
                                 try{
-
-//                    while(runTimer.get()){
-//
-//                        Thread.sleep(ms);
                                     getLock("timer");
 
                                     long start = System.currentTimeMillis();
@@ -95,12 +104,6 @@ public class DefaultRecommendationService implements RecommendationService{
 
                                     logger.info("Last run took {} minutes ",
                                             ((double)System.currentTimeMillis()-start)/1000.0/60.0);
-//
-//                    logger.info("void run([]) Timer stopped");
-
-
-//                }catch (InterruptedException e){
-//                    logger.warn("This thread was interrupted {}",e);
                                 }catch (Exception e){
                                     logger.warn("An unexpected erro was encountered {}",e);
                                 }finally {
@@ -111,9 +114,12 @@ public class DefaultRecommendationService implements RecommendationService{
                             }
                         },ms,ms,TimeUnit.SECONDS);
 
-//                new Thread(timer).start();
+
             }
+
+
         }
+
     }
 
     @PreDestroy
@@ -376,8 +382,6 @@ public class DefaultRecommendationService implements RecommendationService{
     /**
      * The following method is necessary since we may have multiple concepts with the
      * same uri arriving in the list which need to be combined
-     * @param e
-     * @return
      */
     private List<Keui.Concept> filterConcepts(List<Keui.Concept> incoming){
 

@@ -127,6 +127,12 @@
                 </entry>
                 <entry>
                     <key>
+                        <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Module_Recommendation_Request"/>
+                    </key>
+                    <bean id="recomendationModuleRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.RecomendationModuleRequestListener" />
+                </entry>
+                <entry>
+                    <key>
                         <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Verification_Request"/>
                     </key>
                     <bean id="iccsAllVerifyIdentityRequestListener" class="eu.alertproject.iccs.socrates.connector.internal.VerifyIdentityRequestListener" />
@@ -143,6 +149,7 @@
                 <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ICCS_STARDOM_Component_Updated"/>
                 <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Recommendation_Request"/>
                 <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Issue_Recommendation_Request"/>
+                <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Module_Recommendation_Request"/>
                 <util:constant static-field="eu.alertproject.iccs.events.api.Topics.ALERT_ALL_SOCRATES_Identity_Verification_Request"/>
             </array>
         </constructor-arg>
