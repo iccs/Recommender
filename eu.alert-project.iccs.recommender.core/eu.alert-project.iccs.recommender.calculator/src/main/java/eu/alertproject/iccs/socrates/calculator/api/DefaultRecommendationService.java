@@ -75,14 +75,16 @@ public class DefaultRecommendationService implements RecommendationService{
         logger.trace("void init([]) Hello World");
         if(systemProperties.getProperty("similarity.calculateOnBoot").equals("true")){
 
-            Executors.newScheduledThreadPool(1).schedule(new Runnable() {
+
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
                     getLock("Updating Similarities");
                     similarityComputationService.computeAllSimilarities();
                     releaseLock("similarities updated");
                 }
-            },30,TimeUnit.SECONDS);
+            });
+
         }
 
         if(!systemProperties.getProperty("similarity.realtime").equals("true")){

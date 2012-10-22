@@ -6,6 +6,7 @@ import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedIssue;
 import eu.alertproject.iccs.socrates.calculator.internal.model.AnnotatedObject;
 import eu.alertproject.iccs.socrates.datastore.api.*;
 import eu.alertproject.iccs.socrates.domain.*;
+import org.apache.commons.lang.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,16 +46,28 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
 
     @Override
-    @Transactional
     public void computeAllSimilarities() {
 
-        logger.info("void computeSimilaritiesForAllIdentities([]) ");
-        List<String> allUuid = uuidSubjectDao.findAllUuid();
+        StopWatch sw = new StopWatch();
+        sw.start();
+        List<String> allUuid = getAllUuids();
+        int size = allUuid.size();
+        logger.info("void computeSimilaritiesForAllIdentities([]) About to process {} ", size);
 
+        int count = 0;
         for(String uuid : allUuid){
             computeSimilaritesForIdentity(uuid);
-        }
+            sw.split();
+            logger.debug("Computing similarities {} in {}",((double)count/(double)size),sw.toString());
 
+        }
+        logger.info("Similarity computation took {} millis",sw.toString());
+
+    }
+
+    @Transactional
+    private List<String> getAllUuids(){
+        return uuidSubjectDao.findAllUuid();
     }
 
     @Override
@@ -176,9 +189,12 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
     @Override
     public void computeSimilaritesForIdentity(String uuid){
 
-        logger.trace("void computeSimilaritesForIdentity([uuid]) {}",uuid);
-
+        StopWatch sw = new StopWatch();
+        sw.start();
         List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(uuid);
+
+        sw.split();
+        logger.trace("void computeSimilaritesForIdentity([uuid]) Took {} to findByUuid",sw.toString());
 
 
         //create annotated object 1: the identity
@@ -187,11 +203,20 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
             identityAnnotations.put(us.getSubject(), us.getWeight());
         }
         AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(uuid, identityAnnotations);
+        sw.split();
+        logger.trace("Sim ({}) Took {} to create annotated identities",uuid,sw.toString());
 
 
 
 
         List<Integer> allIssues = issueSubjectDao.findAllIssues();
+        sw.split();
+        logger.trace("Sim ({}) Took {} to find all ({}) issues",
+                new Object[]{
+                        uuid,
+                        sw.toString(),
+                        allIssues.size()});
+
         List<UuidIssue> newSimilarities = new ArrayList<UuidIssue>();
 
         //initialize issue annotations
@@ -202,16 +227,30 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
                 issueAnnotations = new HashMap<String, Double>();
 
+                sw.split();
+                Double weight = Double.valueOf(systemProperties.getProperty("subject.issue.weight.limit"));
                 List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueIdLimitByWeight(
                         i,
-                        Double.valueOf(systemProperties.getProperty("subject.issue.weight.limit")));
+                        weight);
+                sw.split();
+                logger.trace("Sim({}) Took {} to issueSubjectDao.findByIssueIdLimitByWeight({},{}) = {}",
+                        new Object[]{
+                        uuid,
+                        sw.toString(),
+                        i,
+                        weight,
+                        thisIssueSubjects.size()});
+
 
                 for (IssueSubject is : thisIssueSubjects) {
                     issueAnnotations.put(is.getSubject(), is.getWeight());
                 }
                 AnnotatedIssue annotatedIssue = new AnnotatedIssue(i.toString(), issueAnnotations);
 
+
+                sw.split();
                 Double currentSimilarity =this.getSimilarity(annotatedIdentity, annotatedIssue);
+                logger.trace("Sim ({}) {} to getSimilarity ",uuid,sw.toSplitString());
 
                 UuidIssue currentUuidIssue=new UuidIssue();
                 currentUuidIssue.setUuidAndIssue(annotatedIdentity.getIdentityId(), i);
@@ -225,12 +264,14 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
             logger.error("Couldn't update the uuid_issues",ex);
         }
 
+        sw.split();
         uuidIssueDao.removeByUuid(uuid);
         for(UuidIssue u: newSimilarities){
             uuidIssueDao.insert(u);
         }
 
-
+        sw.split();
+        logger.trace("void computeSimilaritesForIdentity({}) Took {} reset uuidIssues",uuid,sw.toString());
 
         /**
          * Update the similarity to the components
@@ -276,6 +317,9 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
         for(UuidComponent u: newComponentSimilarities){
             uuidComponentDao.insert(u);
         }
+
+        logger.trace("Sim({}) ****** Finished *******",uuid);
+        sw.stop();
 
     }
 
@@ -346,12 +390,12 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
 
         Double similarity = numerator / Math.sqrt(norm1 * norm2);
-        logger.trace("Double getSimilarity() {}/Math.sqrt({}*{})={}",
-            new Object[]{
-                numerator,
-                norm1,
-                norm2,
-                similarity});
+//        logger.trace("Double getSimilarity() {}/Math.sqrt({}*{})={}",
+//            new Object[]{
+//                numerator,
+//                norm1,
+//                norm2,
+//                similarity});
 
         return similarity;
 

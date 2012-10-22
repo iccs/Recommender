@@ -4,6 +4,7 @@ import com.existanze.libraries.orm.dao.JpaCommonDao;
 import eu.alertproject.iccs.socrates.datastore.api.UuidComponentDao;
 import eu.alertproject.iccs.socrates.domain.UuidComponent;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import java.util.List;
@@ -43,6 +44,7 @@ public class JpaUuidComponentDao extends JpaCommonDao<UuidComponent> implements 
     }
 
     @Override
+    @Transactional
     public void removeByUuid(String uuid) {
 
         Query query = getEntityManager().createQuery("DELETE FROM UuidComponent u WHERE u.uuidComponentPk.uuid=:uuid");
