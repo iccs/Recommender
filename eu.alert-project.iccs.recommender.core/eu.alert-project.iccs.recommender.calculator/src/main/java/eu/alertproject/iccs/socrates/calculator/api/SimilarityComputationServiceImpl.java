@@ -11,9 +11,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.transaction.TransactionManager;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,6 +48,8 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
     @Autowired
     UuidIssueDao uuidIssueDao;
 
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     @Autowired
     IssueSubjectDao issueSubjectDao;
@@ -43,25 +57,91 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
     @Autowired
     Properties systemProperties;
+    private ExecutorService executorService;
 
+
+    @PostConstruct
+    public void post(){
+    }
 
     @Override
     public void computeAllSimilarities() {
 
-        StopWatch sw = new StopWatch();
-        sw.start();
+
         List<String> allUuid = getAllUuids();
-        int size = allUuid.size();
+        final int size = allUuid.size();
         logger.info("void computeSimilaritiesForAllIdentities([]) About to process {} ", size);
 
-        int count = 0;
-        for(String uuid : allUuid){
-            computeSimilaritesForIdentity(uuid);
-            sw.split();
-            logger.debug("Computing similarities {} in {}",((double)count/(double)size),sw.toString());
+        final TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        executorService = Executors.newFixedThreadPool(10);
+        final AtomicInteger count = new AtomicInteger(0);
+        for(final String uuid : allUuid){
 
+            /**
+             * Since we are computing similarities for a different UUID there is no need
+             * for this process to be serial
+             */
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+
+                    /**
+                     * You cannot annotate a method with @Transactinonal an call it locally on a class.
+                     * A Transaction will not be initialized in this case.
+                     *
+                     * Becase in essence we are keeping a lot in memory by carrying out this entire
+                     * operation in a single transaction we are handling transactions here manually.
+                     *
+                     * http://static.springsource.org/spring/docs/current/reference/transaction.html
+                     *
+                     */
+
+                    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+                        @Override
+                        protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                            long start = System.currentTimeMillis();
+
+                            boolean success = false;
+                            int tries = 2;
+
+                            while(tries > 0){
+
+                                try {
+                                    computeSimilaritesForIdentity(uuid);
+                                    success=true;
+
+                                } catch (Exception e) {
+                                }finally{
+                                    if(!success){
+                                        logger.debug("Deadlock here, trying again");
+                                        tries--;
+                                    }else{
+                                        tries=0;
+                                    }
+                                }
+                            }
+                            if(!success){
+                                transactionStatus.setRollbackOnly();
+                            }
+
+
+
+                            logger.debug("Computing similarities {} in {}", ((double) count.get() / (double) size),
+                                    System.currentTimeMillis() - start);
+                            count.incrementAndGet();
+                        }
+                    });
+
+                }
+            });
         }
-        logger.info("Similarity computation took {} millis",sw.toString());
+    }
+
+    @PreDestroy
+    public void shutdown(){
+
+        executorService.shutdownNow();
 
     }
 
@@ -187,7 +267,11 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
 
     @Override
+    @Transactional
     public void computeSimilaritesForIdentity(String uuid){
+
+        logger.trace("void computeSimilaritesForIdentity([uuid]) In transaction ? {}",org.springframework.transaction.support.
+                TransactionSynchronizationManager.isActualTransactionActive());
 
         StopWatch sw = new StopWatch();
         sw.start();
@@ -265,6 +349,11 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
         }
 
         sw.split();
+
+        /**
+         * A mysql deadlock occurs when 2 or more thread attempt to delete the same
+         */
+
         uuidIssueDao.removeByUuid(uuid);
         for(UuidIssue u: newSimilarities){
             uuidIssueDao.insert(u);
@@ -313,6 +402,9 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
             logger.error("Couldn't update the uuid_issues",ex);
         }
 
+        /**
+         * A mysql lock exception occurs if we do not lock here between all threads
+         */
         uuidComponentDao.removeByUuid(uuid);
         for(UuidComponent u: newComponentSimilarities){
             uuidComponentDao.insert(u);

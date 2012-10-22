@@ -117,6 +117,8 @@ public class DefaultRecommendationService implements RecommendationService{
                         },ms,ms,TimeUnit.SECONDS);
 
 
+            }else{
+                logger.warn("No similarity computation will take place");
             }
 
 

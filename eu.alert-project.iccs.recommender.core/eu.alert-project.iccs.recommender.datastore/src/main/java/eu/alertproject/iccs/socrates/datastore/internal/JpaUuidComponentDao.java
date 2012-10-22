@@ -44,7 +44,6 @@ public class JpaUuidComponentDao extends JpaCommonDao<UuidComponent> implements 
     }
 
     @Override
-    @Transactional
     public void removeByUuid(String uuid) {
 
         Query query = getEntityManager().createQuery("DELETE FROM UuidComponent u WHERE u.uuidComponentPk.uuid=:uuid");
