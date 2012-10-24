@@ -28,8 +28,7 @@ public class ComponentUpdatedListener extends AbstractArtefactUpdateListener<Art
 
     @Override
     void updateSimilarities(ArtefactUpdated artefactUpdated) {
-        logger.trace("void updateSimilarities() {} ",artefactUpdated);
-        recommendationService.updateSimilaritiesForComponent((ComponentUpdated)artefactUpdated);
+        recommendationService.updateSimilaritiesForComponent((ComponentUpdated) artefactUpdated);
     }
 
     @Override
@@ -37,7 +36,6 @@ public class ComponentUpdatedListener extends AbstractArtefactUpdateListener<Art
 
         storeEventService.store("component",text);
         ComponentUpdated artefactUpdated = mapper.readValue(text, ComponentUpdated.class);
-        logger.trace("ArtefactUpdated process() {} ",artefactUpdated);
         return artefactUpdated;
 
     }

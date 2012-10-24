@@ -11,14 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -57,6 +59,8 @@ public class DefaultRecommendationService implements RecommendationService{
     @Autowired
     UuidComponentDao uuidComponentDao;
 
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     @Autowired
     SimilarityComputationService similarityComputationService;
@@ -67,8 +71,13 @@ public class DefaultRecommendationService implements RecommendationService{
     private boolean realtimeEnabled;
     private ScheduledExecutorService scheduler;
 
+    private TransactionTemplate transactionTemplate;
+
     @PostConstruct
     public void init(){
+
+        transactionTemplate = new TransactionTemplate(transactionManager);
+
         lock = new ReentrantLock();
         realtimeEnabled = systemProperties.getProperty("similarity.realtime").toLowerCase().equals("true");
         final long ms = Long.valueOf(systemProperties.getProperty("similarity.timer"));
@@ -304,69 +313,89 @@ public class DefaultRecommendationService implements RecommendationService{
 
 
     @Override
-    @Transactional
-    public void updateSimilaritiesForComponent(ComponentUpdated artefactUpdated) {
+    public void updateSimilaritiesForComponent(final ComponentUpdated artefactUpdated) {
 
         getLock("updateSimilaritiesForComponent");
 
+        for(final String component: artefactUpdated.getComponents()){
 
-        try {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
 
-            List<Keui.Concept> annotations = filterConcepts(artefactUpdated.getConcepts());
+                    try{
+                        updateSimilartiesForComponent(artefactUpdated.getId(), component, artefactUpdated.getConcepts());
+                        logger.trace("void doInTransactionWithoutResult([status]) Updated similarities for {} ",artefactUpdated.getId());
+                    }catch (Exception e){
 
+                        logger.warn("Couldn't update information for {}",artefactUpdated.getId());
 
-            List<ComponentSubject> byComponent = componentSubjectDao.findByComponent(artefactUpdated.getComponent());
-
-            /**
-             * This is only possible for update issue events where a comment hasn't been added!
-             */
-            if(annotations == null ){
-                logger.warn("Issue {} has null annotations skipping component similarity",artefactUpdated.getId());
-                return;
-            }
-
-            for(Keui.Concept ap: annotations){
-
-                ComponentSubject cs = null;
-
-                //check if one exists
-                Iterator<ComponentSubject> iterator = byComponent.iterator();
-                while(iterator.hasNext()){
-
-                    ComponentSubject next = iterator.next();
-
-                    if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
-                        //update previous
-                        next.setWeight(next.getWeight()+ap.getWeight());
-                        cs = componentSubjectDao.update(next);
-                        iterator.remove();
                     }
                 }
+            });
+
+        }
+
+        logger.info("Finished recording component update");
+        releaseLock("updateSimilaritiesForComponent");
+
+    }
 
 
+    private void updateSimilartiesForComponent(String parent, String component, List<Keui.Concept> concepts){
 
-                if(cs == null ){
+        List<Keui.Concept> annotations = filterConcepts(concepts);
 
-                    //create new
-                    cs = new ComponentSubject();
-                    cs.setWeight(Double.valueOf(ap.getWeight()));
-                    cs.setComponenAndSubject(artefactUpdated.getComponent(), ap.getUri());
-                    logger.trace("void updateSimilaritiesForComponent() Inserting {} ",cs);
-                    componentSubjectDao.insert(cs);
 
+        String componentName = parent + "#" + component;
+        List<ComponentSubject> byComponent = componentSubjectDao.findByComponent(
+                componentName);
+
+        /**
+         * This is only possible for update issue events where a comment hasn't been added!
+         */
+        if(annotations == null ){
+            logger.warn("Issue {} has null annotations skipping component similarity",parent);
+            return;
+        }
+
+        for(Keui.Concept ap: annotations){
+
+            ComponentSubject cs = null;
+
+            //check if one exists
+            Iterator<ComponentSubject> iterator = byComponent.iterator();
+            while(iterator.hasNext()){
+
+                ComponentSubject next = iterator.next();
+
+                if(StringUtils.equalsIgnoreCase(ap.getUri(),next.getSubject())){
+                    //update previous
+                    next.setWeight(next.getWeight()+ap.getWeight());
+                    cs = componentSubjectDao.update(next);
+                    iterator.remove();
                 }
             }
 
-            if(realtimeEnabled){
-                //do
-                similarityComputationService.computeSimilarityForComponent(artefactUpdated.getComponent());
+
+
+            if(cs == null ){
+
+                //create new
+                cs = new ComponentSubject();
+                cs.setWeight(Double.valueOf(ap.getWeight()));
+                cs.setComponenAndSubject(componentName, ap.getUri());
+                logger.trace("void updateSimilaritiesForComponent() Inserting {} ", cs);
+                componentSubjectDao.insert(cs);
+
             }
-
-
-        } finally {
-            releaseLock("updateSimilaritiesForComponent");
-
         }
+
+        if(realtimeEnabled){
+            //do
+            similarityComputationService.computeSimilarityForComponent(componentName);
+        }
+
     }
 
 
