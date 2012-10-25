@@ -17,4 +17,6 @@ public interface ComponentSubjectDao extends CommonDao<ComponentSubject> {
     List<String> findAllComponents();
     @SuppressWarnings("unchecked")
     List<ComponentSubject> findByComponentLimitByWeight(String component, Double weight);
+
+    List<ComponentSubject> findAllByWeight(Double weight);
 }

@@ -368,35 +368,75 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
          */
         //initialize issue annotations
         HashMap<String, Double> componentAnnotations = null;
-        List<String> allComponents= componentSubjectDao.findAllComponents();
+
+        logger.trace("void computeSimilaritesForIdentity([uuid]) Fetching all components ");
+
+        Double weight = Double.valueOf(systemProperties.getProperty("subject.component.weight.limit"));
+
+//        List<String> allComponents= componentSubjectDao.findAllComponents();
         List<UuidComponent> newComponentSimilarities = new ArrayList<UuidComponent>();
 
 
         try {
-            //iterate through all possible components
-            for (String c : allComponents) {
+            /**
+             * This list is returned with component in alphabetical order
+             *
+             * The reason for the difference in logic from that of the issues is that there
+             * is no logic in looping over all the components in order to check IF  it has
+             * subjects with a weight > system.property("subject.component.weight.limit").
+             *
+             * The way it used to be meant that whatever happens we have to do throught the
+             * 26,000 components in the case of KDE and carry out client side that filter.
+             *
+             * Using a look ahead iterator we are able to push the "filtering" by
+             * weight to the database, and we only look once throught the "necessary" data.
+             *
+             */
+            List<ComponentSubject> allByWeight = componentSubjectDao.findAllByWeight(weight);
+            logger.trace("void computeSimilaritesForIdentity([uuid]) Retreived {} components", allByWeight.size());
+
+
+            Iterator<ComponentSubject> iterator = allByWeight.iterator();
+
+            ComponentSubject next =null;
+            String component ="";
+            while (true || iterator.hasNext()){
 
                 componentAnnotations = new HashMap<String, Double>();
 
-                List<ComponentSubject> thisComponentSubjects = componentSubjectDao.findByComponentLimitByWeight(
-                        c,
-                        Double.valueOf(systemProperties.getProperty("subject.component.weight.limit")));
-
-                for (ComponentSubject cs : thisComponentSubjects) {
-                    componentAnnotations.put(cs.getSubject(), cs.getWeight());
+                if(next == null){
+                    next = iterator.next();
+                    component=next.getComponent();
+                    logger.trace("void computeSimilaritesForIdentity([uuid]) First component in the queue {}",component);
+                }else{
+                    logger.trace("void computeSimilaritesForIdentity([uuid]) Working with {}",component);
                 }
 
-                AnnotatedComponent annotatedComponent = new AnnotatedComponent(c, componentAnnotations);
+                while(true || iterator.hasNext()){
 
+                    logger.trace("\tAdding {} ",next.getSubject());
+                    componentAnnotations.put(next.getSubject(), next.getWeight());
+
+
+                    ComponentSubject lookAhead = iterator.next();
+                    if(!lookAhead.getComponent().equals(component)){
+                        logger.trace("\t Found another component moving ahead {}",lookAhead.getComponent());
+                        next=lookAhead;
+                        component = lookAhead.getComponent();
+                        break;
+                    }
+
+                }
+
+                AnnotatedComponent annotatedComponent = new AnnotatedComponent(component, componentAnnotations);
                 Double currentSimilarity =this.getSimilarity(annotatedIdentity, annotatedComponent);
-
                 UuidComponent currentUuidComponent =new UuidComponent();
-                currentUuidComponent.setUuidAndComponent(annotatedIdentity.getIdentityId(), c);
+                currentUuidComponent.setUuidAndComponent(annotatedIdentity.getIdentityId(), component);
                 currentUuidComponent.setSimilarity(currentSimilarity);
                 newComponentSimilarities.add(currentUuidComponent);
+
+
             }
-
-
 
         } catch (Exception ex) {
             logger.error("Couldn't update the uuid_issues",ex);

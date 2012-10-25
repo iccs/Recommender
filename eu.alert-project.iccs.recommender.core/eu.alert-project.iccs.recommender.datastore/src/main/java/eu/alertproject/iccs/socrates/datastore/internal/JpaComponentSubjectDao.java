@@ -46,6 +46,17 @@ public class JpaComponentSubjectDao extends JpaCommonDao<ComponentSubject> imple
     }
 
     @Override
+    public List<ComponentSubject> findAllByWeight(Double weight) {
+        Query query = getEntityManager().createQuery("SELECT i FROM ComponentSubject i " +
+                "WHERE " +
+                "i.weight >= :weight " +
+                "order by i.componentSubjectPk.component, i.weight DESC ");
+        query.setParameter("weight", weight);
+        return query.getResultList();
+
+    }
+
+    @Override
     public List<String> findAllComponents() {
 
         Query query = getEntityManager().createNativeQuery("SELECT * FROM all_components");
