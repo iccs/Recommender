@@ -122,7 +122,8 @@ public class RecomendationIdentityRequestListener extends AbstractActiveMQHandle
 
             Integer bugId = Integer.valueOf(i.getUuid());
 
-            List<IdentityBean> byForClass = datastoreRecommendationService.findByForUuid(
+            List<IdentityBean> byForClass = datastoreRecommendationService.findByForClass(
+                    "core-developers",
                     bugId,
                     threshold,
                     Double.valueOf(systemProperties.getProperty("subject.similarity.weight")),
