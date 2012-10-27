@@ -73,7 +73,7 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
 
             finalSimilarity = ((ui.getSimilarity() * similarityWeight) + (ranking * rankingWeight)) / (similarityWeight + rankingWeight);
             //TODO: We need to retrieve the name and surname of the developer from STARDOM
-            recsFull.put(finalSimilarity, new IdentityBean(ui.getUuid(), "name", "surname", ui.getSimilarity(), ranking));
+            recsFull.put(finalSimilarity, new IdentityBean(ui.getUuid(), "name", "", ui.getSimilarity(), ranking));
         }
 
         logger.trace("List<IdentityBean> findByForClass() The process too {} ",System.currentTimeMillis()-start);
@@ -128,7 +128,7 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
 
                 finalSimilarity = ((ui.getSimilarity() * similarityWeight) + (ranking * rankingWeight)) / (similarityWeight + rankingWeight);
                 //TODO: We need to retrieve the name and surname of the developer from STARDOM
-                recsFull.put(finalSimilarity, new IdentityBean(ui.getUuid(), "name", "surname", ui.getSimilarity(), ranking));
+                recsFull.put(finalSimilarity, new IdentityBean(ui.getUuid(), "name","", ui.getSimilarity(), ranking));
 
             }
 
