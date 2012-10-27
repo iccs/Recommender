@@ -78,6 +78,8 @@
     <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
+
+
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
         <property name="dataSource" ref="dataSource" />
@@ -158,7 +160,4 @@
         <constructor-arg value="${activemq.recoveryInterval}" />
         <constructor-arg value="${activemq.cacheLevel}" />
     </bean>
-
-
-
 </beans>

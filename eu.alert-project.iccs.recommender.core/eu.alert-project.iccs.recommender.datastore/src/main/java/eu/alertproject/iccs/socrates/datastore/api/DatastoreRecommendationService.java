@@ -32,4 +32,11 @@ public interface DatastoreRecommendationService {
                                double similarityWeight,
                                double rankingWeight,
                                int maxRecommendations);
+
+    List<IdentityBean> findByForUuid(
+            Integer issueId,
+            double threshold,
+            double similarityWeight,
+            double rankingWeight,
+            int maxRecommendations);
 }

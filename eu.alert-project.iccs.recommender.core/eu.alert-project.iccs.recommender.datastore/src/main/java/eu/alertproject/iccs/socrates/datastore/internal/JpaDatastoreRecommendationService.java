@@ -84,6 +84,65 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
         while (keySetIterator.hasNext()) {
             IdentityBean e = recsFull.get(keySetIterator.next());
             e.setName(uuidNameDao.findNameByUuid(e.getUuid()));
+            e.setLastname("");
+            recs.add(e);
+            counter++;
+            if (counter > maxRecommendations) {
+                break;
+            }
+        }
+        if (recs == null) {
+            logger.debug("recs are null");
+        }
+        return recs;
+
+    }
+
+    @Override
+    public List<IdentityBean> findByForUuid(
+            Integer issueId,
+            double threshold,
+            double similarityWeight,
+            double rankingWeight,
+            int maxRecommendations) {
+
+
+        //TODO: @Fotis We need to sort by similarity! ?
+        List<UuidIssue> uuidIssues = uuidIssueDao.findByIssueId(issueId,threshold);
+        List<IdentityBean> recs = new ArrayList<IdentityBean>();
+        TreeMap<Double, IdentityBean> recsFull = new TreeMap<Double, IdentityBean>();
+        Double finalSimilarity = 0.0;
+
+
+        long start = System.currentTimeMillis();
+        logger.trace("List<IdentityBean> findByForClass() About to look for {} issues ",uuidIssues.size());
+        for (UuidIssue ui : uuidIssues) {
+
+            List<UuidClass> byUuidAndClass = uuidClassDao.findByUuid(ui.getUuid());
+
+            for(UuidClass uuidClass : byUuidAndClass){
+
+                Double maxWeight = uuidClassDao.getMaxWeight(uuidClass.getClazz());
+
+                double ranking = uuidClass.getWeight()/maxWeight;
+
+                finalSimilarity = ((ui.getSimilarity() * similarityWeight) + (ranking * rankingWeight)) / (similarityWeight + rankingWeight);
+                //TODO: We need to retrieve the name and surname of the developer from STARDOM
+                recsFull.put(finalSimilarity, new IdentityBean(ui.getUuid(), "name", "surname", ui.getSimilarity(), ranking));
+
+            }
+
+        }
+
+        logger.trace("List<IdentityBean> findByForClass() The process too {} ",System.currentTimeMillis()-start);
+
+        Set<Double> descRecsKeySet = recsFull.descendingKeySet();
+        Iterator keySetIterator = descRecsKeySet.iterator();
+        Integer counter = 0;
+        while (keySetIterator.hasNext()) {
+            IdentityBean e = recsFull.get(keySetIterator.next());
+            e.setName(uuidNameDao.findNameByUuid(e.getUuid()));
+            e.setLastname("");
             recs.add(e);
             counter++;
             if (counter > maxRecommendations) {

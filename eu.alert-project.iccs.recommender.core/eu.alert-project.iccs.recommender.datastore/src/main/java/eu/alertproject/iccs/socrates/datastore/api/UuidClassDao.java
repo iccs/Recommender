@@ -15,4 +15,5 @@ public interface UuidClassDao extends CommonDao<UuidClass> {
     UuidClass findByUuidAndClass(String uuid, String classification);
 
     Double getMaxWeight(String classification);
+    List<UuidClass> findByUuid(String uuid);
 }

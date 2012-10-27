@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
@@ -60,6 +61,7 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
     private ExecutorService executorService;
 
 
+
     @PostConstruct
     public void post(){
     }
@@ -100,6 +102,7 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
                         @Override
                         protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+
                             long start = System.currentTimeMillis();
 
                             boolean success = false;
@@ -400,7 +403,7 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
             ComponentSubject next =null;
             String component ="";
-            while (true || iterator.hasNext()){
+            while (iterator.hasNext()){
 
                 componentAnnotations = new HashMap<String, Double>();
 
@@ -412,11 +415,10 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
                     logger.trace("void computeSimilaritesForIdentity([uuid]) Working with {}",component);
                 }
 
-                while(true || iterator.hasNext()){
+                while(iterator.hasNext()){
 
                     logger.trace("\tAdding {} ",next.getSubject());
                     componentAnnotations.put(next.getSubject(), next.getWeight());
-
 
                     ComponentSubject lookAhead = iterator.next();
                     if(!lookAhead.getComponent().equals(component)){

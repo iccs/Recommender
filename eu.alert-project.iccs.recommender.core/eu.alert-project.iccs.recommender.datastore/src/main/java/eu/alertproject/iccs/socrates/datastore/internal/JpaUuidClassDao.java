@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: fotis
@@ -62,6 +64,26 @@ public class JpaUuidClassDao extends JpaCommonDao<UuidClass> implements UuidClas
         }catch (NoResultException e){
             logger.warn("Couldn't find result for uuid={}, class={}", uuid, classification);
         }
+
+        return uc;
+    }
+
+    @Override
+    public List<UuidClass> findByUuid(String uuid) {
+
+        Query query = getEntityManager().createQuery(
+                "SELECT u FROM UuidClass u " +
+                        "WHERE u.uuidClassPk.uuid =:uuid ORDER BY u.weight DESC");
+
+        query.setParameter("uuid", uuid);
+
+        List<UuidClass> uc = new ArrayList<UuidClass>();
+        try{
+            uc = (List<UuidClass>) query.getSingleResult();
+        }catch (NoResultException e){
+            logger.warn("Couldn't find result for uuid={}", uuid);
+        }
+
 
         return uc;
     }
