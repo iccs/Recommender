@@ -25,7 +25,7 @@ public class JpaIssueSubjectDao extends JpaCommonDao<IssueSubject> implements Is
     @Override
     public List<IssueSubject> findByIssueId(Integer id) {
 
-        Query query = getEntityManager().createQuery("SELECT i FROM IssueSubject i WHERE i.issueSubjectPk.issueId = :id ");
+        Query query = getEntityManager().createQuery("SELECT i FROM IssueSubject i WHERE i.issueSubjectPk.issueId = :id  ");
         query.setParameter("id", id);
         return query.getResultList();
 

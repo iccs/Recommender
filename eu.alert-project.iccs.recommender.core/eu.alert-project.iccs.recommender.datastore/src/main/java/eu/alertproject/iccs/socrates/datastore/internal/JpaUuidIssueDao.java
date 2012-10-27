@@ -25,7 +25,7 @@ public class JpaUuidIssueDao extends JpaCommonDao<UuidIssue> implements UuidIssu
     @Override
     public List<UuidIssue> findByUuid(String uuid,  double similarity) {
 
-        Query query = getEntityManager().createQuery("SELECT u FROM UuidIssue u WHERE u.uuidIssuePk.uuid =:uuid AND u.similarity >= :similarity");
+        Query query = getEntityManager().createQuery("SELECT u FROM UuidIssue u WHERE u.uuidIssuePk.uuid =:uuid AND u.similarity >= :similarity ORDER BY u.similarity DESC");
         query.setParameter("uuid",uuid);
         query.setParameter("similarity",similarity);
 
@@ -36,7 +36,8 @@ public class JpaUuidIssueDao extends JpaCommonDao<UuidIssue> implements UuidIssu
     @Override
     public List<UuidIssue> findByIssueId(Integer id, double similarity) {
 
-        Query query = getEntityManager().createQuery("SELECT u FROM UuidIssue u WHERE u.uuidIssuePk.issueId =:id AND u.similarity >= :similarity");
+        Query query = getEntityManager().createQuery("SELECT u FROM UuidIssue u WHERE u.uuidIssuePk.issueId =:id AND u.similarity >= :similarity " +
+                "order by u.similarity DESC");
         query.setParameter("id",id);
         query.setParameter("similarity",similarity);
 

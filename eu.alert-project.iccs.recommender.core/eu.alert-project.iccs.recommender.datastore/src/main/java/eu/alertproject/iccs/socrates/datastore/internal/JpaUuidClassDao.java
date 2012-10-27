@@ -79,7 +79,7 @@ public class JpaUuidClassDao extends JpaCommonDao<UuidClass> implements UuidClas
 
         List<UuidClass> uc = new ArrayList<UuidClass>();
         try{
-            uc = (List<UuidClass>) query.getSingleResult();
+            uc = (List<UuidClass>) query.getResultList();
         }catch (NoResultException e){
             logger.warn("Couldn't find result for uuid={}", uuid);
         }

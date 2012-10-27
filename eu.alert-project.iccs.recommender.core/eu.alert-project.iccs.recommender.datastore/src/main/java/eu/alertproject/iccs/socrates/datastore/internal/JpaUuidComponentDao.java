@@ -25,7 +25,7 @@ public class JpaUuidComponentDao extends JpaCommonDao<UuidComponent> implements 
     @Override
     public List<UuidComponent> findByUuid(String uuid,  double similarity) {
 
-        Query query = getEntityManager().createQuery("SELECT u FROM UuidComponent u WHERE u.uuidComponentPk.uuid =:uuid AND u.similarity >= :similarity");
+        Query query = getEntityManager().createQuery("SELECT u FROM UuidComponent u WHERE u.uuidComponentPk.uuid =:uuid AND u.similarity >= :similarity ORDER BY u.similarity DESC");
         query.setParameter("uuid",uuid);
         query.setParameter("similarity",similarity);
 

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
@@ -43,6 +44,11 @@ public class RecomendationIdentityRequestListener extends AbstractActiveMQHandle
 
     @Autowired
     private DatastoreRecommendationService datastoreRecommendationService;
+
+    @PostConstruct
+    public void init(){
+        logger.trace("void init([]) ");
+    }
 
     @Override
     public void process(ActiveMQMessageBroker broker, Message message) throws IOException, JMSException {
