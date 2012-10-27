@@ -84,9 +84,15 @@ public class RecomendationIssueRequestListener extends AbstractActiveMQHandler {
                 .getEventData()
                 .getRanking();
 
-        threshold = threshold == null ?
-                Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")):
-                threshold.doubleValue();
+        if(!"true".equals(systemProperties.getProperty("subject.similarity.threshold.force"))){
+            threshold = threshold == null ?
+                    Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")):
+                    threshold.doubleValue();
+
+        }else{
+            threshold =Double.valueOf(systemProperties.getProperty("subject.similarity.threshold"));
+        }
+
 
 
         List<Issue> issues = new ArrayList<Issue>();

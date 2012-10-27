@@ -96,9 +96,14 @@ public class RecomendationIdentityRequestListener extends AbstractActiveMQHandle
                 .getRanking();
 
 
-        threshold = threshold == null ?
-                        Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")):
-                        threshold.doubleValue();
+        if(!"true".equals(systemProperties.getProperty("subject.similarity.threshold.force"))){
+            threshold = threshold == null ?
+                            Double.valueOf(systemProperties.getProperty("subject.similarity.threshold")):
+                            threshold.doubleValue();
+
+        }else{
+            threshold =Double.valueOf(systemProperties.getProperty("subject.similarity.threshold"));
+        }
 
 
 
@@ -123,7 +128,7 @@ public class RecomendationIdentityRequestListener extends AbstractActiveMQHandle
             List<Identity> identities =new ArrayList<Identity>();
 //            for(UuidIssue ui : byIssueId){
             for(IdentityBean ib : byForClass){
-                identities.add(new Identity(ib.getUuid(),ib.getName()+" "+ib.getLastname()));
+                identities.add(new Identity(ib.getUuid(),ib.getName()));
             }
 
 
