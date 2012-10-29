@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
@@ -21,8 +20,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.transaction.TransactionManager;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,23 +58,127 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
     @Autowired
     Properties systemProperties;
     private ExecutorService executorService;
+    private ReentrantLock writeLock;
 
-
-
-    @PostConstruct
-    public void post(){
-    }
 
     @Override
     public void computeAllSimilarities() {
 
+        final TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+
+        final CountDownLatch annotatedEntities = new CountDownLatch(2);
+
+        ExecutorService fixedThreadExecutor = Executors.newFixedThreadPool(2);
+
+
+        final List<AnnotatedComponent> annotatedComponents  = new ArrayList<AnnotatedComponent>();
+
+        fixedThreadExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                Collections.addAll(
+                    annotatedComponents,
+                    transactionTemplate.execute(new TransactionCallback<AnnotatedComponent[]>() {
+                        @Override
+                        public AnnotatedComponent[] doInTransaction(TransactionStatus status) {
+
+                            AnnotatedComponent[] annotatedComponents1 = extractAnnotatedComponents();
+                            long deleteStart = System.currentTimeMillis();
+                            logger.debug("Deleting all uuid component....");
+                            uuidComponentDao.removeAll();
+                            logger.debug("Deleting all uuid component took {}", System.currentTimeMillis() - deleteStart);
+
+                            return annotatedComponents1;
+
+                        }
+                    }));
+
+                annotatedEntities.countDown();
+            }
+        });
+
+
+        final List<AnnotatedIssue> aannotatedIssues = new ArrayList<AnnotatedIssue>();
+        final Double issueWeight= Double.valueOf(systemProperties.getProperty("subject.issue.weight.limit"));
+
+        fixedThreadExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+
+                Collections.addAll(
+                    aannotatedIssues,
+                    transactionTemplate.execute(new TransactionCallback<AnnotatedIssue[]>() {
+                        @Override
+                        public AnnotatedIssue[] doInTransaction(TransactionStatus status) {
+                            List<Integer> allIssues = issueSubjectDao.findAllIssues();
+
+                            List<AnnotatedIssue> annotatedIssues= new ArrayList<AnnotatedIssue>();
+
+                            HashMap<String, Double> issueAnnotations = null;
+                            try {
+                                //iterate through all possible issues
+                                for (Integer i : allIssues) {
+
+                                    issueAnnotations = new HashMap<String, Double>();
+                                    List<IssueSubject> thisIssueSubjects = issueSubjectDao.findByIssueIdLimitByWeight(
+                                            i,
+                                            issueWeight);
+
+
+                                    for (IssueSubject is : thisIssueSubjects) {
+                                        issueAnnotations.put(is.getSubject(), is.getWeight());
+                                    }
+                                    annotatedIssues.add(new AnnotatedIssue(i.toString(), issueAnnotations));
+                                }
+
+                                long deleteStart = System.currentTimeMillis();
+                                logger.debug("Deleting all uuid issues ....");
+                                uuidIssueDao.removeAll();
+                                logger.debug("Deleting all uuid issues took {}",System.currentTimeMillis()-deleteStart);
+
+                            } catch (Exception ex) {
+                                logger.error("Couldn't update the uuid_issues",ex);
+                            }finally {
+
+
+
+                            }
+
+
+                            return annotatedIssues.toArray(new AnnotatedIssue[annotatedIssues.size()]);
+
+                        }
+                    })
+                );
+
+                annotatedEntities.countDown();
+            }
+        });
+
+
+        try {
+            logger.debug("void computeAllSimilarities([]) Waiting for component annotated ... ");
+            annotatedEntities.await();
+        } catch (InterruptedException e) {
+            logger.warn("The annotated entities timed out!!!",e);
+        }finally {
+            fixedThreadExecutor.shutdownNow();
+        }
+
+        logger.debug("Got AnnotatedComponent({}) and AnnotatedIssue({})",
+                annotatedComponents.size(),
+                aannotatedIssues.size());
+
+        if(annotatedComponents.size() <=0 && aannotatedIssues.size() <=0){
+
+            logger.info("There are no annotated entities");
+            return;
+
+        }
 
         List<String> allUuid = getAllUuids();
         final int size = allUuid.size();
-        logger.info("void computeSimilaritiesForAllIdentities([]) About to process {} ", size);
 
-        final TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-        executorService = Executors.newFixedThreadPool(10);
         final AtomicInteger count = new AtomicInteger(0);
         for(final String uuid : allUuid){
 
@@ -106,31 +209,26 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
                             long start = System.currentTimeMillis();
 
                             boolean success = false;
-                            int tries = 2;
 
-                            while(tries > 0){
+                            try{
+                                computeSimilaritesForIdentityWithAnnotatedEntities(
+                                        uuid,
+                                        aannotatedIssues,
+                                        annotatedComponents
+                                );
 
-                                try {
-                                    computeSimilaritesForIdentity(uuid);
-                                    success=true;
+                               success=true;
 
-                                } catch (Exception e) {
-                                }finally{
-                                    if(!success){
-                                        logger.debug("Deadlock here, trying again");
-                                        tries--;
-                                    }else{
-                                        tries=0;
-                                    }
-                                }
+                            } catch (Exception e) {
+                                logger.warn("Exception ",e);
+                            }finally{
                             }
+
                             if(!success){
                                 transactionStatus.setRollbackOnly();
                             }
 
-
-
-                            logger.debug("Computing similarities {} in {}", ((double) count.get() / (double) size),
+                            logger.info("Computing similarities {} in {}", ((double) count.get() / (double) size),
                                     System.currentTimeMillis() - start);
                             count.incrementAndGet();
                         }
@@ -141,12 +239,77 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
         }
     }
 
+    private AnnotatedComponent[] extractAnnotatedComponents() {
+        List<AnnotatedComponent> annotatedComponents = new ArrayList<AnnotatedComponent>();
+        final Double componentWeight = Double.valueOf(systemProperties.getProperty("subject.component.weight.limit"));
+        try{
+
+            HashMap<String, Double> componentAnnotations;
+            List<ComponentSubject> allByWeight = componentSubjectDao.findAllByWeight(componentWeight);
+            logger.trace("void computeSimilaritesForIdentity([uuid]) Retreived {} components", allByWeight.size());
+            Iterator<ComponentSubject> iterator = allByWeight.iterator();
+
+            ComponentSubject next = null;
+            String component = "";
+            while (iterator.hasNext()) {
+
+
+                componentAnnotations = new HashMap<String, Double>();
+
+                if (next == null) {
+                    next = iterator.next();
+                    component = next.getComponent();
+                    logger.trace("void computeSimilaritesForIdentity([uuid]) First component in the queue {}", component);
+                } else {
+                    logger.trace("void computeSimilaritesForIdentity([uuid]) Working with {}", component);
+                }
+
+                while (iterator.hasNext()) {
+
+                    logger.trace("\tAdding {} ", next.getSubject());
+                    componentAnnotations.put(next.getSubject(), next.getWeight());
+
+                    next = iterator.next();
+                    if (!next.getComponent().equals(component)) {
+                        logger.trace("\t Found another component moving ahead {}", next.getComponent());
+                        break;
+                    }
+
+                }
+
+                logger.trace("AnnotatedComponent[] doInTransaction([status]) Inserting {} = {} ",component,componentAnnotations);
+
+                annotatedComponents.add(new AnnotatedComponent(component, componentAnnotations));
+
+                component = next.getComponent();
+            }
+
+        }finally {
+        }
+        return annotatedComponents.toArray(new AnnotatedComponent[annotatedComponents.size()]);
+    }
+
+
+
+
+    @PostConstruct
+    public void post(){
+
+        writeLock = new ReentrantLock();
+        executorService=Executors.newFixedThreadPool(10);
+    }
+
+
     @PreDestroy
     public void shutdown(){
 
+
+        writeLock.unlock();
         executorService.shutdownNow();
 
     }
+
+
 
     @Transactional
     private List<String> getAllUuids(){
@@ -295,7 +458,6 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
 
 
 
-
         List<Integer> allIssues = issueSubjectDao.findAllIssues();
         sw.split();
         logger.trace("Sim ({}) Took {} to find all ({}) issues",
@@ -369,80 +531,8 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
          * Update the similarity to the components
          *
          */
-        //initialize issue annotations
-        HashMap<String, Double> componentAnnotations = null;
 
-        logger.trace("void computeSimilaritesForIdentity([uuid]) Fetching all components ");
-
-        Double weight = Double.valueOf(systemProperties.getProperty("subject.component.weight.limit"));
-
-//        List<String> allComponents= componentSubjectDao.findAllComponents();
-        List<UuidComponent> newComponentSimilarities = new ArrayList<UuidComponent>();
-
-
-        try {
-            /**
-             * This list is returned with component in alphabetical order
-             *
-             * The reason for the difference in logic from that of the issues is that there
-             * is no logic in looping over all the components in order to check IF  it has
-             * subjects with a weight > system.property("subject.component.weight.limit").
-             *
-             * The way it used to be meant that whatever happens we have to do throught the
-             * 26,000 components in the case of KDE and carry out client side that filter.
-             *
-             * Using a look ahead iterator we are able to push the "filtering" by
-             * weight to the database, and we only look once throught the "necessary" data.
-             *
-             */
-            List<ComponentSubject> allByWeight = componentSubjectDao.findAllByWeight(weight);
-            logger.trace("void computeSimilaritesForIdentity([uuid]) Retreived {} components", allByWeight.size());
-
-
-            Iterator<ComponentSubject> iterator = allByWeight.iterator();
-
-            ComponentSubject next =null;
-            String component ="";
-            while (iterator.hasNext()){
-
-                componentAnnotations = new HashMap<String, Double>();
-
-                if(next == null){
-                    next = iterator.next();
-                    component=next.getComponent();
-                    logger.trace("void computeSimilaritesForIdentity([uuid]) First component in the queue {}",component);
-                }else{
-                    logger.trace("void computeSimilaritesForIdentity([uuid]) Working with {}",component);
-                }
-
-                while(iterator.hasNext()){
-
-                    logger.trace("\tAdding {} ",next.getSubject());
-                    componentAnnotations.put(next.getSubject(), next.getWeight());
-
-                    ComponentSubject lookAhead = iterator.next();
-                    if(!lookAhead.getComponent().equals(component)){
-                        logger.trace("\t Found another component moving ahead {}",lookAhead.getComponent());
-                        next=lookAhead;
-                        component = lookAhead.getComponent();
-                        break;
-                    }
-
-                }
-
-                AnnotatedComponent annotatedComponent = new AnnotatedComponent(component, componentAnnotations);
-                Double currentSimilarity =this.getSimilarity(annotatedIdentity, annotatedComponent);
-                UuidComponent currentUuidComponent =new UuidComponent();
-                currentUuidComponent.setUuidAndComponent(annotatedIdentity.getIdentityId(), component);
-                currentUuidComponent.setSimilarity(currentSimilarity);
-                newComponentSimilarities.add(currentUuidComponent);
-
-
-            }
-
-        } catch (Exception ex) {
-            logger.error("Couldn't update the uuid_issues",ex);
-        }
+        List<UuidComponent> newComponentSimilarities = extractUuidComponents( Arrays.asList(extractAnnotatedComponents()),annotatedIdentity);
 
         /**
          * A mysql lock exception occurs if we do not lock here between all threads
@@ -452,10 +542,103 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
             uuidComponentDao.insert(u);
         }
 
-        logger.trace("Sim({}) ****** Finished *******",uuid);
+        logger.debug("Sim({}) ****** Finished *******", uuid);
         sw.stop();
 
     }
+
+    private void computeSimilaritesForIdentityWithAnnotatedEntities(
+                            String uuid,
+                            List<AnnotatedIssue> annotatedIssues,
+                            List<AnnotatedComponent> annotatedComponents
+    ){
+
+        logger.trace("void computeSimilaritesForIdentity([uuid]) In transaction ? {}",org.springframework.transaction.support.
+                TransactionSynchronizationManager.isActualTransactionActive());
+
+        StopWatch sw = new StopWatch();
+        sw.start();
+        List<UuidSubject> newUuidSubjects  = uuidSubjectDao.findByUuid(uuid);
+
+        sw.split();
+        logger.trace("void computeSimilaritesForIdentity([uuid]) Took {} to findByUuid",sw.toString());
+
+
+        //create annotated object 1: the identity
+        HashMap<String,Double> identityAnnotations = new HashMap<String,Double>();
+        for (UuidSubject us : newUuidSubjects) {
+            identityAnnotations.put(us.getSubject(), us.getWeight());
+        }
+        AnnotatedIdentity annotatedIdentity = new AnnotatedIdentity(uuid, identityAnnotations);
+        sw.split();
+        logger.trace("Sim ({}) Took {} to create annotated identities",uuid,sw.toString());
+
+
+
+        List<UuidIssue> newIssueSimilarities = new ArrayList<UuidIssue>();
+        for(AnnotatedIssue ai : annotatedIssues){
+
+            Double currentSimilarity =this.getSimilarity(annotatedIdentity, ai);
+            logger.trace("Sim ({}) {} to getSimilarity ",uuid,sw.toSplitString());
+
+            UuidIssue currentUuidIssue=new UuidIssue();
+            currentUuidIssue.setUuidAndIssue(annotatedIdentity.getIdentityId(), Integer.valueOf(ai.getIssueId()));
+            currentUuidIssue.setSimilarity(currentSimilarity);
+            newIssueSimilarities.add(currentUuidIssue);
+
+        }
+
+
+        for(UuidIssue u: newIssueSimilarities){
+            uuidIssueDao.insert(u);
+        }
+
+        sw.split();
+        logger.trace("void computeSimilaritesForIdentity({}) Took {} reset uuidIssues",uuid,sw.toString());
+
+
+        List<UuidComponent> newComponentSimilarities = extractUuidComponents(annotatedComponents, annotatedIdentity);
+
+        for(UuidComponent u : newComponentSimilarities){
+            uuidComponentDao.insert(u);
+        }
+
+        logger.debug("Sim({}) ****** Finished *******", uuid);
+        sw.stop();
+
+    }
+
+    private List<UuidComponent> extractUuidComponents(List<AnnotatedComponent> annotatedComponents, AnnotatedIdentity annotatedIdentity) {
+        List<UuidComponent> newComponentSimilarities = new ArrayList<UuidComponent>();
+//        List<String> processed = new ArrayList<String>();
+        for(AnnotatedComponent ac : annotatedComponents){
+
+
+//            if(!processed.contains(ac.getComponent())){
+
+                Double currentSimilarity =this.getSimilarity(annotatedIdentity, ac);
+                UuidComponent currentUuidComponent =new UuidComponent();
+                currentUuidComponent.setUuidAndComponent(annotatedIdentity.getIdentityId(), ac.getComponent());
+                currentUuidComponent.setSimilarity(currentSimilarity);
+                newComponentSimilarities.add(currentUuidComponent);
+//                processed.add(ac.getComponent());
+//            }
+        }
+
+        Collections.sort(newComponentSimilarities, new Comparator<UuidComponent>() {
+            @Override
+            public int compare(UuidComponent o1, UuidComponent o2) {
+                return o2.getSimilarity().compareTo(o1.getSimilarity());
+            }
+        });
+
+        List<UuidComponent> uuidComponents = newComponentSimilarities.subList(0,
+                Integer.valueOf(systemProperties.getProperty("uuidcomponent.max")));
+
+        logger.trace("List<UuidComponent> extractUuidComponents([annotatedComponents, annotatedIdentity]) {}",uuidComponents);
+        return uuidComponents;
+    }
+
 
     public final Double getSimilarity(AnnotatedObject item1, AnnotatedObject item2) {
         if ((item1==null)||(item2==null)){

@@ -4,6 +4,7 @@ import com.existanze.libraries.orm.domain.SimpleBean;
 import org.apache.commons.lang.NotImplementedException;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * User: fotis

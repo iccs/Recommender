@@ -18,12 +18,12 @@ public class AnnotatedComponent extends AnnotatedObject {
         this.component = component;
     }
 
-    public String getIssueId() {
+    public String getComponent() {
         return component;
     }
 
-    public void setIssueId(String commentId) {
-        this.component = commentId;
+    public void setComponent(String commponent) {
+        this.component = component;
     }
     
 }

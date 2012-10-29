@@ -3,9 +3,12 @@ package eu.alertproject.iccs.socrates.datastore.internal;
 import com.existanze.libraries.orm.dao.JpaCommonDao;
 import eu.alertproject.iccs.socrates.datastore.api.UuidIssueDao;
 import eu.alertproject.iccs.socrates.domain.UuidIssue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import java.util.List;
 
@@ -16,6 +19,8 @@ import java.util.List;
  */
 @Repository("uuidIssueDao")
 public class JpaUuidIssueDao extends JpaCommonDao<UuidIssue> implements UuidIssueDao{
+
+    private Logger logger = LoggerFactory.getLogger(JpaUuidIssueDao.class);
 
     protected JpaUuidIssueDao() {
         super(UuidIssue.class);
@@ -38,11 +43,18 @@ public class JpaUuidIssueDao extends JpaCommonDao<UuidIssue> implements UuidIssu
 
         Query query = getEntityManager().createQuery("SELECT u FROM UuidIssue u WHERE u.uuidIssuePk.issueId =:id AND u.similarity >= :similarity " +
                 "order by u.similarity DESC");
-        query.setParameter("id",id);
+        query.setParameter("id", id);
         query.setParameter("similarity",similarity);
+
 
        return query.getResultList();
     }
+
+    @Override
+    public void removeAll() {
+        getEntityManager().createNativeQuery("DELETE FROM uuid_issue").executeUpdate();
+    }
+
 
     @Override
     public void removeByUuid(String uuid) {
@@ -60,5 +72,31 @@ public class JpaUuidIssueDao extends JpaCommonDao<UuidIssue> implements UuidIssu
         query.executeUpdate();
     }
 
+    @Override
+    public UuidIssue findByUuidAndIssueId(String uuid, Integer issueId) {
 
+
+        Query query = getEntityManager().createQuery(
+                "SELECT u FROM UuidIssue u WHERE u.uuidIssuePk.issueId =:id AND u.uuidIssuePk.uuid =:uuid "+
+                "order by u.similarity DESC");
+
+        query.setMaxResults(1);
+        query.setParameter("id", issueId);
+        query.setParameter("uuid", uuid);
+
+        UuidIssue ui = null;
+
+        try{
+            ui = (UuidIssue) query.getSingleResult();
+
+        }catch (NoResultException e){
+            logger.warn("Couldn't find UuidIssue for uuid={} and issueId={}",uuid,issueId);
+        }
+
+
+        return ui;
+
+
+
+    }
 }

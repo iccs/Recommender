@@ -50,34 +50,40 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
             int maxRecommendations) {
 
 
-        //TODO: @Fotis We need to sort by similarity! ?
-        List<UuidIssue> uuidIssues = uuidIssueDao.findByIssueId(issueId,threshold);
+        long start = System.currentTimeMillis();
+
+        /**
+         * This returns all the developers under the specified class
+         *  ORDER BY
+         */
+        List<UuidClass> byClass = uuidClassDao.findByClass(classification,500);
+
         List<IdentityBean> recs = new ArrayList<IdentityBean>();
         TreeMap<Double, IdentityBean> recsFull = new TreeMap<Double, IdentityBean>();
         Double finalSimilarity = 0.0;
 
         Double maxWeight = uuidClassDao.getMaxWeight(classification);
 
-        long start = System.currentTimeMillis();
-        logger.trace("List<IdentityBean> findByForClass() About to look for {} issues ",uuidIssues.size());
-        for (UuidIssue ui : uuidIssues) {
+        for(UuidClass uc: byClass){
 
-            UuidClass byUuidAndClass = uuidClassDao.findByUuidAndClass(ui.getUuid(), classification);
+            double ranking = uc.getWeight()/maxWeight;
 
-            if(byUuidAndClass == null){
-                continue;
+
+            UuidIssue ui = uuidIssueDao.findByUuidAndIssueId(uc.getUuid(),issueId);
+
+            if(ui == null ){
+                finalSimilarity=ranking;
+            }else{
+                finalSimilarity = ((ui.getSimilarity() * similarityWeight) + (ranking * rankingWeight)) / (similarityWeight + rankingWeight);
             }
 
-            double ranking = byUuidAndClass.getWeight()/maxWeight;
+            recsFull.put(finalSimilarity, new IdentityBean(uc.getUuid(), "name", "", 0.0, ranking));
 
 
-            finalSimilarity = ((ui.getSimilarity() * similarityWeight) + (ranking * rankingWeight)) / (similarityWeight + rankingWeight);
-            //TODO: We need to retrieve the name and surname of the developer from STARDOM
-            recsFull.put(finalSimilarity, new IdentityBean(ui.getUuid(), "name", "", ui.getSimilarity(), ranking));
+
         }
 
-        logger.trace("List<IdentityBean> findByForClass() The process too {} ",System.currentTimeMillis()-start);
-
+//
         Set<Double> descRecsKeySet = recsFull.descendingKeySet();
         Iterator keySetIterator = descRecsKeySet.iterator();
         Integer counter = 0;
@@ -94,6 +100,9 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
         if (recs == null) {
             logger.debug("recs are null");
         }
+
+        logger.trace("List<IdentityBean> findByForClass() The process too {} ",System.currentTimeMillis()-start);
+
         return recs;
 
     }
@@ -173,16 +182,16 @@ public class JpaDatastoreRecommendationService implements DatastoreRecommendatio
 
             bugDescription="";
 
-            //TODO: We need to retrieve the name and surname of the developer from STARDOM
-            List<IssueSubject> issueSubjects = issueSubjectDao.findByIssueId(ui.getIssueId());
-            HashMap<String,Double> annotationsMap= new FastHashMap<String, Double>();
+//            //TODO: We need to retrieve the name and surname of the developer from STARDOM
+//            List<IssueSubject> issueSubjects = issueSubjectDao.findByIssueId(ui.getIssueId());
+//            HashMap<String,Double> annotationsMap= new FastHashMap<String, Double>();
+//
+//           for (IssueSubject is : issueSubjects) {
+//               bugDescription += " " +is.getSubject() +" ";
+//               annotationsMap.put(is.getSubject(), is.getWeight());
+//           }
 
-           for (IssueSubject is : issueSubjects) {
-               bugDescription += " " +is.getSubject() +" ";
-               annotationsMap.put(is.getSubject(), is.getWeight());
-           }
-
-            recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug #" + ui.getIssueId(), bugDescription,annotationsMap));
+            recsFull.put(ui.getSimilarity(), new Bug(ui.getIssueId(), "bug #" + ui.getIssueId(), bugDescription,new HashMap<String, Double>()));
 
         }
 

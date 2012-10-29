@@ -21,4 +21,5 @@ public interface UuidComponentDao extends CommonDao<UuidComponent>{
 
     void removeByComponent(String component);
 
+    void removeAll();
 }

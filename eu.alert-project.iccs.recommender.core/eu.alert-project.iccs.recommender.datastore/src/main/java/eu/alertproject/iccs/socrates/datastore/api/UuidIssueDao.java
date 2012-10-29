@@ -17,5 +17,7 @@ public interface UuidIssueDao extends CommonDao<UuidIssue>{
     List<UuidIssue> findByIssueId(Integer id,double similarity);
     void removeByUuid(String id);
     void removeByIssueId(Integer integer);
+    UuidIssue findByUuidAndIssueId(String uuid, Integer issueId);
 
+    void removeAll();
 }

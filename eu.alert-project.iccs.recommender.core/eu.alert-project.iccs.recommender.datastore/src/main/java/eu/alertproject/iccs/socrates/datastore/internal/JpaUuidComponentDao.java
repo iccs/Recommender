@@ -60,4 +60,10 @@ public class JpaUuidComponentDao extends JpaCommonDao<UuidComponent> implements 
     }
 
 
+    @Override
+    public void removeAll() {
+        getEntityManager().createNativeQuery("DELETE FROM uuid_component").executeUpdate();
+    }
+
+
 }

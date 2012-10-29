@@ -69,6 +69,26 @@ public class JpaUuidClassDao extends JpaCommonDao<UuidClass> implements UuidClas
     }
 
     @Override
+    public List<UuidClass> findByClass(String classification,int maxResults) {
+
+        Query query = getEntityManager().createQuery(
+                "SELECT u FROM UuidClass u " +
+                        "WHERE u.uuidClassPk.clazz=:classification ORDER BY u.weight DESC");
+
+        query.setMaxResults(maxResults);
+        query.setParameter("classification", classification);
+
+        List<UuidClass> uc = new ArrayList<UuidClass>();
+        try{
+            uc = query.getResultList();
+        }catch (NoResultException e){
+            logger.warn("Couldn't find result for class={}", classification);
+        }
+
+        return uc;
+    }
+
+    @Override
     public List<UuidClass> findByUuid(String uuid) {
 
         Query query = getEntityManager().createQuery(
