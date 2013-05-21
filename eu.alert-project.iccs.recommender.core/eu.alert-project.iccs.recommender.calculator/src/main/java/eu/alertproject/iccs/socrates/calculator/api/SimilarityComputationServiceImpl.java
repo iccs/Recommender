@@ -632,8 +632,11 @@ public class SimilarityComputationServiceImpl implements SimilarityComputationSe
             }
         });
 
-        List<UuidComponent> uuidComponents = newComponentSimilarities.subList(0,
-                Integer.valueOf(systemProperties.getProperty("uuidcomponent.max")));
+        int maxSim = Integer.valueOf(systemProperties.getProperty("uuidcomponent.max"));
+        List<UuidComponent> uuidComponents = new ArrayList<UuidComponent>();
+        if(newComponentSimilarities.size() > maxSim){
+            uuidComponents = newComponentSimilarities.subList(0, maxSim);
+        }
 
         logger.trace("List<UuidComponent> extractUuidComponents([annotatedComponents, annotatedIdentity]) {}",uuidComponents);
         return uuidComponents;
